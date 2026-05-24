@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="PosterDisplayScene" extends="Scene">
+    <script type="text/brightscript" uri="pkg:/components/PosterDisplayScene.brs" />
+    <children>
+        <Rectangle
+            id="background"
+            width="1920"
+            height="1080"
+            color="0x000000FF" />
+
+        <Poster
+            id="backgroundPoster"
+            width="1920"
+            height="1080"
+            translation="[0,0]"
+            loadDisplayMode="zoomToFill"
+            opacity="0.18"
+            visible="false" />
+
+        <Poster
+            id="poster"
+            width="1920"
+            height="1080"
+            translation="[0,0]"
+            loadDisplayMode="scaleToFit" />
+
+        <Poster
+            id="borderLandscape"
+            uri="pkg:/images/borders/landscape/landscape-border-01.png"
+            width="1920"
+            height="1080"
+            translation="[0,0]"
+            visible="false"
+            loadDisplayMode="scaleToFill" />
+
+        <Poster
+            id="borderPortrait"
+            uri="pkg:/images/borders/portrait/portrait-border-01.png"
+            width="1920"
+            height="1080"
+            translation="[0,0]"
+            visible="false"
+            loadDisplayMode="scaleToFill" />
+
+        <!-- =============== LANDSCAPE CHROME =============== -->
+        <Group id="landscapeChrome">
+            <!-- Progress bar (above status) -->
+            <Group id="progressGroup" visible="false" translation="[110, 850]">
+                <Rectangle width="1700" height="80" color="0x000000DD" />
+                <Label
+                    id="currentTimeLabel"
+                    translation="[20, 16]"
+                    width="200"
+                    height="32"
+                    text="0:00"
+                    color="0xFFFFFFFF"
+                    horizAlign="left"
+                    vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="28" />
+                </Label>
+                <Label
+                    id="totalTimeLabel"
+                    translation="[1480, 16]"
+                    width="200"
+                    height="32"
+                    text="0:00"
+                    color="0xFFFFFFFF"
+                    horizAlign="right"
+                    vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="28" />
+                </Label>
+                <Rectangle translation="[20, 60]" width="1660" height="10" color="0x666666FF" />
+                <Rectangle id="progressBarFill" translation="[20, 60]" width="1" height="10" color="0xFFA500FF" />
+            </Group>
+
+            <!-- Status strip (NOW PLAYING + title OR single message) -->
+            <Rectangle id="overlay" width="1700" height="80" translation="[110, 940]" color="0x000000DD" />
+            <Label
+                id="messageLabel"
+                translation="[130, 952]"
+                width="1660"
+                height="56"
+                text="Waiting for Plex"
+                color="0xFFFFFFFF"
+                horizAlign="left"
+                vertAlign="center">
+                <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="32" />
+            </Label>
+            <Label
+                id="nowPlayingPrefix"
+                visible="false"
+                translation="[130, 952]"
+                width="280"
+                height="56"
+                text="NOW PLAYING:"
+                color="0xE0A030FF"
+                horizAlign="left"
+                vertAlign="center">
+                <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="32" />
+            </Label>
+            <Label
+                id="nowPlayingTitle"
+                visible="false"
+                translation="[420, 952]"
+                width="1370"
+                height="56"
+                text=""
+                color="0xFFFFFFFF"
+                horizAlign="left"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="32" />
+            </Label>
+
+            <!-- Settings icon (top-right) -->
+            <Rectangle width="60" height="60" translation="[1840, 20]" color="0x000000FF" />
+            <Button
+                id="settingsButton"
+                translation="[1840, 20]"
+                minWidth="60"
+                height="60"
+                text="≡"
+                textColor="0xFFD700FF"
+                focusedTextColor="0xFFEE00FF"
+                showFocusFootprint="false">
+                <Font role="textFont" uri="pkg:/fonts/Roboto-Bold.ttf" size="36" />
+            </Button>
+        </Group>
+
+        <!-- =============== PORTRAIT CHROME (rotated) =============== -->
+        <Group id="portraitChrome" visible="false" translation="[1280, 440]"
+               rotation="1.5707963" scaleRotateCenter="[540, 100]">
+            <!-- 1080x200 pre-rotation; becomes 200x1080 buffer-left strip; viewer sees as bottom 200 of vertical screen -->
+            <Rectangle width="1080" height="200" color="0x000000DD" />
+
+            <!-- Progress bar (top of strip in viewer) -->
+            <Group id="portraitProgressGroup" visible="false" translation="[0, 10]">
+                <Label
+                    id="portraitCurrentTimeLabel"
+                    translation="[20, 0]"
+                    width="120"
+                    height="32"
+                    text="0:00"
+                    color="0xFFFFFFFF"
+                    horizAlign="left"
+                    vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="24" />
+                </Label>
+                <Label
+                    id="portraitTotalTimeLabel"
+                    translation="[940, 0]"
+                    width="120"
+                    height="32"
+                    text="0:00"
+                    color="0xFFFFFFFF"
+                    horizAlign="right"
+                    vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="24" />
+                </Label>
+                <Rectangle translation="[150, 12]" width="780" height="8" color="0x666666FF" />
+                <Rectangle id="portraitProgressBarFill" translation="[150, 12]" width="1" height="8" color="0xFFA500FF" />
+            </Group>
+
+            <!-- Status (bottom of strip in viewer) -->
+            <Label
+                id="portraitMessageLabel"
+                translation="[20, 80]"
+                width="1040"
+                height="48"
+                text="Waiting for Plex"
+                color="0xFFFFFFFF"
+                horizAlign="left"
+                vertAlign="center">
+                <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="26" />
+            </Label>
+            <Label
+                id="portraitNowPlayingPrefix"
+                visible="false"
+                translation="[20, 80]"
+                width="240"
+                height="48"
+                text="NOW PLAYING:"
+                color="0xE0A030FF"
+                horizAlign="left"
+                vertAlign="center">
+                <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="26" />
+            </Label>
+            <Label
+                id="portraitNowPlayingTitle"
+                visible="false"
+                translation="[270, 80]"
+                width="720"
+                height="48"
+                text=""
+                color="0xFFFFFFFF"
+                horizAlign="left"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="26" />
+            </Label>
+
+            <!-- Settings icon (right side of strip in viewer) -->
+            <Rectangle width="60" height="60" translation="[1010, 75]" color="0x000000FF" />
+            <Button
+                id="portraitSettingsButton"
+                translation="[1010, 75]"
+                minWidth="60"
+                height="60"
+                text="≡"
+                textColor="0xFFD700FF"
+                focusedTextColor="0xFFEE00FF"
+                showFocusFootprint="false">
+                <Font role="textFont" uri="pkg:/fonts/Roboto-Bold.ttf" size="36" />
+            </Button>
+        </Group>
+
+        <!-- Episode thumbnail overlay (TV episodes only, landscape modes) -->
+        <Group id="episodePosterGroup" visible="false" translation="[40, 40]">
+            <Rectangle width="208" height="121" color="0x000000DD" />
+            <Poster
+                id="episodePoster"
+                translation="[4, 4]"
+                width="200"
+                height="113"
+                loadDisplayMode="scaleToFit" />
+        </Group>
+
+        <!-- Title marquee (landscape only, over border's NOW PLAYING sign) -->
+        <Group id="titleMarquee" visible="false" translation="[596, 919]">
+            <Rectangle width="728" height="136" color="0x000000FF" />
+            <Label
+                id="titleMarqueeLabel"
+                translation="[20, 18]"
+                width="688"
+                height="100"
+                text=""
+                color="0xFFEE00FF"
+                horizAlign="center"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/RetroSigned-DYYY0.ttf" size="72" />
+            </Label>
+        </Group>
+
+        <Group id="modeIndicator" visible="false" translation="[60,60]">
+            <Rectangle width="800" height="80" color="0x000000DD" />
+            <Label
+                id="modeIndicatorLabel"
+                translation="[20,20]"
+                width="760"
+                height="40"
+                text=""
+                color="0xFFFFFFFF"
+                font="font:MediumBoldSystemFont"
+                horizAlign="center"
+                vertAlign="center" />
+        </Group>
+
+        <Timer id="pollTimer" duration="15" repeat="true" />
+        <Timer id="hideIndicatorTimer" duration="3" repeat="false" />
+        <Timer id="tickTimer" duration="1" repeat="true" />
+        <Timer id="carouselTimer" duration="30" repeat="true" />
+    </children>
+</component>

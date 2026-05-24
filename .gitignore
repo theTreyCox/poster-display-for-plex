@@ -1,0 +1,6 @@
+# Roku build output
+*.zip
+*.pkg
+
+# Editor files
+.DS_Store

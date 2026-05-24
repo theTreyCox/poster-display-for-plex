@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="PlexSessionTask" extends="Task">
+    <script type="text/brightscript" uri="pkg:/components/PlexSessionTask.brs" />
+    <interface>
+        <field id="plexServer" type="string" />
+        <field id="plexToken" type="string" />
+        <field id="result" type="assocarray" alwaysNotify="true" />
+    </interface>
+</component>
