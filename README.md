@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="images/logo-square.png" alt="Poster Display for Plex" width="240" />
+</p>
+
 # Poster Display for Plex
 
 A Roku channel that turns any TV into a beautiful, always-on movie and TV poster display driven by your Plex Media Server. Works on a Roku TV directly or on any television connected to a Roku streaming stick/box. Hang the TV in landscape or mount it vertically — the app rotates content to fit either orientation.

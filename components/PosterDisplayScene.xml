@@ -214,6 +214,16 @@
             </Button>
         </Group>
 
+        <!-- App logo (landscape only, shown alongside info overlay) -->
+        <Poster
+            id="appLogo"
+            uri="pkg:/images/logo-square.png"
+            width="80"
+            height="80"
+            translation="[1820, 20]"
+            loadDisplayMode="scaleToFit"
+            visible="false" />
+
         <!-- Episode thumbnail overlay (TV episodes only, landscape modes) -->
         <Group id="episodePosterGroup" visible="false" translation="[40, 40]">
             <Rectangle width="208" height="121" color="0x000000DD" />

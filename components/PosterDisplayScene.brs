@@ -29,7 +29,8 @@ sub init()
     m.portraitTotalTimeLabel = m.top.findNode("portraitTotalTimeLabel")
     m.portraitProgressBarFill = m.top.findNode("portraitProgressBarFill")
 
-    ' Episode poster overlay
+    ' App logo + episode poster overlay
+    m.appLogo = m.top.findNode("appLogo")
     m.episodePosterGroup = m.top.findNode("episodePosterGroup")
     m.episodePoster = m.top.findNode("episodePoster")
 
@@ -630,6 +631,9 @@ sub updateInfoVisibility()
 
     ' Episode thumbnail (TV episodes in landscape mode when info is on)
     m.episodePosterGroup.visible = m.infoEnabled and isLandscape and m.hasEpisodePoster
+
+    ' App logo — only when info is showing in landscape, hidden when border or Settings would overlap
+    m.appLogo.visible = chromeVisible and isLandscape and not m.borderEnabled and not needsSetup
 end sub
 
 function formatTime(ms as Integer) as String
