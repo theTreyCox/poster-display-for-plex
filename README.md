@@ -1,6 +1,15 @@
 # Poster Display for Plex
 
-A Roku app that displays the poster of whatever's currently playing on your Plex Media Server — designed to make a Roku TV (mounted normally or vertically) a beautiful always-on movie/TV poster display.
+A Roku channel that turns any TV into a beautiful, always-on movie and TV poster display driven by your Plex Media Server. Works on a Roku TV directly or on any television connected to a Roku streaming stick/box. Hang the TV in landscape or mount it vertically — the app rotates content to fit either orientation.
+
+## Why this exists
+
+If you've ever wanted a dedicated "now playing" poster display next to your home theater (or just a rotating digital art frame fed by your own Plex library), today's options are surprisingly limited:
+
+- **[devMikeFrancis/digital-movie-poster](https://github.com/devMikeFrancis/digital-movie-poster)** is a great open-source project, but it requires a dedicated computer or Raspberry Pi wired to the TV.
+- **[PosterBox](https://www.posterbox.app/)** is a polished commercial app, but it doesn't run on Roku — leaving every Roku TV owner without a native option.
+
+Most of us already have a Roku stick or a Roku TV sitting in the living room. This project fills that gap: install the channel, point it at your Plex server, and the TV does the rest. No extra hardware, no second device, no PC running in the background. Just the Roku you already own and the Plex library you've already built.
 
 ## Features
 
