@@ -371,13 +371,85 @@ sub showNextCarouselPoster()
     updateInfoVisibility()
 end sub
 
+' Entry point for the Settings flow. Tries Plex GDM discovery first so the user
+' can pick a server from a list rather than typing an IP. Falls back to manual
+' URL entry if nothing's found or the user opts out.
 sub promptServer()
+    setStatusMessage("Searching for Plex servers...")
+    if m.discoveryTask = invalid then
+        m.discoveryTask = createObject("roSGNode", "PlexDiscoveryTask")
+        m.discoveryTask.observeField("servers", "onServersDiscovered")
+    end if
+    m.discoveryTask.control = "RUN"
+end sub
+
+sub onServersDiscovered(event as Object)
+    servers = event.getData()
+    m.discoveredServers = servers
+    if servers = invalid or servers.Count() = 0 then
+        promptServerManual()
+        return
+    end if
+    showServerSelectionDialog()
+end sub
+
+sub showServerSelectionDialog()
+    dialog = createObject("roSGNode", "StandardMessageDialog")
+    dialog.title = "Choose a Plex Server"
+    dialog.message = "These servers responded on your network. Pick one or enter a URL manually."
+
+    buttons = []
+    for each server in m.discoveredServers
+        label = server.name
+        if label = "" then label = server.url
+        buttons.push(label)
+    end for
+    buttons.push("Enter manually")
+    buttons.push("Cancel")
+    dialog.buttons = buttons
+    dialog.observeField("buttonSelected", "onServerSelected")
+    m.top.dialog = dialog
+end sub
+
+sub onServerSelected(event as Object)
+    dialog = event.getRoSGNode()
+    if dialog = invalid then return
+
+    selectedIndex = event.getData()
+    m.top.dialog = invalid
+
+    numServers = m.discoveredServers.Count()
+
+    if selectedIndex < numServers then
+        server = m.discoveredServers[selectedIndex]
+        m.settings.plexServer = server.url
+        m.registry.Write("plexServer", server.url)
+        m.registry.Flush()
+        promptToken()
+    else if selectedIndex = numServers then
+        promptServerManual()
+    else
+        cancelSettings()
+    end if
+end sub
+
+sub promptServerManual()
     dialog = createObject("roSGNode", "StandardKeyboardDialog")
     dialog.title = "Plex Server URL"
     dialog.text = m.settings.plexServer
     dialog.buttons = ["OK", "Cancel"]
     dialog.observeField("buttonSelected", "onServerEntered")
     m.top.dialog = dialog
+end sub
+
+sub cancelSettings()
+    if m.settings.plexServer = "" or m.settings.plexToken = "" then
+        setStatusMessage("Press OK to enter your Plex server and token.")
+    else
+        setStatusMessage("Loading current Plex poster...")
+        refreshPoster()
+    end if
+    refocusSettings()
 end sub
 
 sub onServerEntered(event as Object)

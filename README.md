@@ -52,8 +52,10 @@ The Settings button is normally hidden once your Plex server and token are confi
 ## Initial setup
 
 1. Sideload the app to your Roku in Developer Mode (see [Sideloading](#sideloading) below).
-2. On first launch, you'll see "Press Settings to enter your Plex server and token." — press **OK** on the visible Settings button.
-3. Enter your Plex server URL — typically `http://<your-server-ip>:32400`.
+2. On first launch, you'll see "Press OK to enter your Plex server and token." — press **OK** on the visible Settings button.
+3. The app automatically scans your local network for Plex Media Servers using Plex's GDM discovery protocol. After ~3 seconds:
+   - If servers are found, a list appears — pick the one you want.
+   - If none are found (or you'd rather type the URL yourself), choose **Enter manually** and provide `http://<your-server-ip>:32400`.
 4. Enter your Plex token. To find it:
    - In the Plex web app, open any item's **Get Info → View XML**
    - Copy the `X-Plex-Token=...` value from the URL
@@ -89,6 +91,7 @@ poster-display-for-plex/
 │   ├── PosterDisplayScene.xml/.brs      # main scene UI + interaction
 │   ├── PlexSessionTask.xml/.brs         # background task that polls /status/sessions
 │   ├── PlexLibraryTask.xml/.brs         # background task that fetches library items for the carousel
+│   ├── PlexDiscoveryTask.xml/.brs       # background task that broadcasts Plex GDM and collects responses
 │   └── KeepAliveTask.xml/.brs           # background task that suppresses the screensaver
 ├── images/
 │   ├── splash.png                        # app splash/icon
