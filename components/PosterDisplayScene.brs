@@ -63,6 +63,7 @@ sub init()
     m.isPlaying = false
     m.hasEpisodePoster = false
     m.carouselPosters = []
+    m.carouselPaused = false
 
     m.settingsButton.observeField("buttonSelected", "onSettingsClicked")
     m.portraitSettingsButton.observeField("buttonSelected", "onSettingsClicked")
@@ -92,6 +93,19 @@ end sub
 
 function onKeyEvent(key as String, press as Boolean) as Boolean
     if not press then return false
+
+    ' In carousel mode, Play pauses/resumes auto-advance and Fwd manually advances.
+    ' These take precedence over the global Play=cycle-view-mode binding.
+    if m.carouselEnabled then
+        if key = "play" then
+            toggleCarouselPause()
+            return true
+        else if key = "fwd" or key = "forward" or key = "fastforward" then
+            advanceCarousel()
+            return true
+        end if
+    end if
+
     if key = "play" or key = "up" or key = "info" then
         cycleViewMode()
         return true
@@ -271,8 +285,9 @@ sub toggleCarousel()
     m.registry.Flush()
 
     if m.carouselEnabled then
+        m.carouselPaused = false
         m.pollTimer.control = "stop"
-        showModeIndicator("Carousel: On")
+        showModeIndicator("Carousel: On  —  Play pauses, Fwd advances")
         startCarousel()
     else
         m.carouselTimer.control = "stop"
@@ -282,6 +297,27 @@ sub toggleCarousel()
             setStatusMessage("Loading current Plex poster...")
             refreshPoster()
         end if
+    end if
+end sub
+
+sub toggleCarouselPause()
+    m.carouselPaused = not m.carouselPaused
+    if m.carouselPaused then
+        m.carouselTimer.control = "stop"
+        showModeIndicator("Carousel paused")
+    else
+        m.carouselTimer.control = "start"
+        showModeIndicator("Carousel playing")
+    end if
+end sub
+
+sub advanceCarousel()
+    showNextCarouselPoster()
+    ' Reset the timer so the new poster gets a full interval — unless paused,
+    ' in which case the user is browsing manually and we leave the timer stopped.
+    if not m.carouselPaused then
+        m.carouselTimer.control = "stop"
+        m.carouselTimer.control = "start"
     end if
 end sub
 

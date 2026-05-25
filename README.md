@@ -36,7 +36,16 @@ Most of us already have a Roku stick or a Roku TV sitting in the living room. Th
 | **Down** | Toggle the Now Playing border on/off |
 | **Right** | Toggle info overlay (status text + progress bar + Settings) |
 | **Left** | Open Settings (server URL + token entry) |
-| **Rewind** | Toggle random Carousel mode |
+| **Rewind** | Toggle random Carousel mode on/off |
+
+### While Carousel mode is on
+
+| Key | Action |
+| --- | --- |
+| **Play** / **Pause** | Pause or resume auto-advance (the current poster stays on screen while paused) |
+| **Fast-forward** | Jump to the next random poster immediately (works whether playing or paused; if playing, resets the 30s interval) |
+| **Up** / **`*`** | Still cycle view mode (Play is repurposed for pause, so use Up or `*` instead while in Carousel) |
+| **Rewind** | Exit Carousel mode |
 
 The Settings button is normally hidden once your Plex server and token are configured — use the Left arrow to open the settings dialog any time.
 
