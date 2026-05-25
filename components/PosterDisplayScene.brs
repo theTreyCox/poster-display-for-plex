@@ -17,6 +17,7 @@ sub init()
     m.currentTimeLabel = m.top.findNode("currentTimeLabel")
     m.totalTimeLabel = m.top.findNode("totalTimeLabel")
     m.progressBarFill = m.top.findNode("progressBarFill")
+    m.remainingTimeLabel = m.top.findNode("remainingTimeLabel")
     m.clockLabel = m.top.findNode("clockLabel")
 
     ' Portrait chrome
@@ -29,6 +30,7 @@ sub init()
     m.portraitCurrentTimeLabel = m.top.findNode("portraitCurrentTimeLabel")
     m.portraitTotalTimeLabel = m.top.findNode("portraitTotalTimeLabel")
     m.portraitProgressBarFill = m.top.findNode("portraitProgressBarFill")
+    m.portraitRemainingTimeLabel = m.top.findNode("portraitRemainingTimeLabel")
     m.portraitClockLabel = m.top.findNode("portraitClockLabel")
 
     ' App logo + episode poster overlay
@@ -68,6 +70,7 @@ sub init()
     m.borderEnabled = (m.registry.Read("borderEnabled") = "1")
     m.infoEnabled = (m.registry.Read("infoEnabled") <> "0")
     m.carouselEnabled = (m.registry.Read("carouselEnabled") = "1")
+    m.portraitFlip = (m.registry.Read("portraitFlip") = "1")
     m.duration = 0
     m.viewOffset = 0
     m.playerState = ""
@@ -183,6 +186,7 @@ end sub
 
 sub applyViewMode()
     m.poster.loadDisplayMode = "scaleToFit"
+    applyPortraitFlip()
     if m.borderEnabled then
         applyBorderedViewMode()
     else
@@ -198,6 +202,25 @@ sub applyViewMode()
         m.portraitSettingsButton.setFocus(true)
     end if
 end sub
+
+' Position and rotate the portrait chrome strip so it lands at viewer-bottom
+' for the user's TV mount direction. m.portraitFlip = false (default) targets
+' a TV mounted with its original top on the viewer's right (CW). flip = true
+' targets the opposite mount (original top on viewer's left, CCW).
+sub applyPortraitFlip()
+    if m.portraitFlip then
+        m.portraitChrome.rotation = -1.5707963
+        m.portraitChrome.translation = [-440, 440]
+    else
+        m.portraitChrome.rotation = 1.5707963
+        m.portraitChrome.translation = [1280, 440]
+    end if
+end sub
+
+function portraitRotation() as Float
+    if m.portraitFlip then return -1.5707963
+    return 1.5707963
+end function
 
 sub applyPlainViewMode()
     m.borderLandscape.visible = false
@@ -219,7 +242,7 @@ sub applyPlainViewMode()
         m.poster.width = 1080
         m.poster.height = 1620
         m.poster.scaleRotateCenter = [540, 810]
-        m.poster.rotation = 1.5707963
+        m.poster.rotation = portraitRotation()
         if m.infoEnabled then
             m.poster.translation = [320, -270]
         else
@@ -227,7 +250,7 @@ sub applyPlainViewMode()
         end if
     else if m.viewMode = 3 then
         ' Portrait Fill — info on shrinks fill area to above chrome
-        m.poster.rotation = 1.5707963
+        m.poster.rotation = portraitRotation()
         if m.infoEnabled then
             m.poster.width = 1147
             m.poster.height = 1720
@@ -263,13 +286,13 @@ sub applyBorderedViewMode()
         m.poster.height = 1140
         m.poster.translation = [551, -34]
         m.poster.scaleRotateCenter = [380, 570]
-        m.poster.rotation = 1.5707963
+        m.poster.rotation = portraitRotation()
     else if m.viewMode = 3 then
         m.poster.width = 1027
         m.poster.height = 1540
         m.poster.translation = [417, -234]
         m.poster.scaleRotateCenter = [513, 770]
-        m.poster.rotation = 1.5707963
+        m.poster.rotation = portraitRotation()
     end if
 end sub
 
@@ -302,11 +325,13 @@ sub openSettingsMenu()
     if m.settings.plexToken = "" then tokenDisplay = "(not set)"
     ratingsDisplay = m.settings.blockedRatings
     if ratingsDisplay = "" then ratingsDisplay = "(none)"
+    flipDisplay = "Top on right (CW mount)"
+    if m.portraitFlip then flipDisplay = "Top on left (CCW mount)"
 
     dialog = createObject("roSGNode", "StandardMessageDialog")
     dialog.title = "Settings"
-    dialog.message = "Server: " + serverDisplay + chr(10) + "Token: " + tokenDisplay + chr(10) + "Carousel blocks ratings: " + ratingsDisplay
-    dialog.buttons = ["Change Plex server", "Change Plex token", "Edit carousel rating filter", "Close"]
+    dialog.message = "Server: " + serverDisplay + chr(10) + "Token: " + tokenDisplay + chr(10) + "Carousel blocks ratings: " + ratingsDisplay + chr(10) + "Portrait orientation: " + flipDisplay
+    dialog.buttons = ["Change Plex server", "Change Plex token", "Edit carousel rating filter", "Flip portrait orientation", "Close"]
     dialog.observeField("buttonSelected", "onSettingsMenuSelected")
     m.top.dialog = dialog
 end sub
@@ -320,9 +345,21 @@ sub onSettingsMenuSelected(event as Object)
         promptToken()
     else if selectedIndex = 2 then
         showBlockedRatingsOverlay()
+    else if selectedIndex = 3 then
+        togglePortraitFlip()
+        openSettingsMenu()
     else
         cancelSettings()
     end if
+end sub
+
+sub togglePortraitFlip()
+    m.portraitFlip = not m.portraitFlip
+    state = "0"
+    if m.portraitFlip then state = "1"
+    m.registry.Write("portraitFlip", state)
+    m.registry.Flush()
+    applyViewMode()
 end sub
 
 sub showBlockedRatingsOverlay()
@@ -773,17 +810,24 @@ end function
 sub renderProgress(positionMs as Integer)
     currentText = formatTime(positionMs)
     totalText = formatTime(m.duration)
+    remainingMs = m.duration - positionMs
+    if remainingMs < 0 then remainingMs = 0
+    remainingText = "REMAINING " + formatTime(remainingMs)
+
     m.currentTimeLabel.text = currentText
     m.totalTimeLabel.text = totalText
+    m.remainingTimeLabel.text = remainingText
     m.portraitCurrentTimeLabel.text = currentText
     m.portraitTotalTimeLabel.text = totalText
+    m.portraitRemainingTimeLabel.text = remainingText
+
     if m.duration > 0 then
         ratio = positionMs / m.duration
         if ratio < 0 then ratio = 0
         if ratio > 1 then ratio = 1
-        landscapeW = Int(ratio * 1660)
+        landscapeW = Int(ratio * 810)
         if landscapeW < 1 then landscapeW = 1
-        portraitW = Int(ratio * 780)
+        portraitW = Int(ratio * 360)
         if portraitW < 1 then portraitW = 1
         m.progressBarFill.width = landscapeW
         m.portraitProgressBarFill.width = portraitW
@@ -817,22 +861,22 @@ sub updateInfoVisibility()
     m.portraitNowPlayingPrefix.visible = m.portraitChrome.visible and m.isPlaying and not m.carouselEnabled
     m.portraitNowPlayingTitle.visible = m.portraitChrome.visible and m.isPlaying
 
-    ' In carousel mode, expand the title to span the available width (left of the
-    ' clock) and center it (no prefix). Outside carousel, title sits to the right
-    ' of the NOW PLAYING prefix and is left-aligned.
+    ' In carousel mode, expand the title to span the full status row width and
+    ' center it (no prefix). Outside carousel, title sits to the right of the
+    ' NOW PLAYING prefix and is left-aligned.
     if m.carouselEnabled then
         m.nowPlayingTitle.translation = [130, 952]
-        m.nowPlayingTitle.width = 1430
+        m.nowPlayingTitle.width = 1660
         m.nowPlayingTitle.horizAlign = "center"
         m.portraitNowPlayingTitle.translation = [20, 80]
-        m.portraitNowPlayingTitle.width = 770
+        m.portraitNowPlayingTitle.width = 970
         m.portraitNowPlayingTitle.horizAlign = "center"
     else
         m.nowPlayingTitle.translation = [420, 952]
-        m.nowPlayingTitle.width = 1140
+        m.nowPlayingTitle.width = 1370
         m.nowPlayingTitle.horizAlign = "left"
         m.portraitNowPlayingTitle.translation = [270, 80]
-        m.portraitNowPlayingTitle.width = 510
+        m.portraitNowPlayingTitle.width = 720
         m.portraitNowPlayingTitle.horizAlign = "left"
     end if
 
