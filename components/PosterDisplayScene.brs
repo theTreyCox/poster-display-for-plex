@@ -52,8 +52,18 @@ sub init()
 
     m.settings = {
         plexServer: m.registry.Read("plexServer"),
-        plexToken: m.registry.Read("plexToken")
+        plexToken: m.registry.Read("plexToken"),
+        blockedRatings: m.registry.Read("blockedRatings")
     }
+
+    ' Node refs for the blocked-ratings overlay
+    m.blockedRatingsOverlay = m.top.findNode("blockedRatingsOverlay")
+    m.blockedRatingsCheckList = m.top.findNode("blockedRatingsCheckList")
+    m.blockedRatingsSave = m.top.findNode("blockedRatingsSave")
+    m.blockedRatingsCancel = m.top.findNode("blockedRatingsCancel")
+
+    ' Ratings users can toggle, in order shown in the dialog
+    m.blockedRatingOptions = ["G", "PG", "PG-13", "R", "NC-17", "TV-Y", "TV-Y7", "TV-G", "TV-PG", "TV-14", "TV-MA", "Not Rated"]
     m.viewMode = m.registry.Read("viewMode").ToInt()
     m.borderEnabled = (m.registry.Read("borderEnabled") = "1")
     m.infoEnabled = (m.registry.Read("infoEnabled") <> "0")
@@ -69,6 +79,8 @@ sub init()
 
     m.settingsButton.observeField("buttonSelected", "onSettingsClicked")
     m.portraitSettingsButton.observeField("buttonSelected", "onSettingsClicked")
+    m.blockedRatingsSave.observeField("buttonSelected", "onBlockedRatingsSave")
+    m.blockedRatingsCancel.observeField("buttonSelected", "onBlockedRatingsCancel")
     m.pollTimer.observeField("fire", "onPollTimerFired")
     m.hideIndicatorTimer.observeField("fire", "hideModeIndicator")
     m.tickTimer.observeField("fire", "onTick")
@@ -90,11 +102,20 @@ sub init()
         setStatusMessage("Press OK to enter your Plex server and token.")
     end if
 
-    showModeIndicator(viewModeLabel(m.viewMode) + "  —  Play view • Down border • Right info • Left settings • Rwd carousel")
+    showModeIndicator(viewModeLabel(m.viewMode) + "  —  Up view • Down border • Right info • * or Left settings • Rwd carousel")
 end sub
 
 function onKeyEvent(key as String, press as Boolean) as Boolean
     if not press then return false
+
+    ' Blocked-ratings overlay: intercept Back to close without saving.
+    if m.blockedRatingsOverlay.visible then
+        if key = "back" then
+            closeBlockedRatingsOverlay()
+            return true
+        end if
+        return false
+    end if
 
     ' In carousel mode, Play pauses/resumes auto-advance and Fwd manually advances.
     ' These take precedence over the global Play=cycle-view-mode binding.
@@ -108,7 +129,7 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
         end if
     end if
 
-    if key = "play" or key = "up" or key = "info" then
+    if key = "play" or key = "up" then
         cycleViewMode()
         return true
     else if key = "down" then
@@ -117,8 +138,8 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
     else if key = "right" then
         toggleInfo()
         return true
-    else if key = "left" then
-        promptServer()
+    else if key = "left" or key = "info" then
+        openSettingsMenu()
         return true
     else if key = "rev" or key = "rewind" then
         toggleCarousel()
@@ -271,8 +292,95 @@ sub hideModeIndicator()
 end sub
 
 sub onSettingsClicked()
-    promptServer()
+    openSettingsMenu()
 end sub
+
+sub openSettingsMenu()
+    serverDisplay = m.settings.plexServer
+    if serverDisplay = "" then serverDisplay = "(not set)"
+    tokenDisplay = "(set)"
+    if m.settings.plexToken = "" then tokenDisplay = "(not set)"
+    ratingsDisplay = m.settings.blockedRatings
+    if ratingsDisplay = "" then ratingsDisplay = "(none)"
+
+    dialog = createObject("roSGNode", "StandardMessageDialog")
+    dialog.title = "Settings"
+    dialog.message = "Server: " + serverDisplay + chr(10) + "Token: " + tokenDisplay + chr(10) + "Carousel blocks ratings: " + ratingsDisplay
+    dialog.buttons = ["Change Plex server", "Change Plex token", "Edit carousel rating filter", "Close"]
+    dialog.observeField("buttonSelected", "onSettingsMenuSelected")
+    m.top.dialog = dialog
+end sub
+
+sub onSettingsMenuSelected(event as Object)
+    selectedIndex = event.getData()
+    m.top.dialog = invalid
+    if selectedIndex = 0 then
+        promptServer()
+    else if selectedIndex = 1 then
+        promptToken()
+    else if selectedIndex = 2 then
+        showBlockedRatingsOverlay()
+    else
+        cancelSettings()
+    end if
+end sub
+
+sub showBlockedRatingsOverlay()
+    blocked = parseBlockedRatingsLocal(m.settings.blockedRatings)
+
+    content = createObject("roSGNode", "ContentNode")
+    checkedState = []
+    for each rating in m.blockedRatingOptions
+        item = content.createChild("ContentNode")
+        item.title = rating
+        checkedState.push(blocked[LCase(rating)] = true)
+    end for
+
+    m.blockedRatingsCheckList.content = content
+    m.blockedRatingsCheckList.checkedState = checkedState
+    m.blockedRatingsOverlay.visible = true
+    m.blockedRatingsCheckList.setFocus(true)
+end sub
+
+sub onBlockedRatingsSave()
+    if m.blockedRatingsCheckList = invalid then return
+    state = m.blockedRatingsCheckList.checkedState
+    parts = []
+    for i = 0 to m.blockedRatingOptions.Count() - 1
+        if state[i] = true then parts.push(m.blockedRatingOptions[i])
+    end for
+    joined = ""
+    for i = 0 to parts.Count() - 1
+        if i > 0 then joined = joined + ", "
+        joined = joined + parts[i]
+    end for
+    m.settings.blockedRatings = joined
+    m.registry.Write("blockedRatings", joined)
+    m.registry.Flush()
+    m.carouselPosters = []
+    closeBlockedRatingsOverlay()
+end sub
+
+sub onBlockedRatingsCancel()
+    closeBlockedRatingsOverlay()
+end sub
+
+sub closeBlockedRatingsOverlay()
+    m.blockedRatingsOverlay.visible = false
+    refocusSettings()
+    openSettingsMenu()
+end sub
+
+function parseBlockedRatingsLocal(s as String) as Object
+    result = {}
+    if s = "" then return result
+    parts = s.Split(",")
+    for each part in parts
+        normalized = LCase(part.Trim())
+        if normalized <> "" then result[normalized] = true
+    end for
+    return result
+end function
 
 sub onPollTimerFired()
     if m.carouselEnabled then return
@@ -336,6 +444,7 @@ sub startCarousel()
     end if
     m.libraryTask.plexServer = m.settings.plexServer
     m.libraryTask.plexToken = m.settings.plexToken
+    m.libraryTask.blockedRatings = m.settings.blockedRatings
     m.libraryTask.control = "RUN"
 end sub
 
@@ -425,11 +534,12 @@ sub onServerSelected(event as Object)
         m.settings.plexServer = server.url
         m.registry.Write("plexServer", server.url)
         m.registry.Flush()
-        promptToken()
+        m.carouselPosters = []
+        openSettingsMenu()
     else if selectedIndex = numServers then
         promptServerManual()
     else
-        cancelSettings()
+        openSettingsMenu()
     end if
 end sub
 
@@ -443,13 +553,20 @@ sub promptServerManual()
 end sub
 
 sub cancelSettings()
+    refocusSettings()
     if m.settings.plexServer = "" or m.settings.plexToken = "" then
         setStatusMessage("Press OK to enter your Plex server and token.")
+        return
+    end if
+    if m.carouselEnabled then
+        m.carouselTimer.control = "stop"
+        setStatusMessage("Loading library posters...")
+        startCarousel()
     else
         setStatusMessage("Loading current Plex poster...")
+        m.pollTimer.control = "start"
         refreshPoster()
     end if
-    refocusSettings()
 end sub
 
 sub onServerEntered(event as Object)
@@ -460,25 +577,25 @@ sub onServerEntered(event as Object)
     enteredText = dialog.text
     if enteredText = invalid then enteredText = ""
 
+    m.top.dialog = invalid
+
     if selectedIndex <> 0 then
-        m.top.dialog = invalid
-        refocusSettings()
+        openSettingsMenu()
         return
     end if
 
     normalized = normalizeServer(enteredText)
     if normalized = "" then
-        m.top.dialog = invalid
         setStatusMessage("Invalid Plex server URL. Try again.")
-        refocusSettings()
+        openSettingsMenu()
         return
     end if
 
-    m.pendingServer = normalized
     m.settings.plexServer = normalized
     m.registry.Write("plexServer", normalized)
     m.registry.Flush()
-    promptToken()
+    m.carouselPosters = []
+    openSettingsMenu()
 end sub
 
 sub promptToken()
@@ -508,16 +625,8 @@ sub onTokenEntered(event as Object)
     m.settings.plexToken = enteredText
     m.registry.Write("plexToken", m.settings.plexToken)
     m.registry.Flush()
-
-    setStatusMessage("Saved settings. Loading current poster...")
     m.carouselPosters = []
-    if m.carouselEnabled then
-        m.carouselTimer.control = "stop"
-        startCarousel()
-    else
-        m.pollTimer.control = "start"
-        refreshPoster()
-    end if
+    openSettingsMenu()
 end sub
 
 sub refocusSettings()

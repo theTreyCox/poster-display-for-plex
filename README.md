@@ -32,10 +32,10 @@ Most of us already have a Roku stick or a Roku TV sitting in the living room. Th
 
 | Key | Action |
 | --- | --- |
-| **Play** / **Up** / **`*`** | Cycle view mode (Landscape Fit → Fill → Portrait Fit → Fill) |
+| **Play** / **Up** | Cycle view mode (Landscape Fit → Fill → Portrait Fit → Fill) |
 | **Down** | Toggle the Now Playing border on/off |
-| **Right** | Toggle info overlay (status text + progress bar + Settings) |
-| **Left** | Open Settings (server URL + token entry) |
+| **Right** | Toggle info overlay (status text + progress bar + clock) |
+| **`*`** (info) / **Left** | Open the Settings menu (server, token, carousel rating filter) |
 | **Rewind** | Toggle random Carousel mode on/off |
 
 ### While Carousel mode is on
@@ -44,10 +44,10 @@ Most of us already have a Roku stick or a Roku TV sitting in the living room. Th
 | --- | --- |
 | **Play** / **Pause** | Pause or resume auto-advance (the current poster stays on screen while paused) |
 | **Fast-forward** | Jump to the next random poster immediately (works whether playing or paused; if playing, resets the 30s interval) |
-| **Up** / **`*`** | Still cycle view mode (Play is repurposed for pause, so use Up or `*` instead while in Carousel) |
+| **Up** | Still cycle view mode (Play is repurposed for pause while in Carousel) |
 | **Rewind** | Exit Carousel mode |
 
-The Settings button is normally hidden once your Plex server and token are configured — use the Left arrow to open the settings dialog any time.
+The Settings button is normally hidden once your Plex server and token are configured — use **`*`** or the **Left arrow** to open the Settings menu any time. The menu lets you change the server, change the token, or edit the carousel rating filter.
 
 ## Initial setup
 
@@ -62,9 +62,23 @@ The Settings button is normally hidden once your Plex server and token are confi
    - Official guide: <https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/>
 5. Start playing something on Plex — within ~15 seconds the poster appears on the Roku.
 
-## Hiding individual posters from the Carousel
+## Hiding posters from the Carousel
 
-When the random Carousel mode is on, the app rotates through every movie and TV show in your Plex library. If there are specific titles you'd rather not appear (adult films, embarrassing childhood favorites, anything you simply don't want on the wall), tag them in Plex:
+The app gives you two independent ways to keep specific posters out of the random Carousel. Use either or both; they're combined with OR.
+
+### 1. By content rating (no Plex Pass needed)
+
+Open the **Settings menu** (`*` or Left arrow) and choose **Edit carousel rating filter**. A checkbox list appears with the common content ratings:
+
+- **Movies:** G, PG, PG-13, R, NC-17
+- **TV:** TV-Y, TV-Y7, TV-G, TV-PG, TV-14, TV-MA
+- **Not Rated** (also catches items that have no rating set at all in Plex)
+
+Check the ratings you want skipped and choose Save. The carousel cache refreshes immediately. Items where Plex reports any of those ratings — including the "us/R" prefixed form that some metadata sources use — are excluded. This works regardless of whether you have a Plex Pass.
+
+### 2. By per-item label (requires Plex Pass)
+
+For finer-grained control, you can hide individual movies or shows by tagging them in Plex. **This feature requires a Plex Pass** because labels on movies and shows are a Plex Pass feature:
 
 1. In the Plex web app, navigate to the movie or show you want to hide.
 2. Click the **edit** (pencil) icon to open the metadata editor.
@@ -74,12 +88,10 @@ When the random Carousel mode is on, the app rotates through every movie and TV 
    no-poster
    ```
 
-   (Lowercase, with a hyphen. Plex labels allow hyphens.)
+   (Lowercase, with a hyphen.)
 4. Save.
 
-The next time the Carousel cache refreshes — either when you toggle Carousel off and back on, or when the app launches — those items will be excluded automatically. No app-side configuration needed; the magic label name `no-poster` is hard-coded.
-
-There is no whole-library exclusion option in the UI by design: tagging individual items is more precise (you can keep "Family Movies" in the mix while excluding the one Christmas movie you hate), and tagging an entire library's worth of items is straightforward with Plex's bulk-edit feature.
+The next time the Carousel cache refreshes — toggle the carousel off and on, or relaunch the app — those items will be excluded. The label name `no-poster` is hard-coded so no app-side configuration is needed.
 
 ## Project structure
 

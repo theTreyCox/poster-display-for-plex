@@ -38,6 +38,8 @@ sub fetchLibrary()
         return
     end if
 
+    blockedRatings = parseBlockedRatings(m.top.blockedRatings)
+
     for each section in sectionElements
         sectionAttrs = section.GetAttributes()
         sectionType = stringOrEmpty(sectionAttrs["type"])
@@ -62,7 +64,10 @@ sub fetchLibrary()
                                 for each itemEl in itemElements
                                     itemAttrs = itemEl.GetAttributes()
                                     ratingKey = stringOrEmpty(itemAttrs["ratingKey"])
-                                    if ratingKey = "" or excludedKeys[ratingKey] <> true then
+                                    contentRating = normalizeRating(stringOrEmpty(itemAttrs["contentRating"]))
+                                    skipByLabel = (ratingKey <> "" and excludedKeys[ratingKey] = true)
+                                    skipByRating = (blockedRatings[contentRating] = true)
+                                    if not skipByLabel and not skipByRating then
                                         title = stringOrEmpty(itemAttrs["title"])
                                         thumb = stringOrEmpty(itemAttrs["thumb"])
                                         if thumb <> "" then
@@ -117,6 +122,34 @@ function buildPlexUri(server as String, path as String, token as String, transfe
         return server + path + "?X-Plex-Token=" + transfer.Escape(token)
     end if
     return path
+end function
+
+' Parse the user's comma-separated blocked ratings into a lookup set
+' (associative array keyed by lower-case normalized rating).
+function parseBlockedRatings(s as String) as Object
+    result = {}
+    if s = invalid or s = "" then return result
+    parts = s.Split(",")
+    for each part in parts
+        normalized = normalizeRating(part)
+        if normalized <> "" then result[normalized] = true
+    end for
+    return result
+end function
+
+' Normalize a content rating string. Plex sometimes prefixes ratings with a
+' country code (e.g. "us/PG-13"); we strip that. Empty/NR are treated as
+' "not rated" so the blocked-ratings set can match both literal "Not Rated"
+' values and items with no rating at all.
+function normalizeRating(rating as String) as String
+    if rating = invalid then return "not rated"
+    r = LCase(rating.Trim())
+    if r = "" then return "not rated"
+    slash = Instr(1, r, "/")
+    if slash > 0 then r = r.Mid(slash + 1)
+    r = r.Trim()
+    if r = "" or r = "nr" or r = "unrated" then return "not rated"
+    return r
 end function
 
 function buildBlurredPlexUri(server as String, path as String, token as String, transfer as Object) as String

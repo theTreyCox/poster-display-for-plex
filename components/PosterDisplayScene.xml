@@ -276,6 +276,52 @@
             </Label>
         </Group>
 
+        <!-- Blocked-ratings overlay (custom, full-screen, dimmed background) -->
+        <Group id="blockedRatingsOverlay" visible="false">
+            <Rectangle width="1920" height="1080" color="0x000000EE" />
+            <Rectangle width="900" height="850" translation="[510, 115]" color="0x1A1A1AFF" />
+            <Label
+                translation="[540, 140]"
+                width="840"
+                height="50"
+                text="CAROUSEL: BLOCKED RATINGS"
+                color="0xE0A030FF"
+                horizAlign="left"
+                vertAlign="center">
+                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-ExtraBold.ttf" size="34" />
+            </Label>
+            <Label
+                translation="[540, 200]"
+                width="840"
+                height="80"
+                text="Press OK to toggle each rating. Items with these ratings will be skipped in the random carousel."
+                color="0xCCCCCCFF"
+                horizAlign="left"
+                vertAlign="top"
+                wrap="true">
+                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Medium.ttf" size="22" />
+            </Label>
+            <CheckList
+                id="blockedRatingsCheckList"
+                translation="[540, 300]"
+                itemSize="[840, 50]"
+                numRows="9" />
+            <Button
+                id="blockedRatingsSave"
+                translation="[540, 815]"
+                minWidth="160"
+                height="50"
+                text="Save"
+                showFocusFootprint="true" />
+            <Button
+                id="blockedRatingsCancel"
+                translation="[730, 815]"
+                minWidth="160"
+                height="50"
+                text="Cancel"
+                showFocusFootprint="true" />
+        </Group>
+
         <Group id="modeIndicator" visible="false" translation="[60,60]">
             <Rectangle width="800" height="80" color="0x000000DD" />
             <Label

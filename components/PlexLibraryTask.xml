@@ -4,6 +4,7 @@
     <interface>
         <field id="plexServer" type="string" />
         <field id="plexToken" type="string" />
+        <field id="blockedRatings" type="string" />
         <field id="items" type="array" alwaysNotify="true" />
     </interface>
 </component>
