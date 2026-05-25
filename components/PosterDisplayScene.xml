@@ -305,7 +305,7 @@
                 id="blockedRatingsCheckList"
                 translation="[540, 300]"
                 itemSize="[840, 50]"
-                numRows="9" />
+                numRows="10" />
             <Button
                 id="blockedRatingsSave"
                 translation="[540, 815]"

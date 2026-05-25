@@ -63,7 +63,7 @@ sub init()
     m.blockedRatingsCancel = m.top.findNode("blockedRatingsCancel")
 
     ' Ratings users can toggle, in order shown in the dialog
-    m.blockedRatingOptions = ["G", "PG", "PG-13", "R", "NC-17", "TV-Y", "TV-Y7", "TV-G", "TV-PG", "TV-14", "TV-MA", "Not Rated"]
+    m.blockedRatingOptions = ["G", "PG", "PG-13", "R", "NC-17", "XXX", "TV-Y", "TV-Y7", "TV-G", "TV-PG", "TV-14", "TV-MA", "Not Rated"]
     m.viewMode = m.registry.Read("viewMode").ToInt()
     m.borderEnabled = (m.registry.Read("borderEnabled") = "1")
     m.infoEnabled = (m.registry.Read("infoEnabled") <> "0")

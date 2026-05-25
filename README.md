@@ -70,7 +70,7 @@ The app gives you two independent ways to keep specific posters out of the rando
 
 Open the **Settings menu** (`*` or Left arrow) and choose **Edit carousel rating filter**. A checkbox list appears with the common content ratings:
 
-- **Movies:** G, PG, PG-13, R, NC-17
+- **Movies:** G, PG, PG-13, R, NC-17, XXX
 - **TV:** TV-Y, TV-Y7, TV-G, TV-PG, TV-14, TV-MA
 - **Not Rated** (also catches items that have no rating set at all in Plex)
 
