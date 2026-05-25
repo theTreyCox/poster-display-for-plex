@@ -240,24 +240,35 @@ sub applyPlainViewMode()
         m.poster.scaleRotateCenter = [960, 1440]
         m.poster.rotation = 0
     else if m.viewMode = 2 then
-        ' Portrait Fit — info on shifts poster up to leave room for chrome below
+        ' Portrait Fit — info on shifts poster toward viewer-top so the chrome
+        ' strip can occupy viewer-bottom without overlap. The translation for
+        ' the flipped mount mirrors across buffer-center because the viewer-y
+        ' axis is inverted for the opposite mount direction.
         m.poster.width = 1080
         m.poster.height = 1620
         m.poster.scaleRotateCenter = [540, 810]
         m.poster.rotation = portraitRotation()
         if m.infoEnabled then
-            m.poster.translation = [320, -270]
+            if m.portraitFlip then
+                m.poster.translation = [520, -270]
+            else
+                m.poster.translation = [320, -270]
+            end if
         else
             m.poster.translation = [420, -270]
         end if
     else if m.viewMode = 3 then
-        ' Portrait Fill — info on shrinks fill area to above chrome
+        ' Portrait Fill — info on shrinks the fill area to above the chrome.
         m.poster.rotation = portraitRotation()
         if m.infoEnabled then
             m.poster.width = 1147
             m.poster.height = 1720
-            m.poster.translation = [287, -320]
             m.poster.scaleRotateCenter = [574, 860]
+            if m.portraitFlip then
+                m.poster.translation = [487, -320]
+            else
+                m.poster.translation = [287, -320]
+            end if
         else
             m.poster.width = 1280
             m.poster.height = 1920

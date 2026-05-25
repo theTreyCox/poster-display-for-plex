@@ -57,7 +57,7 @@
                     color="0xFFFFFFFF"
                     horizAlign="left"
                     vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Black.ttf" size="28" />
+                    <Font role="font" uri="pkg:/fonts/RobotoMono-Bold.ttf" size="28" />
                 </Label>
                 <Label
                     id="currentTimeLabel"
@@ -68,7 +68,7 @@
                     color="0xFFFFFFFF"
                     horizAlign="left"
                     vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Medium.ttf" size="28" />
+                    <Font role="font" uri="pkg:/fonts/RobotoMono-Medium.ttf" size="28" />
                 </Label>
                 <Rectangle translation="[440, 36]" width="800" height="10" color="0x666666FF" />
                 <Rectangle id="progressBarFill" translation="[440, 36]" width="1" height="10" color="0xFFA500FF" />
@@ -81,7 +81,7 @@
                     color="0xFFFFFFFF"
                     horizAlign="right"
                     vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Medium.ttf" size="28" />
+                    <Font role="font" uri="pkg:/fonts/RobotoMono-Medium.ttf" size="28" />
                 </Label>
                 <Label
                     id="endTimeLabel"
@@ -93,7 +93,7 @@
                     horizAlign="right"
                     vertAlign="center"
                     wrap="false">
-                    <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Black.ttf" size="28" />
+                    <Font role="font" uri="pkg:/fonts/RobotoMono-Bold.ttf" size="28" />
                 </Label>
             </Group>
 
@@ -146,7 +146,7 @@
                 horizAlign="right"
                 vertAlign="center"
                 wrap="false">
-                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Black.ttf" size="32" />
+                <Font role="font" uri="pkg:/fonts/RobotoMono-Bold.ttf" size="32" />
             </Label>
 
             <!-- Settings icon (top-right) -->
@@ -182,7 +182,7 @@
                     color="0xFFFFFFFF"
                     horizAlign="left"
                     vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Black.ttf" size="22" />
+                    <Font role="font" uri="pkg:/fonts/RobotoMono-Bold.ttf" size="22" />
                 </Label>
                 <Label
                     id="portraitCurrentTimeLabel"
@@ -193,7 +193,7 @@
                     color="0xFFFFFFFF"
                     horizAlign="left"
                     vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Medium.ttf" size="22" />
+                    <Font role="font" uri="pkg:/fonts/RobotoMono-Medium.ttf" size="22" />
                 </Label>
                 <Rectangle translation="[320, 12]" width="360" height="8" color="0x666666FF" />
                 <Rectangle id="portraitProgressBarFill" translation="[320, 12]" width="1" height="8" color="0xFFA500FF" />
@@ -206,7 +206,7 @@
                     color="0xFFFFFFFF"
                     horizAlign="right"
                     vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Medium.ttf" size="22" />
+                    <Font role="font" uri="pkg:/fonts/RobotoMono-Medium.ttf" size="22" />
                 </Label>
                 <Label
                     id="portraitEndTimeLabel"
@@ -218,7 +218,7 @@
                     horizAlign="right"
                     vertAlign="center"
                     wrap="false">
-                    <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Black.ttf" size="22" />
+                    <Font role="font" uri="pkg:/fonts/RobotoMono-Bold.ttf" size="22" />
                 </Label>
             </Group>
 
@@ -269,7 +269,7 @@
                 horizAlign="right"
                 vertAlign="center"
                 wrap="false">
-                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Black.ttf" size="26" />
+                <Font role="font" uri="pkg:/fonts/RobotoMono-Bold.ttf" size="26" />
             </Label>
 
             <!-- Settings icon (right side of strip in viewer) -->
