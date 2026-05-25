@@ -38,15 +38,16 @@ sub fetchLibrary()
         return
     end if
 
-    excluded = parseExcludedLibraries(m.top.excludedLibraries)
-
     for each section in sectionElements
         sectionAttrs = section.GetAttributes()
         sectionType = stringOrEmpty(sectionAttrs["type"])
-        sectionTitle = stringOrEmpty(sectionAttrs["title"])
-        if (sectionType = "movie" or sectionType = "show") and not isLibraryExcluded(sectionTitle, excluded) then
+        if sectionType = "movie" or sectionType = "show" then
             sectionKey = stringOrEmpty(sectionAttrs["key"])
             if sectionKey <> "" then
+                ' Build the set of ratingKeys in this library that the user has labeled
+                ' with the carousel-ignore tag, so we can skip them below.
+                excludedKeys = fetchExcludedKeys(server, sectionKey, token)
+
                 libraryTransfer = createObject("roUrlTransfer")
                 if libraryTransfer <> invalid then
                     libraryTransfer.SetUrl(server + "/library/sections/" + sectionKey + "/all?X-Plex-Container-Size=500")
@@ -60,12 +61,15 @@ sub fetchLibrary()
                             if itemElements <> invalid then
                                 for each itemEl in itemElements
                                     itemAttrs = itemEl.GetAttributes()
-                                    title = stringOrEmpty(itemAttrs["title"])
-                                    thumb = stringOrEmpty(itemAttrs["thumb"])
-                                    if thumb <> "" then
-                                        posterUri = buildPlexUri(server, thumb, token, libraryTransfer)
-                                        backgroundUri = buildBlurredPlexUri(server, thumb, token, libraryTransfer)
-                                        items.push({ title: title, posterUri: posterUri, backgroundUri: backgroundUri })
+                                    ratingKey = stringOrEmpty(itemAttrs["ratingKey"])
+                                    if ratingKey = "" or excludedKeys[ratingKey] <> true then
+                                        title = stringOrEmpty(itemAttrs["title"])
+                                        thumb = stringOrEmpty(itemAttrs["thumb"])
+                                        if thumb <> "" then
+                                            posterUri = buildPlexUri(server, thumb, token, libraryTransfer)
+                                            backgroundUri = buildBlurredPlexUri(server, thumb, token, libraryTransfer)
+                                            items.push({ title: title, posterUri: posterUri, backgroundUri: backgroundUri })
+                                        end if
                                     end if
                                 end for
                             end if
@@ -79,6 +83,29 @@ sub fetchLibrary()
     m.top.items = items
 end sub
 
+' Fetch ratingKeys of items in this section that the user has labeled with the
+' carousel-ignore label "no-poster". Returns an associative array used as a set.
+function fetchExcludedKeys(server as String, sectionKey as String, token as String) as Object
+    result = {}
+    transfer = createObject("roUrlTransfer")
+    if transfer = invalid then return result
+    transfer.SetUrl(server + "/library/sections/" + sectionKey + "/all?label=no-poster&X-Plex-Container-Size=500")
+    transfer.AddHeader("X-Plex-Token", token)
+    transfer.AddHeader("Accept", "application/xml")
+    body = transfer.GetToString()
+    if body = invalid or body = "" then return result
+    xml = createObject("roXMLElement")
+    if not xml.Parse(body) then return result
+    elements = xml.GetChildElements()
+    if elements = invalid then return result
+    for each elem in elements
+        attrs = elem.GetAttributes()
+        ratingKey = stringOrEmpty(attrs["ratingKey"])
+        if ratingKey <> "" then result[ratingKey] = true
+    end for
+    return result
+end function
+
 function stringOrEmpty(value as Dynamic) as String
     if value = invalid then return ""
     return value
@@ -90,21 +117,6 @@ function buildPlexUri(server as String, path as String, token as String, transfe
         return server + path + "?X-Plex-Token=" + transfer.Escape(token)
     end if
     return path
-end function
-
-function parseExcludedLibraries(commaList as String) as Object
-    result = {}
-    if commaList = "" then return result
-    parts = commaList.Split(",")
-    for each part in parts
-        normalized = LCase(part.Trim())
-        if normalized <> "" then result[normalized] = true
-    end for
-    return result
-end function
-
-function isLibraryExcluded(name as String, excluded as Object) as Boolean
-    return excluded[LCase(name.Trim())] = true
 end function
 
 function buildBlurredPlexUri(server as String, path as String, token as String, transfer as Object) as String

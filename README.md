@@ -22,7 +22,7 @@ Most of us already have a Roku stick or a Roku TV sitting in the living room. Th
 - **Four view modes**, cycling on a single keypress:
   - Landscape Fit / Landscape Fill
   - Portrait Fit / Portrait Fill (for vertically-mounted TVs — content auto-rotates 90°)
-- **Random Carousel mode** — when no specific media is playing (or whenever you like), rotate through random posters from your Plex library every 30 seconds
+- **Random Carousel mode** — when no specific media is playing (or whenever you like), rotate through random posters from your Plex library every 30 seconds. Skip individual items by tagging them with a `no-poster` label in Plex
 - **Now Playing border** — optional theater-style frame with marquee lights, gold trim, and a dynamic "NOW PLAYING" sign that shows the actual show/movie name in a retro display font
 - **Info overlay** — toggleable progress bar (`current / total time`, fill bar) and `NOW PLAYING:` title strip, all in Roboto. Tied to a single toggle so you can keep the display clean
 - **Screensaver suppression** — keeps the screen on indefinitely while the app is running (via background-thread call to `roAppManager.UpdateLastKeyPressTime` every 30s)
@@ -50,6 +50,25 @@ The Settings button is normally hidden once your Plex server and token are confi
    - Copy the `X-Plex-Token=...` value from the URL
    - Official guide: <https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/>
 5. Start playing something on Plex — within ~15 seconds the poster appears on the Roku.
+
+## Hiding individual posters from the Carousel
+
+When the random Carousel mode is on, the app rotates through every movie and TV show in your Plex library. If there are specific titles you'd rather not appear (adult films, embarrassing childhood favorites, anything you simply don't want on the wall), tag them in Plex:
+
+1. In the Plex web app, navigate to the movie or show you want to hide.
+2. Click the **edit** (pencil) icon to open the metadata editor.
+3. Open the **Tags** tab and add a **Label** with the value:
+
+   ```
+   no-poster
+   ```
+
+   (Lowercase, with a hyphen. Plex labels allow hyphens.)
+4. Save.
+
+The next time the Carousel cache refreshes — either when you toggle Carousel off and back on, or when the app launches — those items will be excluded automatically. No app-side configuration needed; the magic label name `no-poster` is hard-coded.
+
+There is no whole-library exclusion option in the UI by design: tagging individual items is more precise (you can keep "Family Movies" in the mix while excluding the one Christmas movie you hate), and tagging an entire library's worth of items is straightforward with Plex's bulk-edit feature.
 
 ## Project structure
 

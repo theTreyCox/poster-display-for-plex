@@ -50,8 +50,7 @@ sub init()
 
     m.settings = {
         plexServer: m.registry.Read("plexServer"),
-        plexToken: m.registry.Read("plexToken"),
-        excludedLibraries: m.registry.Read("excludedLibraries")
+        plexToken: m.registry.Read("plexToken")
     }
     m.viewMode = m.registry.Read("viewMode").ToInt()
     m.borderEnabled = (m.registry.Read("borderEnabled") = "1")
@@ -299,7 +298,6 @@ sub startCarousel()
     end if
     m.libraryTask.plexServer = m.settings.plexServer
     m.libraryTask.plexToken = m.settings.plexToken
-    m.libraryTask.excludedLibraries = m.settings.excludedLibraries
     m.libraryTask.control = "RUN"
 end sub
 
@@ -401,37 +399,8 @@ sub onTokenEntered(event as Object)
     m.registry.Write("plexToken", m.settings.plexToken)
     m.registry.Flush()
 
-    promptExcludedLibraries()
-end sub
-
-sub promptExcludedLibraries()
-    dialog = createObject("roSGNode", "StandardKeyboardDialog")
-    dialog.title = "Carousel: exclude libraries (comma-separated)"
-    dialog.text = m.settings.excludedLibraries
-    dialog.buttons = ["OK", "Skip"]
-    dialog.observeField("buttonSelected", "onExcludedLibrariesEntered")
-    m.top.dialog = dialog
-end sub
-
-sub onExcludedLibrariesEntered(event as Object)
-    dialog = event.getRoSGNode()
-    if dialog = invalid then return
-
-    selectedIndex = event.getData()
-    enteredText = dialog.text
-    if enteredText = invalid then enteredText = ""
-
-    m.top.dialog = invalid
-    refocusSettings()
-
-    if selectedIndex = 0 then
-        m.settings.excludedLibraries = enteredText
-        m.registry.Write("excludedLibraries", enteredText)
-        m.registry.Flush()
-        m.carouselPosters = []
-    end if
-
     setStatusMessage("Saved settings. Loading current poster...")
+    m.carouselPosters = []
     if m.carouselEnabled then
         m.carouselTimer.control = "stop"
         startCarousel()
