@@ -45,11 +45,9 @@
         <!-- =============== LANDSCAPE CHROME =============== -->
         <Group id="landscapeChrome">
             <!-- Progress bar (above status). Layout left→right:
-                 [REMAINING xx:xx] [current] [---bar---] [total]   then a sibling clockLabel
-                 sits to the right of this Group so it stays visible even when there is
-                 no playback (the progress Group hides when duration = 0). -->
+                 [REMAINING xx:xx] [current] [---bar---] [total] [END TIME: x:xx PM] -->
             <Group id="progressGroup" visible="false" translation="[110, 850]">
-                <Rectangle width="1430" height="80" color="0x000000DD" />
+                <Rectangle width="1700" height="80" color="0x000000DD" />
                 <Label
                     id="remainingTimeLabel"
                     translation="[20, 16]"
@@ -72,11 +70,11 @@
                     vertAlign="center">
                     <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Medium.ttf" size="28" />
                 </Label>
-                <Rectangle translation="[440, 36]" width="810" height="10" color="0x666666FF" />
+                <Rectangle translation="[440, 36]" width="800" height="10" color="0x666666FF" />
                 <Rectangle id="progressBarFill" translation="[440, 36]" width="1" height="10" color="0xFFA500FF" />
                 <Label
                     id="totalTimeLabel"
-                    translation="[1270, 16]"
+                    translation="[1260, 16]"
                     width="140"
                     height="48"
                     text="0:00"
@@ -85,28 +83,27 @@
                     vertAlign="center">
                     <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Medium.ttf" size="28" />
                 </Label>
+                <Label
+                    id="endTimeLabel"
+                    translation="[1420, 16]"
+                    width="260"
+                    height="48"
+                    text=""
+                    color="0xFFFFFFFF"
+                    horizAlign="right"
+                    vertAlign="center"
+                    wrap="false">
+                    <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Black.ttf" size="28" />
+                </Label>
             </Group>
 
-            <!-- Clock — sibling of progressGroup so it stays visible even when no playback. -->
-            <Label
-                id="clockLabel"
-                translation="[1550, 866]"
-                width="260"
-                height="48"
-                text=""
-                color="0xFFFFFFFF"
-                horizAlign="right"
-                vertAlign="center"
-                wrap="false">
-                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Black.ttf" size="28" />
-            </Label>
-
-            <!-- Status strip (NOW PLAYING + title OR single message) -->
+            <!-- Status strip (NOW PLAYING + title OR single message) — clockLabel sits
+                 to the right and is always visible whenever the status row is shown. -->
             <Rectangle id="overlay" width="1700" height="80" translation="[110, 940]" color="0x000000DD" />
             <Label
                 id="messageLabel"
                 translation="[130, 952]"
-                width="1660"
+                width="1430"
                 height="56"
                 text="Waiting for Plex"
                 color="0xFFFFFFFF"
@@ -130,7 +127,7 @@
                 id="nowPlayingTitle"
                 visible="false"
                 translation="[420, 952]"
-                width="1370"
+                width="1140"
                 height="56"
                 text=""
                 color="0xFFFFFFFF"
@@ -138,6 +135,18 @@
                 vertAlign="center"
                 wrap="false">
                 <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Bold.ttf" size="32" />
+            </Label>
+            <Label
+                id="clockLabel"
+                translation="[1590, 952]"
+                width="200"
+                height="56"
+                text=""
+                color="0xFFFFFFFF"
+                horizAlign="right"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Black.ttf" size="32" />
             </Label>
 
             <!-- Settings icon (top-right) -->
@@ -199,25 +208,25 @@
                     vertAlign="center">
                     <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Medium.ttf" size="22" />
                 </Label>
+                <Label
+                    id="portraitEndTimeLabel"
+                    translation="[810, 0]"
+                    width="200"
+                    height="32"
+                    text=""
+                    color="0xFFFFFFFF"
+                    horizAlign="right"
+                    vertAlign="center"
+                    wrap="false">
+                    <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Black.ttf" size="22" />
+                </Label>
             </Group>
-            <Label
-                id="portraitClockLabel"
-                translation="[810, 10]"
-                width="190"
-                height="32"
-                text=""
-                color="0xFFFFFFFF"
-                horizAlign="right"
-                vertAlign="center"
-                wrap="false">
-                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Black.ttf" size="22" />
-            </Label>
 
-            <!-- Status (bottom of strip in viewer) -->
+            <!-- Status (bottom of strip in viewer). portraitClockLabel sits on the right. -->
             <Label
                 id="portraitMessageLabel"
                 translation="[20, 80]"
-                width="970"
+                width="770"
                 height="48"
                 text="Waiting for Plex"
                 color="0xFFFFFFFF"
@@ -241,7 +250,7 @@
                 id="portraitNowPlayingTitle"
                 visible="false"
                 translation="[270, 80]"
-                width="720"
+                width="510"
                 height="48"
                 text=""
                 color="0xFFFFFFFF"
@@ -249,6 +258,18 @@
                 vertAlign="center"
                 wrap="false">
                 <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Bold.ttf" size="26" />
+            </Label>
+            <Label
+                id="portraitClockLabel"
+                translation="[790, 80]"
+                width="200"
+                height="48"
+                text=""
+                color="0xFFFFFFFF"
+                horizAlign="right"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Black.ttf" size="26" />
             </Label>
 
             <!-- Settings icon (right side of strip in viewer) -->

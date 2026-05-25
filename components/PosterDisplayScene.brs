@@ -18,6 +18,7 @@ sub init()
     m.totalTimeLabel = m.top.findNode("totalTimeLabel")
     m.progressBarFill = m.top.findNode("progressBarFill")
     m.remainingTimeLabel = m.top.findNode("remainingTimeLabel")
+    m.endTimeLabel = m.top.findNode("endTimeLabel")
     m.clockLabel = m.top.findNode("clockLabel")
 
     ' Portrait chrome
@@ -31,6 +32,7 @@ sub init()
     m.portraitTotalTimeLabel = m.top.findNode("portraitTotalTimeLabel")
     m.portraitProgressBarFill = m.top.findNode("portraitProgressBarFill")
     m.portraitRemainingTimeLabel = m.top.findNode("portraitRemainingTimeLabel")
+    m.portraitEndTimeLabel = m.top.findNode("portraitEndTimeLabel")
     m.portraitClockLabel = m.top.findNode("portraitClockLabel")
 
     ' App logo + episode poster overlay
@@ -813,19 +815,22 @@ sub renderProgress(positionMs as Integer)
     remainingMs = m.duration - positionMs
     if remainingMs < 0 then remainingMs = 0
     remainingText = "REMAINING " + formatTime(remainingMs)
+    endTimeText = formatEndTime(remainingMs)
 
     m.currentTimeLabel.text = currentText
     m.totalTimeLabel.text = totalText
     m.remainingTimeLabel.text = remainingText
+    m.endTimeLabel.text = endTimeText
     m.portraitCurrentTimeLabel.text = currentText
     m.portraitTotalTimeLabel.text = totalText
     m.portraitRemainingTimeLabel.text = remainingText
+    m.portraitEndTimeLabel.text = endTimeText
 
     if m.duration > 0 then
         ratio = positionMs / m.duration
         if ratio < 0 then ratio = 0
         if ratio > 1 then ratio = 1
-        landscapeW = Int(ratio * 810)
+        landscapeW = Int(ratio * 800)
         if landscapeW < 1 then landscapeW = 1
         portraitW = Int(ratio * 360)
         if portraitW < 1 then portraitW = 1
@@ -833,6 +838,26 @@ sub renderProgress(positionMs as Integer)
         m.portraitProgressBarFill.width = portraitW
     end if
 end sub
+
+' Compute what time of day the current media will finish playing — current
+' wall clock plus the remaining playback time, formatted as 12-hour local.
+function formatEndTime(remainingMs as Integer) as String
+    now = createObject("roDateTime")
+    endSeconds = now.AsSeconds() + Int(remainingMs / 1000)
+    dt = createObject("roDateTime")
+    dt.FromSeconds(endSeconds)
+    dt.ToLocalTime()
+    h = dt.GetHours()
+    mins = dt.GetMinutes()
+    ampm = "AM"
+    if h >= 12 then ampm = "PM"
+    if h = 0 then
+        h = 12
+    else if h > 12 then
+        h = h - 12
+    end if
+    return "END TIME: " + Stri(h) + ":" + padTwo(mins) + " " + ampm
+end function
 
 sub updateInfoVisibility()
     needsSetup = (m.settings.plexServer = "" or m.settings.plexToken = "")
@@ -861,22 +886,22 @@ sub updateInfoVisibility()
     m.portraitNowPlayingPrefix.visible = m.portraitChrome.visible and m.isPlaying and not m.carouselEnabled
     m.portraitNowPlayingTitle.visible = m.portraitChrome.visible and m.isPlaying
 
-    ' In carousel mode, expand the title to span the full status row width and
-    ' center it (no prefix). Outside carousel, title sits to the right of the
-    ' NOW PLAYING prefix and is left-aligned.
+    ' In carousel mode, expand the title to span the available status row width
+    ' (left of the clock) and center it (no prefix). Outside carousel, title sits
+    ' to the right of the NOW PLAYING prefix and is left-aligned.
     if m.carouselEnabled then
         m.nowPlayingTitle.translation = [130, 952]
-        m.nowPlayingTitle.width = 1660
+        m.nowPlayingTitle.width = 1430
         m.nowPlayingTitle.horizAlign = "center"
         m.portraitNowPlayingTitle.translation = [20, 80]
-        m.portraitNowPlayingTitle.width = 970
+        m.portraitNowPlayingTitle.width = 770
         m.portraitNowPlayingTitle.horizAlign = "center"
     else
         m.nowPlayingTitle.translation = [420, 952]
-        m.nowPlayingTitle.width = 1370
+        m.nowPlayingTitle.width = 1140
         m.nowPlayingTitle.horizAlign = "left"
         m.portraitNowPlayingTitle.translation = [270, 80]
-        m.portraitNowPlayingTitle.width = 720
+        m.portraitNowPlayingTitle.width = 510
         m.portraitNowPlayingTitle.horizAlign = "left"
     end if
 
