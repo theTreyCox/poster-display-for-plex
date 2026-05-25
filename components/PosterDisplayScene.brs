@@ -17,6 +17,7 @@ sub init()
     m.currentTimeLabel = m.top.findNode("currentTimeLabel")
     m.totalTimeLabel = m.top.findNode("totalTimeLabel")
     m.progressBarFill = m.top.findNode("progressBarFill")
+    m.clockLabel = m.top.findNode("clockLabel")
 
     ' Portrait chrome
     m.portraitChrome = m.top.findNode("portraitChrome")
@@ -28,6 +29,7 @@ sub init()
     m.portraitCurrentTimeLabel = m.top.findNode("portraitCurrentTimeLabel")
     m.portraitTotalTimeLabel = m.top.findNode("portraitTotalTimeLabel")
     m.portraitProgressBarFill = m.top.findNode("portraitProgressBarFill")
+    m.portraitClockLabel = m.top.findNode("portraitClockLabel")
 
     ' App logo + episode poster overlay
     m.appLogo = m.top.findNode("appLogo")
@@ -362,7 +364,7 @@ sub showNextCarouselPoster()
     isLandscape = (m.viewMode = 0 or m.viewMode = 1)
     m.backgroundPoster.visible = isLandscape and (item.backgroundUri <> "")
     setNowPlayingTitle(item.title, "")
-    m.titleMarqueeLabel.text = item.title
+    m.titleMarqueeLabel.text = UCase(item.title)
     m.isPlaying = true
     m.duration = 0
     m.hasEpisodePoster = false
@@ -518,7 +520,7 @@ sub onSessionResult(event as Object)
     ' Marquee shows show name for TV (fits better than full "Show — Episode"), title for movies
     marqueeText = sessionInfo.title
     if sessionInfo.showName <> "" then marqueeText = sessionInfo.showName
-    m.titleMarqueeLabel.text = marqueeText
+    m.titleMarqueeLabel.text = UCase(marqueeText)
 
     ' Episode thumbnail (TV only; movies have no episodePosterUri)
     m.episodePoster.uri = sessionInfo.episodePosterUri
@@ -547,12 +549,13 @@ sub setNowPlayingTitle(title as String, showName as String)
     else if showName <> "" then
         fullTitle = showName
     end if
-    m.nowPlayingTitle.text = fullTitle
-    m.portraitNowPlayingTitle.text = fullTitle
+    m.nowPlayingTitle.text = UCase(fullTitle)
+    m.portraitNowPlayingTitle.text = UCase(fullTitle)
 end sub
 
 sub onTick()
     if not m.infoEnabled then return
+    updateClock()
     if m.duration <= 0 then return
 
     current = m.viewOffset
@@ -564,6 +567,27 @@ sub onTick()
     end if
     renderProgress(current)
 end sub
+
+sub updateClock()
+    timeText = formatLocalTime12()
+    m.clockLabel.text = timeText
+    m.portraitClockLabel.text = timeText
+end sub
+
+function formatLocalTime12() as String
+    now = createObject("roDateTime")
+    now.ToLocalTime()
+    h = now.GetHours()
+    mins = now.GetMinutes()
+    ampm = "AM"
+    if h >= 12 then ampm = "PM"
+    if h = 0 then
+        h = 12
+    else if h > 12 then
+        h = h - 12
+    end if
+    return Stri(h) + ":" + padTwo(mins) + " " + ampm
+end function
 
 sub renderProgress(positionMs as Integer)
     currentText = formatTime(positionMs)
@@ -612,22 +636,26 @@ sub updateInfoVisibility()
     m.portraitNowPlayingPrefix.visible = m.portraitChrome.visible and m.isPlaying and not m.carouselEnabled
     m.portraitNowPlayingTitle.visible = m.portraitChrome.visible and m.isPlaying
 
-    ' In carousel mode, expand the title to span full width and center it (no prefix)
+    ' In carousel mode, expand the title to span the available width (left of the
+    ' clock) and center it (no prefix). Outside carousel, title sits to the right
+    ' of the NOW PLAYING prefix and is left-aligned.
     if m.carouselEnabled then
         m.nowPlayingTitle.translation = [130, 952]
-        m.nowPlayingTitle.width = 1660
+        m.nowPlayingTitle.width = 1430
         m.nowPlayingTitle.horizAlign = "center"
         m.portraitNowPlayingTitle.translation = [20, 80]
-        m.portraitNowPlayingTitle.width = 1040
+        m.portraitNowPlayingTitle.width = 770
         m.portraitNowPlayingTitle.horizAlign = "center"
     else
         m.nowPlayingTitle.translation = [420, 952]
-        m.nowPlayingTitle.width = 1370
+        m.nowPlayingTitle.width = 1140
         m.nowPlayingTitle.horizAlign = "left"
         m.portraitNowPlayingTitle.translation = [270, 80]
-        m.portraitNowPlayingTitle.width = 720
+        m.portraitNowPlayingTitle.width = 510
         m.portraitNowPlayingTitle.horizAlign = "left"
     end if
+
+    if chromeVisible then updateClock()
 
     ' Marquee + progress
     m.titleMarquee.visible = marqueeVisible

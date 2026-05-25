@@ -56,7 +56,7 @@
                     color="0xFFFFFFFF"
                     horizAlign="left"
                     vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="28" />
+                    <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Medium.ttf" size="28" />
                 </Label>
                 <Label
                     id="totalTimeLabel"
@@ -67,7 +67,7 @@
                     color="0xFFFFFFFF"
                     horizAlign="right"
                     vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="28" />
+                    <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Medium.ttf" size="28" />
                 </Label>
                 <Rectangle translation="[20, 60]" width="1660" height="10" color="0x666666FF" />
                 <Rectangle id="progressBarFill" translation="[20, 60]" width="1" height="10" color="0xFFA500FF" />
@@ -78,13 +78,13 @@
             <Label
                 id="messageLabel"
                 translation="[130, 952]"
-                width="1660"
+                width="1430"
                 height="56"
                 text="Waiting for Plex"
                 color="0xFFFFFFFF"
                 horizAlign="left"
                 vertAlign="center">
-                <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="32" />
+                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Medium.ttf" size="32" />
             </Label>
             <Label
                 id="nowPlayingPrefix"
@@ -96,20 +96,32 @@
                 color="0xE0A030FF"
                 horizAlign="left"
                 vertAlign="center">
-                <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="32" />
+                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-ExtraBold.ttf" size="32" />
             </Label>
             <Label
                 id="nowPlayingTitle"
                 visible="false"
                 translation="[420, 952]"
-                width="1370"
+                width="1140"
                 height="56"
                 text=""
                 color="0xFFFFFFFF"
                 horizAlign="left"
                 vertAlign="center"
                 wrap="false">
-                <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="32" />
+                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Bold.ttf" size="32" />
+            </Label>
+            <Label
+                id="clockLabel"
+                translation="[1590, 952]"
+                width="200"
+                height="56"
+                text=""
+                color="0xFFFFFFFF"
+                horizAlign="right"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Black.ttf" size="32" />
             </Label>
 
             <!-- Settings icon (top-right) -->
@@ -123,7 +135,7 @@
                 textColor="0xFFD700FF"
                 focusedTextColor="0xFFEE00FF"
                 showFocusFootprint="false">
-                <Font role="textFont" uri="pkg:/fonts/Roboto-Bold.ttf" size="36" />
+                <Font role="textFont" uri="pkg:/fonts/Roboto_Condensed-Bold.ttf" size="36" />
             </Button>
         </Group>
 
@@ -144,7 +156,7 @@
                     color="0xFFFFFFFF"
                     horizAlign="left"
                     vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="24" />
+                    <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Medium.ttf" size="24" />
                 </Label>
                 <Label
                     id="portraitTotalTimeLabel"
@@ -155,7 +167,7 @@
                     color="0xFFFFFFFF"
                     horizAlign="right"
                     vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="24" />
+                    <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Medium.ttf" size="24" />
                 </Label>
                 <Rectangle translation="[150, 12]" width="780" height="8" color="0x666666FF" />
                 <Rectangle id="portraitProgressBarFill" translation="[150, 12]" width="1" height="8" color="0xFFA500FF" />
@@ -165,13 +177,13 @@
             <Label
                 id="portraitMessageLabel"
                 translation="[20, 80]"
-                width="1040"
+                width="770"
                 height="48"
                 text="Waiting for Plex"
                 color="0xFFFFFFFF"
                 horizAlign="left"
                 vertAlign="center">
-                <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="26" />
+                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Medium.ttf" size="26" />
             </Label>
             <Label
                 id="portraitNowPlayingPrefix"
@@ -183,20 +195,32 @@
                 color="0xE0A030FF"
                 horizAlign="left"
                 vertAlign="center">
-                <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="26" />
+                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-ExtraBold.ttf" size="26" />
             </Label>
             <Label
                 id="portraitNowPlayingTitle"
                 visible="false"
                 translation="[270, 80]"
-                width="720"
+                width="510"
                 height="48"
                 text=""
                 color="0xFFFFFFFF"
                 horizAlign="left"
                 vertAlign="center"
                 wrap="false">
-                <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="26" />
+                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Bold.ttf" size="26" />
+            </Label>
+            <Label
+                id="portraitClockLabel"
+                translation="[790, 80]"
+                width="200"
+                height="48"
+                text=""
+                color="0xFFFFFFFF"
+                horizAlign="right"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Black.ttf" size="26" />
             </Label>
 
             <!-- Settings icon (right side of strip in viewer) -->
@@ -210,7 +234,7 @@
                 textColor="0xFFD700FF"
                 focusedTextColor="0xFFEE00FF"
                 showFocusFootprint="false">
-                <Font role="textFont" uri="pkg:/fonts/Roboto-Bold.ttf" size="36" />
+                <Font role="textFont" uri="pkg:/fonts/Roboto_Condensed-Bold.ttf" size="36" />
             </Button>
         </Group>
 
