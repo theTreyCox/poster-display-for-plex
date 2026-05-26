@@ -109,32 +109,45 @@
                 color="0xFFFFFFFF"
                 horizAlign="left"
                 vertAlign="center">
-                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Medium.ttf" size="32" />
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="40" />
             </Label>
             <Label
                 id="nowPlayingPrefix"
                 visible="false"
                 translation="[130, 952]"
-                width="280"
+                width="160"
                 height="56"
-                text="NOW PLAYING:"
-                color="0xE0A030FF"
+                text=""
+                color="0xFFFFFFCC"
                 horizAlign="left"
                 vertAlign="center">
-                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-ExtraBold.ttf" size="32" />
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="40" />
             </Label>
             <Label
                 id="nowPlayingTitle"
                 visible="false"
-                translation="[420, 952]"
-                width="1140"
+                translation="[310, 952]"
+                width="1250"
                 height="56"
                 text=""
                 color="0xFFFFFFFF"
                 horizAlign="left"
                 vertAlign="center"
                 wrap="false">
-                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Bold.ttf" size="32" />
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="40" />
+            </Label>
+            <Label
+                id="nowPlayingYear"
+                visible="false"
+                translation="[310, 952]"
+                width="220"
+                height="56"
+                text=""
+                color="0xFFFFFFCC"
+                horizAlign="left"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="40" />
             </Label>
             <Label
                 id="clockLabel"
@@ -160,7 +173,7 @@
                 textColor="0xFFD700FF"
                 focusedTextColor="0xFFEE00FF"
                 showFocusFootprint="false">
-                <Font role="textFont" uri="pkg:/fonts/Roboto_Condensed-Bold.ttf" size="36" />
+                <Font role="textFont" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="36" />
             </Button>
         </Group>
 
@@ -232,32 +245,45 @@
                 color="0xFFFFFFFF"
                 horizAlign="left"
                 vertAlign="center">
-                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Medium.ttf" size="26" />
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="32" />
             </Label>
             <Label
                 id="portraitNowPlayingPrefix"
                 visible="false"
                 translation="[20, 80]"
-                width="240"
+                width="120"
                 height="48"
-                text="NOW PLAYING:"
-                color="0xE0A030FF"
+                text=""
+                color="0xFFFFFFCC"
                 horizAlign="left"
                 vertAlign="center">
-                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-ExtraBold.ttf" size="26" />
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="32" />
             </Label>
             <Label
                 id="portraitNowPlayingTitle"
                 visible="false"
-                translation="[270, 80]"
-                width="510"
+                translation="[150, 80]"
+                width="640"
                 height="48"
                 text=""
                 color="0xFFFFFFFF"
                 horizAlign="left"
                 vertAlign="center"
                 wrap="false">
-                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Bold.ttf" size="26" />
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="32" />
+            </Label>
+            <Label
+                id="portraitNowPlayingYear"
+                visible="false"
+                translation="[150, 80]"
+                width="160"
+                height="48"
+                text=""
+                color="0xFFFFFFCC"
+                horizAlign="left"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="32" />
             </Label>
             <Label
                 id="portraitClockLabel"
@@ -283,7 +309,7 @@
                 textColor="0xFFD700FF"
                 focusedTextColor="0xFFEE00FF"
                 showFocusFootprint="false">
-                <Font role="textFont" uri="pkg:/fonts/Roboto_Condensed-Bold.ttf" size="36" />
+                <Font role="textFont" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="36" />
             </Button>
         </Group>
 
@@ -337,7 +363,7 @@
                 color="0xE0A030FF"
                 horizAlign="left"
                 vertAlign="center">
-                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-ExtraBold.ttf" size="34" />
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="34" />
             </Label>
             <Label
                 translation="[540, 200]"
@@ -348,7 +374,7 @@
                 horizAlign="left"
                 vertAlign="top"
                 wrap="true">
-                <Font role="font" uri="pkg:/fonts/Roboto_Condensed-Medium.ttf" size="22" />
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="22" />
             </Label>
             <CheckList
                 id="blockedRatingsCheckList"

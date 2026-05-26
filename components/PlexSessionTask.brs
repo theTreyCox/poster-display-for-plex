@@ -8,6 +8,8 @@ sub fetchSession()
         isPlaying: false,
         title: "",
         showName: "",
+        year: "",
+        contentRating: "",
         posterUri: "",
         backgroundUri: "",
         episodePosterUri: "",
@@ -57,6 +59,9 @@ sub fetchSession()
 
     title = stringOrEmpty(attrs["title"])
     showName = stringOrEmpty(attrs["grandparentTitle"])
+    year = stringOrEmpty(attrs["year"])
+    if year = "" then year = stringOrEmpty(attrs["grandparentYear"])
+    contentRating = stringOrEmpty(attrs["contentRating"])
     thumb = stringOrEmpty(attrs["thumb"])
     seriesThumb = stringOrEmpty(attrs["grandparentThumb"])
     if thumb = "" then thumb = stringOrEmpty(attrs["art"])
@@ -88,6 +93,8 @@ sub fetchSession()
     result.isPlaying = true
     result.title = title
     result.showName = showName
+    result.year = year
+    result.contentRating = contentRating
     result.posterUri = posterUri
     result.backgroundUri = backgroundUri
     result.episodePosterUri = episodePosterUri

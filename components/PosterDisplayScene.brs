@@ -12,6 +12,7 @@ sub init()
     m.messageLabel = m.top.findNode("messageLabel")
     m.nowPlayingPrefix = m.top.findNode("nowPlayingPrefix")
     m.nowPlayingTitle = m.top.findNode("nowPlayingTitle")
+    m.nowPlayingYear = m.top.findNode("nowPlayingYear")
     m.settingsButton = m.top.findNode("settingsButton")
     m.progressGroup = m.top.findNode("progressGroup")
     m.currentTimeLabel = m.top.findNode("currentTimeLabel")
@@ -26,6 +27,7 @@ sub init()
     m.portraitMessageLabel = m.top.findNode("portraitMessageLabel")
     m.portraitNowPlayingPrefix = m.top.findNode("portraitNowPlayingPrefix")
     m.portraitNowPlayingTitle = m.top.findNode("portraitNowPlayingTitle")
+    m.portraitNowPlayingYear = m.top.findNode("portraitNowPlayingYear")
     m.portraitSettingsButton = m.top.findNode("portraitSettingsButton")
     m.portraitProgressGroup = m.top.findNode("portraitProgressGroup")
     m.portraitCurrentTimeLabel = m.top.findNode("portraitCurrentTimeLabel")
@@ -82,6 +84,10 @@ sub init()
 
     m.settingsButton.observeField("buttonSelected", "onSettingsClicked")
     m.portraitSettingsButton.observeField("buttonSelected", "onSettingsClicked")
+
+    ' When the title text re-renders, reposition the year label so it sits right after.
+    m.nowPlayingTitle.observeField("boundingRect", "positionYearLabel")
+    m.portraitNowPlayingTitle.observeField("boundingRect", "positionPortraitYearLabel")
     m.pollTimer.observeField("fire", "onPollTimerFired")
     m.hideIndicatorTimer.observeField("fire", "hideModeIndicator")
     m.tickTimer.observeField("fire", "onTick")
@@ -516,7 +522,11 @@ sub showNextCarouselPoster()
     m.backgroundPoster.uri = item.backgroundUri
     isLandscape = (m.viewMode = 0 or m.viewMode = 1)
     m.backgroundPoster.visible = isLandscape and (item.backgroundUri <> "")
-    setNowPlayingTitle(item.title, "")
+    itemYear = ""
+    if item.year <> invalid then itemYear = item.year
+    itemRating = ""
+    if item.contentRating <> invalid then itemRating = item.contentRating
+    setNowPlayingTitle(item.title, "", itemYear, itemRating)
     m.titleMarqueeLabel.text = UCase(item.title)
     m.isPlaying = true
     m.duration = 0
@@ -740,7 +750,7 @@ sub onSessionResult(event as Object)
     m.backgroundPoster.uri = sessionInfo.backgroundUri
     isLandscape = (m.viewMode = 0 or m.viewMode = 1)
     m.backgroundPoster.visible = isLandscape and (sessionInfo.backgroundUri <> "")
-    setNowPlayingTitle(sessionInfo.title, sessionInfo.showName)
+    setNowPlayingTitle(sessionInfo.title, sessionInfo.showName, sessionInfo.year, sessionInfo.contentRating)
 
     ' Marquee shows show name for TV (fits better than full "Show — Episode"), title for movies
     marqueeText = sessionInfo.title
@@ -767,15 +777,52 @@ sub setStatusMessage(text as String)
     updateInfoVisibility()
 end sub
 
-sub setNowPlayingTitle(title as String, showName as String)
+sub setNowPlayingTitle(title as String, showName as String, year as String, contentRating as String)
     fullTitle = title
     if showName <> "" and title <> "" then
         fullTitle = showName + " — " + title
     else if showName <> "" then
         fullTitle = showName
     end if
-    m.nowPlayingTitle.text = UCase(fullTitle)
-    m.portraitNowPlayingTitle.text = UCase(fullTitle)
+
+    upperTitle = UCase(fullTitle)
+    yearText = ""
+    if year <> "" and year <> "0" then yearText = "(" + year + ")"
+
+    prefixText = ""
+    if contentRating <> "" then prefixText = "[" + UCase(contentRating) + "]"
+
+    m.nowPlayingPrefix.text = prefixText
+    m.portraitNowPlayingPrefix.text = prefixText
+
+    if m.carouselEnabled then
+        ' Carousel: combine title + year so the centered display reads as one block.
+        combined = upperTitle
+        if yearText <> "" then combined = combined + " " + yearText
+        m.nowPlayingTitle.text = combined
+        m.portraitNowPlayingTitle.text = combined
+        m.nowPlayingYear.text = ""
+        m.portraitNowPlayingYear.text = ""
+    else
+        m.nowPlayingTitle.text = upperTitle
+        m.portraitNowPlayingTitle.text = upperTitle
+        m.nowPlayingYear.text = yearText
+        m.portraitNowPlayingYear.text = yearText
+    end if
+end sub
+
+sub positionYearLabel()
+    rect = m.nowPlayingTitle.boundingRect
+    if rect = invalid then return
+    yearY = m.nowPlayingYear.translation[1]
+    m.nowPlayingYear.translation = [rect.x + rect.width + 14, yearY]
+end sub
+
+sub positionPortraitYearLabel()
+    rect = m.portraitNowPlayingTitle.boundingRect
+    if rect = invalid then return
+    yearY = m.portraitNowPlayingYear.translation[1]
+    m.portraitNowPlayingYear.translation = [rect.x + rect.width + 12, yearY]
 end sub
 
 sub onTick()
@@ -883,13 +930,15 @@ sub updateInfoVisibility()
     showLandscapeStatus = m.landscapeChrome.visible and not marqueeVisible
     m.overlay.visible = showLandscapeStatus
     m.messageLabel.visible = showLandscapeStatus and not m.isPlaying
-    m.nowPlayingPrefix.visible = showLandscapeStatus and m.isPlaying and not m.carouselEnabled
+    m.nowPlayingPrefix.visible = showLandscapeStatus and m.isPlaying and not m.carouselEnabled and (m.nowPlayingPrefix.text <> "")
     m.nowPlayingTitle.visible = showLandscapeStatus and m.isPlaying
+    m.nowPlayingYear.visible = showLandscapeStatus and m.isPlaying and not m.carouselEnabled and (m.nowPlayingYear.text <> "")
 
     ' Portrait: similar status swap (no marquee in portrait)
     m.portraitMessageLabel.visible = m.portraitChrome.visible and not m.isPlaying
-    m.portraitNowPlayingPrefix.visible = m.portraitChrome.visible and m.isPlaying and not m.carouselEnabled
+    m.portraitNowPlayingPrefix.visible = m.portraitChrome.visible and m.isPlaying and not m.carouselEnabled and (m.portraitNowPlayingPrefix.text <> "")
     m.portraitNowPlayingTitle.visible = m.portraitChrome.visible and m.isPlaying
+    m.portraitNowPlayingYear.visible = m.portraitChrome.visible and m.isPlaying and not m.carouselEnabled and (m.portraitNowPlayingYear.text <> "")
 
     ' In carousel mode, expand the title to span the available status row width
     ' (left of the clock) and center it (no prefix). Outside carousel, title sits

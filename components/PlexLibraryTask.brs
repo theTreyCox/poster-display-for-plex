@@ -69,11 +69,13 @@ sub fetchLibrary()
                                     skipByRating = (blockedRatings[contentRating] = true)
                                     if not skipByLabel and not skipByRating then
                                         title = stringOrEmpty(itemAttrs["title"])
+                                        year = stringOrEmpty(itemAttrs["year"])
+                                        rawRating = stringOrEmpty(itemAttrs["contentRating"])
                                         thumb = stringOrEmpty(itemAttrs["thumb"])
                                         if thumb <> "" then
                                             posterUri = buildPlexUri(server, thumb, token, libraryTransfer)
                                             backgroundUri = buildBlurredPlexUri(server, thumb, token, libraryTransfer)
-                                            items.push({ title: title, posterUri: posterUri, backgroundUri: backgroundUri })
+                                            items.push({ title: title, year: year, contentRating: rawRating, posterUri: posterUri, backgroundUri: backgroundUri })
                                         end if
                                     end if
                                 end for
