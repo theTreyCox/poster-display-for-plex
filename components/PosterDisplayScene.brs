@@ -947,18 +947,27 @@ sub setNowPlayingTitle(title as String, showName as String, year as String, cont
     end if
 end sub
 
+' Year-label positioning helpers. We compute the year's X from the title's
+' current translation + the rendered text width (boundingRect.width), instead
+' of trusting boundingRect.x — on some Roku firmwares boundingRect.x comes
+' back in label-local coordinates rather than parent coords, which would
+' park the year at the chrome's left edge and clobber the title.
 sub positionYearLabel()
     rect = m.nowPlayingTitle.boundingRect
     if rect = invalid then return
+    if rect.width = invalid then return
     yearY = m.nowPlayingYear.translation[1]
-    m.nowPlayingYear.translation = [rect.x + rect.width + 20, yearY]
+    titleX = m.nowPlayingTitle.translation[0]
+    m.nowPlayingYear.translation = [titleX + rect.width + 20, yearY]
 end sub
 
 sub positionPortraitYearLabel()
     rect = m.portraitNowPlayingTitle.boundingRect
     if rect = invalid then return
+    if rect.width = invalid then return
     yearY = m.portraitNowPlayingYear.translation[1]
-    m.portraitNowPlayingYear.translation = [rect.x + rect.width + 20, yearY]
+    titleX = m.portraitNowPlayingTitle.translation[0]
+    m.portraitNowPlayingYear.translation = [titleX + rect.width + 20, yearY]
 end sub
 
 ' Map a Plex contentRating string to the bundled rating PNG. Returns invalid
@@ -1155,6 +1164,13 @@ sub updateInfoVisibility()
 
     ' App logo — only when info is showing in landscape, hidden when border or Settings would overlap
     m.appLogo.visible = chromeVisible and isLandscape and not m.borderEnabled and not needsSetup
+
+    ' Re-pin the year label to the title's right edge any time chrome layout
+    ' changes. The boundingRect observer also fires when the title text
+    ' actually changes, so this is the belt-and-suspenders path that catches
+    ' translation/width changes that don't trigger a re-render of the text.
+    positionYearLabel()
+    positionPortraitYearLabel()
 end sub
 
 function formatTime(ms as Integer) as String
