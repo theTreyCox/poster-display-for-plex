@@ -1033,26 +1033,29 @@ end sub
 sub positionYearLabel()
     yearY = m.nowPlayingYear.translation[1]
     titleX = m.nowPlayingTitle.translation[0]
-    width = 0
-    rect = m.nowPlayingTitle.boundingRect
-    if rect <> invalid and rect.width <> invalid and rect.width > 0 then
-        width = rect.width
-    end if
-    if width <= 0 then width = estimatedTextWidth(m.nowPlayingTitle.text, 25)
+    width = measuredOrEstimatedTextWidth(m.nowPlayingTitle, 25)
     m.nowPlayingYear.translation = [titleX + width + 20, yearY]
 end sub
 
 sub positionPortraitYearLabel()
     yearY = m.portraitNowPlayingYear.translation[1]
     titleX = m.portraitNowPlayingTitle.translation[0]
-    width = 0
-    rect = m.portraitNowPlayingTitle.boundingRect
-    if rect <> invalid and rect.width <> invalid and rect.width > 0 then
-        width = rect.width
-    end if
-    if width <= 0 then width = estimatedTextWidth(m.portraitNowPlayingTitle.text, 20)
+    width = measuredOrEstimatedTextWidth(m.portraitNowPlayingTitle, 20)
     m.portraitNowPlayingYear.translation = [titleX + width + 20, yearY]
 end sub
+
+' On-device Roku returns boundingRect as an AA with x/y/width/height fields.
+' The BrightScript Simulator exposes it as a callable method instead, so we
+' handle either shape. If neither yields a positive width we fall back to a
+' text-length * average-char-width estimate.
+function measuredOrEstimatedTextWidth(label as Object, avgCharWidth as Integer) as Integer
+    rect = label.boundingRect
+    if type(rect) = "Function" or type(rect) = "roFunction" then rect = rect()
+    if type(rect) = "roAssociativeArray" and rect.width <> invalid and rect.width > 0 then
+        return rect.width
+    end if
+    return estimatedTextWidth(label.text, avgCharWidth)
+end function
 
 ' Rough text-width estimator for Oswald Bold uppercase. The avg-char-width
 ' value should be a tiny bit larger than the real average so the year never
