@@ -51,8 +51,8 @@
 
         <!-- =============== LANDSCAPE CHROME =============== -->
         <Group id="landscapeChrome">
-            <!-- Progress bar (above status). Layout left→right:
-                 [current] [---bar---] [total] -->
+            <!-- Progress bar (above status). Layout left to right:
+                 [current] [ bar ] [total] -->
             <Group id="progressGroup" visible="false" translation="[110, 850]">
                 <Rectangle width="1700" height="80" color="0x000000DD" />
                 <Label
@@ -176,7 +176,7 @@
             <Rectangle width="1080" height="230" color="0x000000DD" />
 
             <!-- Progress bar (top of strip in viewer). Layout:
-                 [current] [---bar---] [total]   plus a sibling clock label below. -->
+                 [current] [ bar ] [total]   plus a sibling clock label below. -->
             <Group id="portraitProgressGroup" visible="false" translation="[0, 30]">
                 <Label
                     id="portraitCurrentTimeLabel"
