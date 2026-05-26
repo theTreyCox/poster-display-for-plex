@@ -486,14 +486,15 @@ sub togglePortraitPosterBorder()
     if m.portraitBorderEnabled then state = "1"
     m.registry.Write("portraitBorderEnabled", state)
     m.registry.Flush()
-    applyPortraitPosterBorder()
+    applyViewMode()
 end sub
 
-' Render a thick black matte behind the portrait poster when enabled. Geometry
-' mirrors the poster (same rotation + pivot translated by the border thickness)
-' so the matte appears as a consistent frame regardless of view mode or mount
-' direction. Hidden when the theater border is on (that PNG provides its own
-' frame) or in landscape modes.
+' Render a thick black matte behind the portrait poster when enabled. The matte
+' takes over the poster's intended bounding box, and the poster shrinks by
+' `thickness` on each side to sit inside the matte. Growing the matte *around*
+' the poster doesn't work in portrait fit (the poster already spans the full
+' viewer width, so the side frames fall off-screen). Hidden in landscape modes
+' and whenever the theater border is on (that PNG provides its own frame).
 sub applyPortraitPosterBorder()
     isPortrait = (m.viewMode = 2 or m.viewMode = 3)
     showBorder = m.portraitBorderEnabled and isPortrait and not m.borderEnabled
@@ -501,15 +502,22 @@ sub applyPortraitPosterBorder()
     if not showBorder then return
 
     thickness = 40
-    w = m.poster.width
-    h = m.poster.height
     posterT = m.poster.translation
+    outerW = m.poster.width
+    outerH = m.poster.height
 
-    m.portraitPosterBorder.width = w + thickness * 2
-    m.portraitPosterBorder.height = h + thickness * 2
-    m.portraitPosterBorder.scaleRotateCenter = [w / 2 + thickness, h / 2 + thickness]
+    m.portraitPosterBorder.width = outerW
+    m.portraitPosterBorder.height = outerH
+    m.portraitPosterBorder.scaleRotateCenter = [outerW / 2, outerH / 2]
     m.portraitPosterBorder.rotation = m.poster.rotation
-    m.portraitPosterBorder.translation = [posterT[0] - thickness, posterT[1] - thickness]
+    m.portraitPosterBorder.translation = posterT
+
+    innerW = outerW - thickness * 2
+    innerH = outerH - thickness * 2
+    m.poster.width = innerW
+    m.poster.height = innerH
+    m.poster.scaleRotateCenter = [innerW / 2, innerH / 2]
+    m.poster.translation = [posterT[0] + thickness, posterT[1] + thickness]
 end sub
 
 ' Swap the main poster (and ambient backdrop) to new images, optionally animated.
