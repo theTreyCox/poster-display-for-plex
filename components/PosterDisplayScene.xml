@@ -401,5 +401,43 @@
         <Timer id="hideIndicatorTimer" duration="3" repeat="false" />
         <Timer id="tickTimer" duration="1" repeat="true" />
         <Timer id="carouselTimer" duration="30" repeat="true" />
+
+        <!-- Poster transition animations. The main poster's opacity (fade) and
+             translation (slide) are animated; URI swap happens in the BRS
+             handler between the "out" and "in" animations. -->
+        <Animation id="posterFadeOut" duration="0.3" easeFunction="linear">
+            <FloatFieldInterpolator
+                fieldToInterp="poster.opacity"
+                key="[0.0, 1.0]"
+                keyValue="[1.0, 0.0]" />
+            <FloatFieldInterpolator
+                fieldToInterp="backgroundPoster.opacity"
+                key="[0.0, 1.0]"
+                keyValue="[0.18, 0.0]" />
+        </Animation>
+        <Animation id="posterFadeIn" duration="0.3" easeFunction="linear">
+            <FloatFieldInterpolator
+                fieldToInterp="poster.opacity"
+                key="[0.0, 1.0]"
+                keyValue="[0.0, 1.0]" />
+            <FloatFieldInterpolator
+                fieldToInterp="backgroundPoster.opacity"
+                key="[0.0, 1.0]"
+                keyValue="[0.0, 0.18]" />
+        </Animation>
+        <Animation id="posterSlideOut" duration="0.4" easeFunction="inQuad">
+            <Vector2DFieldInterpolator
+                id="posterSlideOutInterp"
+                fieldToInterp="poster.translation"
+                key="[0.0, 1.0]"
+                keyValue="[[0,0], [-2000,0]]" />
+        </Animation>
+        <Animation id="posterSlideIn" duration="0.4" easeFunction="outQuad">
+            <Vector2DFieldInterpolator
+                id="posterSlideInInterp"
+                fieldToInterp="poster.translation"
+                key="[0.0, 1.0]"
+                keyValue="[[2000,0], [0,0]]" />
+        </Animation>
     </children>
 </component>

@@ -18,15 +18,20 @@ Most of us already have a Roku stick or a Roku TV sitting in the living room. Th
 ## Features
 
 - **Live poster display** — polls Plex every 15 seconds for the current session and shows the artwork
-- **TV episode support** — for episodes, displays the **series poster** as the main image with a small **episode thumbnail** overlay, plus `Show Name — Episode Title` in the status bar
+- **TV episode support** — episodes show the **series poster** as the main image with a small **episode thumbnail** overlay; the status bar reads `Show Name — Episode Title`
+- **Content rating badge + release year** in the status bar, e.g. `[PG-13] JAWS (1976)`. Rating and year are pulled from Plex metadata; both are rendered at 80% opacity so the title itself stays the focal point
 - **Four view modes**, cycling on a single keypress:
   - Landscape Fit / Landscape Fill
-  - Portrait Fit / Portrait Fill (for vertically-mounted TVs — content auto-rotates 90°)
-- **Random Carousel mode** — when no specific media is playing (or whenever you like), rotate through random posters from your Plex library every 30 seconds. Skip individual items by tagging them with a `no-poster` label in Plex
-- **Now Playing border** — optional theater-style frame with marquee lights, gold trim, and a dynamic "NOW PLAYING" sign that shows the actual show/movie name in a retro display font
-- **Info overlay** — toggleable progress bar (`current / total time`, fill bar) and `NOW PLAYING:` title strip, all in Roboto. Tied to a single toggle so you can keep the display clean
-- **Screensaver suppression** — keeps the screen on indefinitely while the app is running (via background-thread call to `roAppManager.UpdateLastKeyPressTime` every 30s)
-- **Persistent settings** — server URL, token, view mode, border state, info state, and carousel state are all saved per channel in the Roku registry
+  - Portrait Fit / Portrait Fill (for vertically-mounted TVs — content auto-rotates 90°; orientation can be flipped if your TV is mounted the other way)
+- **Random Carousel mode** — cycles through random posters from your Plex library every 30 seconds. Manually advance with Fast-Forward, pause auto-advance with Play, exit with Rewind
+- **Carousel filtering** — block items from the carousel by content rating (checkbox UI in Settings) or by tagging individual items with a `no-poster` label in Plex
+- **Now Playing border** — optional theater-style frame with marquee lights, gold trim, and a dynamic "NOW PLAYING" sign showing the actual show/movie name in a retro display font
+- **Blurred ambient backdrop** — landscape view fills the area around the poster with a softly-blurred, dimmed copy of the same artwork (generated server-side by Plex's image transcoder, ~18% opacity)
+- **Info overlay** — toggleable status bar with rating, title, year, live wall clock, plus a progress bar showing remaining time, current position, total runtime, and end-of-media wall-clock time (so you can see at a glance when the movie will finish)
+- **Poster transitions** — pick between `Abrupt`, `Fade`, or `Slide` from the Settings menu; applies to both Carousel advances and Plex playback changes
+- **GDM server discovery** — auto-detects Plex Media Servers on your LAN during first-time setup so you can pick from a list instead of typing an IP
+- **Screensaver suppression** — keeps the screen on indefinitely while the app is running, via a background-thread call to `roAppManager.UpdateLastKeyPressTime` every 30 seconds
+- **Persistent settings** — server URL, token, view mode, border state, info-overlay state, carousel state, blocked ratings, portrait flip, and transition style all persist in the Roku registry
 
 ## Remote control
 
@@ -35,7 +40,7 @@ Most of us already have a Roku stick or a Roku TV sitting in the living room. Th
 | **Play** / **Up** | Cycle view mode (Landscape Fit → Fill → Portrait Fit → Fill) |
 | **Down** | Toggle the Now Playing border on/off |
 | **Right** | Toggle info overlay (status text + progress bar + clock) |
-| **`*`** (info) / **Left** | Open the Settings menu (server, token, carousel rating filter) |
+| **`*`** (info) / **Left** | Open the Settings menu |
 | **Rewind** | Toggle random Carousel mode on/off |
 
 ### While Carousel mode is on
@@ -43,11 +48,24 @@ Most of us already have a Roku stick or a Roku TV sitting in the living room. Th
 | Key | Action |
 | --- | --- |
 | **Play** / **Pause** | Pause or resume auto-advance (the current poster stays on screen while paused) |
-| **Fast-forward** | Jump to the next random poster immediately (works whether playing or paused; if playing, resets the 30s interval) |
-| **Up** | Still cycle view mode (Play is repurposed for pause while in Carousel) |
+| **Fast-forward** | Jump to the next random poster immediately (works whether playing or paused; if playing, resets the 30-second interval) |
+| **Up** | Cycle view mode (Play is repurposed for pause while in Carousel) |
 | **Rewind** | Exit Carousel mode |
 
-The Settings button is normally hidden once your Plex server and token are configured — use **`*`** or the **Left arrow** to open the Settings menu any time. The menu lets you change the server, change the token, or edit the carousel rating filter.
+The on-screen Settings button is normally hidden once your Plex server and token are configured — use **`*`** or the **Left arrow** to open the Settings menu any time.
+
+## Settings menu
+
+Pressing `*` or Left brings up a menu with the following options:
+
+- **Change Plex server** — opens GDM discovery; pick from a list of detected servers, enter a URL manually, or cancel
+- **Change Plex token** — keyboard prompt for a new Plex token
+- **Edit carousel rating filter** — checkbox list of content ratings to exclude from the random Carousel. OK toggles each item, **Back saves and closes**
+- **Flip portrait orientation** — toggle between CW mount (top of TV on viewer's right) and CCW mount (top of TV on viewer's left). Affects poster rotation and the position of the bottom chrome strip
+- **Cycle poster transition** — rotates through `Abrupt` (instant URI swap), `Fade` (~0.6s opacity crossfade through black), `Slide` (~0.8s slide-out / slide-in animation)
+- **Close** — dismiss the menu and resume the display
+
+Each option that opens a sub-dialog (server, token, rating filter) returns to the Settings menu when you save or cancel, so you can edit multiple settings in one sitting.
 
 ## Initial setup
 
@@ -68,13 +86,13 @@ The app gives you two independent ways to keep specific posters out of the rando
 
 ### 1. By content rating (no Plex Pass needed)
 
-Open the **Settings menu** (`*` or Left arrow) and choose **Edit carousel rating filter**. A checkbox list appears with the common content ratings:
+Open the Settings menu (`*` or Left arrow) and choose **Edit carousel rating filter**. A checkbox list appears with the common content ratings:
 
 - **Movies:** G, PG, PG-13, R, NC-17, XXX
 - **TV:** TV-Y, TV-Y7, TV-G, TV-PG, TV-14, TV-MA
-- **Not Rated** (also catches items that have no rating set at all in Plex)
+- **Not Rated** — also catches items that have no rating set at all in Plex
 
-Check the ratings you want skipped and choose Save. The carousel cache refreshes immediately. Items where Plex reports any of those ratings — including the "us/R" prefixed form that some metadata sources use — are excluded. This works regardless of whether you have a Plex Pass.
+Toggle items with **OK**, then press **Back** to save and close. The carousel cache refreshes immediately. Items whose `contentRating` matches any selection — including the `us/R` prefixed form that some metadata sources use — are excluded from the rotation. Works regardless of whether you have a Plex Pass.
 
 ### 2. By per-item label (requires Plex Pass)
 
@@ -91,7 +109,7 @@ For finer-grained control, you can hide individual movies or shows by tagging th
    (Lowercase, with a hyphen.)
 4. Save.
 
-The next time the Carousel cache refreshes — toggle the carousel off and on, or relaunch the app — those items will be excluded. The label name `no-poster` is hard-coded so no app-side configuration is needed.
+The next time the Carousel cache refreshes — toggle Carousel off and on, or relaunch the app — those items are excluded. The label name `no-poster` is hard-coded so no app-side configuration is needed.
 
 ## Project structure
 
@@ -101,19 +119,19 @@ poster-display-for-plex/
 ├── source/main.brs                       # entry point + screen lifecycle
 ├── components/
 │   ├── PosterDisplayScene.xml/.brs      # main scene UI + interaction
-│   ├── PlexSessionTask.xml/.brs         # background task that polls /status/sessions
-│   ├── PlexLibraryTask.xml/.brs         # background task that fetches library items for the carousel
-│   ├── PlexDiscoveryTask.xml/.brs       # background task that broadcasts Plex GDM and collects responses
-│   └── KeepAliveTask.xml/.brs           # background task that suppresses the screensaver
+│   ├── PlexSessionTask.xml/.brs         # polls /status/sessions for now-playing
+│   ├── PlexLibraryTask.xml/.brs         # fetches library items for the carousel
+│   ├── PlexDiscoveryTask.xml/.brs       # GDM UDP broadcast for server discovery
+│   └── KeepAliveTask.xml/.brs           # suppresses the Roku screensaver
 ├── images/
-│   ├── splash.png                        # app splash/icon
+│   ├── rokuicon.png                      # 640x360 Roku channel tile + splash
+│   ├── logo-square.png                   # square brand icon for the on-screen overlay and README
 │   └── borders/
 │       ├── landscape/landscape-border-01.png
 │       └── portrait/portrait-border-01.png
 ├── fonts/
-│   ├── Roboto-Bold.ttf                   # status text, progress numbers, Settings glyph
-│   ├── Roboto-Medium.ttf
-│   └── RetroSigned-DYYY0.ttf            # marquee display font for the border
+│   ├── BebasNeue-Regular.ttf            # all chrome text + clock/time displays
+│   └── RetroSigned-DYYY0.ttf            # marquee title font inside the Now Playing border
 └── package.sh                            # builds poster-display-for-plex.zip for sideloading
 ```
 
@@ -122,7 +140,10 @@ poster-display-for-plex/
 - **All network I/O runs on Task threads.** `roUrlTransfer` cannot be created on the SceneGraph render thread; the scene observes `result` fields on the Tasks and reacts when they update.
 - **Screensaver suppression also runs on a Task thread** for the same reason — `roAppManager` is a MAIN/TASK-only component.
 - **Two rendering paths per view mode:** with-border and without-border. The bordered variants size the poster to fit precisely inside the border PNG's transparent cutout (cutout bounds were measured directly from the PNG's alpha channel).
-- **Chrome (status bar, progress, Settings) has separate landscape and portrait layouts.** The portrait layout sits in a `Group` with `rotation = π/2` so it appears correctly oriented for a vertically-mounted TV; the poster also shrinks slightly in portrait when info is on to leave room for the chrome strip below it.
+- **Chrome (status bar, progress, Settings) has separate landscape and portrait layouts.** The portrait layout sits in a `Group` with `rotation = ±π/2` (sign depends on the user's mount direction) so it appears correctly oriented for a vertically-mounted TV; the poster also shrinks slightly in portrait when info is on to leave room for the chrome strip below it.
+- **Poster transitions** use Roku's `Animation` node. Fade interpolates the `opacity` field on the poster (and ambient backdrop); slide interpolates the `translation` field. The URI swap happens in the BRS handler between the "out" and "in" animations so the new image is in place before the fade-in / slide-in begins.
+- **Year label positioning** is dynamic. After the title label re-renders, its `boundingRect` field updates; the scene observes that field and snaps the year label to the right edge of the title text so the gap stays consistent regardless of title length.
+- **Carousel cache lives in memory** for the app session. New Plex content won't appear in the rotation until the carousel cache is rebuilt (toggle Carousel off and on, change a filter setting, or relaunch the app).
 
 ## Sideloading
 
@@ -137,13 +158,13 @@ poster-display-for-plex/
 
 ### Debugging
 
-Telnet to the Roku for live BrightScript console output:
+Connect to the Roku's BrightScript console for live output:
 
 ```sh
 nc <roku-ip> 8085
 ```
 
-(The `nc` tool ships with macOS; `telnet` was removed in recent versions.)
+(`nc` ships with macOS; `telnet` was removed in recent versions.)
 
 ## Packaging for distribution
 
@@ -152,6 +173,8 @@ This project's `package.sh` produces an **unsigned source bundle** for sideloadi
 ## Customization
 
 - **Border art** lives in `images/borders/`. Each PNG must be 1920×1080 RGBA with the poster area marked by `alpha = 0`. The app measures the transparent rectangle automatically and aligns the poster inside it.
-- **Fonts** live in `fonts/` and are referenced by path in `PosterDisplayScene.xml`. Drop in another `.ttf` and swap the `uri` to change the marquee or status font.
-- **Poll interval** is set in `PosterDisplayScene.xml` on the `pollTimer` node (`duration` in seconds). Default is 15 seconds.
+- **Fonts** live in `fonts/` and are referenced by path in `PosterDisplayScene.xml`. Drop in another `.ttf` and swap the `uri` to change the chrome typography or the marquee font.
+- **Poll interval** for the live Plex session is set on the `pollTimer` node (`duration` in seconds). Default is 15 seconds.
 - **Carousel interval** is set on the `carouselTimer` node — default 30 seconds.
+- **Transition durations** are set on the `posterFadeOut` / `posterFadeIn` / `posterSlideOut` / `posterSlideIn` Animation nodes — defaults are 0.3s for fade and 0.4s for slide (per direction).
+- **Blurred backdrop opacity** is the `opacity` attribute on the `backgroundPoster` node in the scene XML — default `0.18`.

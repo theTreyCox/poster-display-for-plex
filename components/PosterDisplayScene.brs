@@ -49,6 +49,12 @@ sub init()
     m.hideIndicatorTimer = m.top.findNode("hideIndicatorTimer")
     m.tickTimer = m.top.findNode("tickTimer")
     m.carouselTimer = m.top.findNode("carouselTimer")
+    m.posterFadeOut = m.top.findNode("posterFadeOut")
+    m.posterFadeIn = m.top.findNode("posterFadeIn")
+    m.posterSlideOut = m.top.findNode("posterSlideOut")
+    m.posterSlideIn = m.top.findNode("posterSlideIn")
+    m.posterSlideOutInterp = m.top.findNode("posterSlideOutInterp")
+    m.posterSlideInInterp = m.top.findNode("posterSlideInInterp")
     m.registry = createObject("roRegistrySection", "PosterDisplayForPlex")
 
     ' roAppManager cannot be created on the render thread, so the screensaver-suppression
@@ -73,6 +79,12 @@ sub init()
     m.infoEnabled = (m.registry.Read("infoEnabled") <> "0")
     m.carouselEnabled = (m.registry.Read("carouselEnabled") = "1")
     m.portraitFlip = (m.registry.Read("portraitFlip") = "1")
+    m.transitionStyle = m.registry.Read("transitionStyle")
+    if m.transitionStyle <> "fade" and m.transitionStyle <> "slide" then m.transitionStyle = "abrupt"
+    m.transitionInProgress = false
+    m.pendingPosterUri = ""
+    m.pendingBackgroundUri = ""
+    m.savedPosterTranslation = [0, 0]
     m.duration = 0
     m.viewOffset = 0
     m.playerState = ""
@@ -88,6 +100,11 @@ sub init()
     ' When the title text re-renders, reposition the year label so it sits right after.
     m.nowPlayingTitle.observeField("boundingRect", "positionYearLabel")
     m.portraitNowPlayingTitle.observeField("boundingRect", "positionPortraitYearLabel")
+
+    m.posterFadeOut.observeField("state", "onPosterFadeOutState")
+    m.posterFadeIn.observeField("state", "onPosterFadeInState")
+    m.posterSlideOut.observeField("state", "onPosterSlideOutState")
+    m.posterSlideIn.observeField("state", "onPosterSlideInState")
     m.pollTimer.observeField("fire", "onPollTimerFired")
     m.hideIndicatorTimer.observeField("fire", "hideModeIndicator")
     m.tickTimer.observeField("fire", "onTick")
@@ -191,6 +208,7 @@ sub cycleViewMode()
 end sub
 
 sub applyViewMode()
+    resetPosterTransitions()
     m.poster.loadDisplayMode = "scaleToFit"
     applyPortraitFlip()
     if m.borderEnabled then
@@ -344,11 +362,12 @@ sub openSettingsMenu()
     if ratingsDisplay = "" then ratingsDisplay = "(none)"
     flipDisplay = "Top on right (CW mount)"
     if m.portraitFlip then flipDisplay = "Top on left (CCW mount)"
+    transitionDisplay = transitionLabel(m.transitionStyle)
 
     dialog = createObject("roSGNode", "StandardMessageDialog")
     dialog.title = "Settings"
-    dialog.message = "Server: " + serverDisplay + chr(10) + "Token: " + tokenDisplay + chr(10) + "Carousel blocks ratings: " + ratingsDisplay + chr(10) + "Portrait orientation: " + flipDisplay
-    dialog.buttons = ["Change Plex server", "Change Plex token", "Edit carousel rating filter", "Flip portrait orientation", "Close"]
+    dialog.message = "Server: " + serverDisplay + chr(10) + "Token: " + tokenDisplay + chr(10) + "Carousel blocks ratings: " + ratingsDisplay + chr(10) + "Portrait orientation: " + flipDisplay + chr(10) + "Poster transition: " + transitionDisplay
+    dialog.buttons = ["Change Plex server", "Change Plex token", "Edit carousel rating filter", "Flip portrait orientation", "Cycle poster transition", "Close"]
     dialog.observeField("buttonSelected", "onSettingsMenuSelected")
     m.top.dialog = dialog
 end sub
@@ -365,10 +384,19 @@ sub onSettingsMenuSelected(event as Object)
     else if selectedIndex = 3 then
         togglePortraitFlip()
         openSettingsMenu()
+    else if selectedIndex = 4 then
+        cycleTransitionStyle()
+        openSettingsMenu()
     else
         cancelSettings()
     end if
 end sub
+
+function transitionLabel(style as String) as String
+    if style = "fade" then return "Fade"
+    if style = "slide" then return "Slide"
+    return "Abrupt"
+end function
 
 sub togglePortraitFlip()
     m.portraitFlip = not m.portraitFlip
@@ -377,6 +405,95 @@ sub togglePortraitFlip()
     m.registry.Write("portraitFlip", state)
     m.registry.Flush()
     applyViewMode()
+end sub
+
+sub cycleTransitionStyle()
+    if m.transitionStyle = "abrupt" then
+        m.transitionStyle = "fade"
+    else if m.transitionStyle = "fade" then
+        m.transitionStyle = "slide"
+    else
+        m.transitionStyle = "abrupt"
+    end if
+    m.registry.Write("transitionStyle", m.transitionStyle)
+    m.registry.Flush()
+end sub
+
+' Swap the main poster (and ambient backdrop) to new images, optionally animated.
+' Carousel ticks and Plex playback updates funnel through here so the
+' transition style picked in Settings is honored everywhere.
+sub transitionPoster(newUri as String, newBackgroundUri as String)
+    if newUri = "" then return
+    if m.poster.uri = newUri then return
+    if m.transitionInProgress then
+        ' A transition is already running — let it finish but update the
+        ' pending target so the very next frame snaps in the latest poster.
+        m.pendingPosterUri = newUri
+        m.pendingBackgroundUri = newBackgroundUri
+        return
+    end if
+
+    if m.transitionStyle = "abrupt" then
+        m.poster.uri = newUri
+        m.backgroundPoster.uri = newBackgroundUri
+        return
+    end if
+
+    m.pendingPosterUri = newUri
+    m.pendingBackgroundUri = newBackgroundUri
+    m.transitionInProgress = true
+
+    if m.transitionStyle = "fade" then
+        m.posterFadeOut.control = "start"
+    else if m.transitionStyle = "slide" then
+        m.savedPosterTranslation = m.poster.translation
+        offX = m.savedPosterTranslation[0]
+        offY = m.savedPosterTranslation[1]
+        m.posterSlideOutInterp.keyValue = [[offX, offY], [offX - 2000, offY]]
+        m.posterSlideOut.control = "start"
+    end if
+end sub
+
+sub onPosterFadeOutState(event as Object)
+    if event.getData() <> "stopped" then return
+    if not m.transitionInProgress then return
+    m.poster.uri = m.pendingPosterUri
+    m.backgroundPoster.uri = m.pendingBackgroundUri
+    m.posterFadeIn.control = "start"
+end sub
+
+sub onPosterFadeInState(event as Object)
+    if event.getData() <> "stopped" then return
+    m.transitionInProgress = false
+end sub
+
+sub onPosterSlideOutState(event as Object)
+    if event.getData() <> "stopped" then return
+    if not m.transitionInProgress then return
+    m.poster.uri = m.pendingPosterUri
+    m.backgroundPoster.uri = m.pendingBackgroundUri
+    offX = m.savedPosterTranslation[0]
+    offY = m.savedPosterTranslation[1]
+    m.poster.translation = [offX + 2000, offY]
+    m.posterSlideInInterp.keyValue = [[offX + 2000, offY], [offX, offY]]
+    m.posterSlideIn.control = "start"
+end sub
+
+sub onPosterSlideInState(event as Object)
+    if event.getData() <> "stopped" then return
+    m.transitionInProgress = false
+end sub
+
+' Cancel any running poster transition. Called from applyViewMode before we
+' reposition / resize the poster so the animation can't fight the new layout.
+sub resetPosterTransitions()
+    m.transitionInProgress = false
+    m.posterFadeOut.control = "stop"
+    m.posterFadeIn.control = "stop"
+    m.posterSlideOut.control = "stop"
+    m.posterSlideIn.control = "stop"
+    m.poster.opacity = 1.0
+    m.backgroundPoster.opacity = 0.18
 end sub
 
 sub showBlockedRatingsOverlay()
@@ -518,8 +635,7 @@ sub showNextCarouselPoster()
     idx = rnd(m.carouselPosters.Count()) - 1
     item = m.carouselPosters[idx]
     if item = invalid then return
-    m.poster.uri = item.posterUri
-    m.backgroundPoster.uri = item.backgroundUri
+    transitionPoster(item.posterUri, item.backgroundUri)
     isLandscape = (m.viewMode = 0 or m.viewMode = 1)
     m.backgroundPoster.visible = isLandscape and (item.backgroundUri <> "")
     itemYear = ""
@@ -746,8 +862,7 @@ sub onSessionResult(event as Object)
         return
     end if
 
-    m.poster.uri = sessionInfo.posterUri
-    m.backgroundPoster.uri = sessionInfo.backgroundUri
+    transitionPoster(sessionInfo.posterUri, sessionInfo.backgroundUri)
     isLandscape = (m.viewMode = 0 or m.viewMode = 1)
     m.backgroundPoster.visible = isLandscape and (sessionInfo.backgroundUri <> "")
     setNowPlayingTitle(sessionInfo.title, sessionInfo.showName, sessionInfo.year, sessionInfo.contentRating)
