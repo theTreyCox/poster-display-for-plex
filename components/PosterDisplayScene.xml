@@ -17,12 +17,16 @@
             opacity="0.18"
             visible="false" />
 
-        <!-- Optional black matte rendered behind the portrait poster (no-border modes
-             only). Geometry follows the poster's translation + rotation in BRS. -->
-        <Rectangle
-            id="portraitPosterBorder"
-            color="0x000000FF"
-            visible="false" />
+        <!-- Optional black matte rendered behind the portrait poster (no-theater-frame
+             modes only). Four rects so each side can be individually hidden — when info
+             is on, the viewer-bottom side hides because the chrome strip already provides
+             that black band. Geometry set in BRS to follow the poster's rotation + center. -->
+        <Group id="portraitPosterBorderGroup" visible="false">
+            <Rectangle id="portraitPosterBorderTop" color="0x000000FF" />
+            <Rectangle id="portraitPosterBorderBottom" color="0x000000FF" />
+            <Rectangle id="portraitPosterBorderLeft" color="0x000000FF" />
+            <Rectangle id="portraitPosterBorderRight" color="0x000000FF" />
+        </Group>
 
         <Poster
             id="poster"

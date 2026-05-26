@@ -34,7 +34,11 @@ sub init()
     m.portraitTotalTimeLabel = m.top.findNode("portraitTotalTimeLabel")
     m.portraitProgressBarFill = m.top.findNode("portraitProgressBarFill")
     m.portraitClockLabel = m.top.findNode("portraitClockLabel")
-    m.portraitPosterBorder = m.top.findNode("portraitPosterBorder")
+    m.portraitPosterBorderGroup = m.top.findNode("portraitPosterBorderGroup")
+    m.portraitPosterBorderTop = m.top.findNode("portraitPosterBorderTop")
+    m.portraitPosterBorderBottom = m.top.findNode("portraitPosterBorderBottom")
+    m.portraitPosterBorderLeft = m.top.findNode("portraitPosterBorderLeft")
+    m.portraitPosterBorderRight = m.top.findNode("portraitPosterBorderRight")
 
     ' App logo + episode poster overlay
     m.appLogo = m.top.findNode("appLogo")
@@ -489,35 +493,70 @@ sub togglePortraitPosterBorder()
     applyViewMode()
 end sub
 
-' Render a thick black matte behind the portrait poster when enabled. The matte
-' takes over the poster's intended bounding box, and the poster shrinks by
-' `thickness` on each side to sit inside the matte. Growing the matte *around*
-' the poster doesn't work in portrait fit (the poster already spans the full
-' viewer width, so the side frames fall off-screen). Hidden in landscape modes
-' and whenever the theater border is on (that PNG provides its own frame).
+' Render a thick black matte around the portrait poster when enabled. The matte
+' is four separate strips (top/bottom/left/right) inside a Group that shares
+' the poster's rotation + center; the inner region is sized to the Plex poster
+' content aspect (2:3) so the matte appears visually uniform on all sides
+' instead of getting padded by scaleToFit on the top/bottom. When info is on
+' the viewer-bottom strip hides because the chrome strip already provides a
+' black band there. Hidden in landscape modes and whenever the theater border
+' is on (that PNG provides its own frame).
 sub applyPortraitPosterBorder()
     isPortrait = (m.viewMode = 2 or m.viewMode = 3)
     showBorder = m.portraitBorderEnabled and isPortrait and not m.borderEnabled
-    m.portraitPosterBorder.visible = showBorder
+    m.portraitPosterBorderGroup.visible = showBorder
     if not showBorder then return
 
-    thickness = 40
+    thickness = 60
+    contentAspect = 2.0 / 3.0
+
     posterT = m.poster.translation
     outerW = m.poster.width
     outerH = m.poster.height
+    posterCenter = [posterT[0] + outerW / 2, posterT[1] + outerH / 2]
 
-    m.portraitPosterBorder.width = outerW
-    m.portraitPosterBorder.height = outerH
-    m.portraitPosterBorder.scaleRotateCenter = [outerW / 2, outerH / 2]
-    m.portraitPosterBorder.rotation = m.poster.rotation
-    m.portraitPosterBorder.translation = posterT
+    ' Largest 2:3 (W:H) box that fits inside outer minus `thickness` on each side.
+    maxInnerW = outerW - thickness * 2
+    maxInnerH = outerH - thickness * 2
+    innerW = maxInnerW
+    innerH = innerW / contentAspect
+    if innerH > maxInnerH then
+        innerH = maxInnerH
+        innerW = innerH * contentAspect
+    end if
 
-    innerW = outerW - thickness * 2
-    innerH = outerH - thickness * 2
+    matteW = innerW + thickness * 2
+    matteH = innerH + thickness * 2
+
+    m.portraitPosterBorderGroup.scaleRotateCenter = [matteW / 2, matteH / 2]
+    m.portraitPosterBorderGroup.translation = [posterCenter[0] - matteW / 2, posterCenter[1] - matteH / 2]
+    m.portraitPosterBorderGroup.rotation = m.poster.rotation
+
+    m.portraitPosterBorderTop.translation = [0, 0]
+    m.portraitPosterBorderTop.width = matteW
+    m.portraitPosterBorderTop.height = thickness
+
+    m.portraitPosterBorderBottom.translation = [0, matteH - thickness]
+    m.portraitPosterBorderBottom.width = matteW
+    m.portraitPosterBorderBottom.height = thickness
+
+    m.portraitPosterBorderLeft.translation = [0, 0]
+    m.portraitPosterBorderLeft.width = thickness
+    m.portraitPosterBorderLeft.height = matteH
+
+    m.portraitPosterBorderRight.translation = [matteW - thickness, 0]
+    m.portraitPosterBorderRight.width = thickness
+    m.portraitPosterBorderRight.height = matteH
+
+    ' For both flip orientations, the pre-rotation TOP edge (local y=0) ends up
+    ' at the viewer's bottom — that's the side that overlaps the chrome strip
+    ' when info is on, so hide it then.
+    m.portraitPosterBorderTop.visible = not m.infoEnabled
+
     m.poster.width = innerW
     m.poster.height = innerH
     m.poster.scaleRotateCenter = [innerW / 2, innerH / 2]
-    m.poster.translation = [posterT[0] + thickness, posterT[1] + thickness]
+    m.poster.translation = [posterCenter[0] - innerW / 2, posterCenter[1] - innerH / 2]
 end sub
 
 ' Swap the main poster (and ambient backdrop) to new images, optionally animated.
