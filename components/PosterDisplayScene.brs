@@ -1065,14 +1065,12 @@ end function
 ' Map a Plex contentRating string to the bundled rating PNG. Returns invalid
 ' when no icon exists for that rating (caller falls back to a text badge).
 function getRatingIcon(rating as String) as Object
-    if rating = invalid then return invalid
+    nrIcon = { uri: "pkg:/images/ratings/rating_nr.png", aspect: 1.0 }
+    if rating = invalid then return nrIcon
     r = LCase(rating).Trim()
-    if r = "" then return invalid
     slash = Instr(1, r, "/")
     if slash > 0 then r = r.Mid(slash + 1).Trim()
-    if r = "" or r = "unrated" or r = "not rated" or r = "nr" then
-        return { uri: "pkg:/images/ratings/rating_nr.png", aspect: 1.0 }
-    end if
+    if r = "" or r = "unrated" or r = "not rated" or r = "nr" then return nrIcon
     if r = "g" then return { uri: "pkg:/images/ratings/rating_g.png", aspect: 1.0 }
     if r = "pg" then return { uri: "pkg:/images/ratings/rating_pg.png", aspect: 1.0 }
     if r = "pg-13" then return { uri: "pkg:/images/ratings/rating_pg13.png", aspect: 1.5 }
