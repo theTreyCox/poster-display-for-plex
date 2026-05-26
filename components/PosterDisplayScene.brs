@@ -232,10 +232,10 @@ end sub
 sub applyPortraitFlip()
     if m.portraitFlip then
         m.portraitChrome.rotation = -1.5707963
-        m.portraitChrome.translation = [-440, 440]
+        m.portraitChrome.translation = [-425, 425]
     else
         m.portraitChrome.rotation = 1.5707963
-        m.portraitChrome.translation = [1280, 440]
+        m.portraitChrome.translation = [1265, 425]
     end if
 end sub
 
@@ -270,9 +270,9 @@ sub applyPlainViewMode()
         m.poster.rotation = portraitRotation()
         if m.infoEnabled then
             if m.portraitFlip then
-                m.poster.translation = [520, -270]
+                m.poster.translation = [550, -270]
             else
-                m.poster.translation = [320, -270]
+                m.poster.translation = [290, -270]
             end if
         else
             m.poster.translation = [420, -270]
@@ -285,9 +285,9 @@ sub applyPlainViewMode()
             m.poster.height = 1720
             m.poster.scaleRotateCenter = [574, 860]
             if m.portraitFlip then
-                m.poster.translation = [487, -320]
+                m.poster.translation = [517, -320]
             else
-                m.poster.translation = [287, -320]
+                m.poster.translation = [257, -320]
             end if
         else
             m.poster.width = 1280
@@ -1103,10 +1103,10 @@ sub updateInfoVisibility()
     m.nowPlayingTitle.width = 1560 - landscapeTitleX
     m.nowPlayingTitle.horizAlign = "left"
 
-    m.portraitRatingIcon.translation = [90, 80]
-    m.portraitNowPlayingPrefix.translation = [90, 80]
+    m.portraitRatingIcon.translation = [90, 110]
+    m.portraitNowPlayingPrefix.translation = [90, 110]
     portraitTitleX = 90 + portraitRatingWidth + 20
-    m.portraitNowPlayingTitle.translation = [portraitTitleX, 80]
+    m.portraitNowPlayingTitle.translation = [portraitTitleX, 110]
     m.portraitNowPlayingTitle.width = 780 - portraitTitleX
     m.portraitNowPlayingTitle.horizAlign = "left"
 
@@ -1136,11 +1136,11 @@ function formatTime(ms as Integer) as String
     h = Int(totalSec / 3600)
     mins = Int((totalSec mod 3600) / 60)
     secs = totalSec mod 60
-    if h > 0 then return Stri(h) + ":" + padTwo(mins) + ":" + padTwo(secs)
-    return Stri(mins) + ":" + padTwo(secs)
+    return padTwo(h) + ":" + padTwo(mins) + ":" + padTwo(secs)
 end function
 
 function padTwo(n as Integer) as String
-    if n < 10 then return "0" + Stri(n)
-    return Stri(n)
+    s = n.ToStr()
+    if n < 10 then return "0" + s
+    return s
 end function
