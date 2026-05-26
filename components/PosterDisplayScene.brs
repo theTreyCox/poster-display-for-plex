@@ -63,8 +63,6 @@ sub init()
     ' Node refs for the blocked-ratings overlay
     m.blockedRatingsOverlay = m.top.findNode("blockedRatingsOverlay")
     m.blockedRatingsCheckList = m.top.findNode("blockedRatingsCheckList")
-    m.blockedRatingsSave = m.top.findNode("blockedRatingsSave")
-    m.blockedRatingsCancel = m.top.findNode("blockedRatingsCancel")
 
     ' Ratings users can toggle, in order shown in the dialog
     m.blockedRatingOptions = ["G", "PG", "PG-13", "R", "NC-17", "XXX", "TV-Y", "TV-Y7", "TV-G", "TV-PG", "TV-14", "TV-MA", "Not Rated"]
@@ -84,8 +82,6 @@ sub init()
 
     m.settingsButton.observeField("buttonSelected", "onSettingsClicked")
     m.portraitSettingsButton.observeField("buttonSelected", "onSettingsClicked")
-    m.blockedRatingsSave.observeField("buttonSelected", "onBlockedRatingsSave")
-    m.blockedRatingsCancel.observeField("buttonSelected", "onBlockedRatingsCancel")
     m.pollTimer.observeField("fire", "onPollTimerFired")
     m.hideIndicatorTimer.observeField("fire", "hideModeIndicator")
     m.tickTimer.observeField("fire", "onTick")
@@ -113,10 +109,12 @@ end sub
 function onKeyEvent(key as String, press as Boolean) as Boolean
     if not press then return false
 
-    ' Blocked-ratings overlay: intercept Back to close without saving.
+    ' Blocked-ratings overlay: intercept Back to save the current CheckList state
+    ' and dismiss. (CheckList captures arrow keys internally so the previous
+    ' Save / Cancel buttons were unreachable; saving on Back is the reliable path.)
     if m.blockedRatingsOverlay.visible then
         if key = "back" then
-            closeBlockedRatingsOverlay()
+            saveBlockedRatings()
             return true
         end if
         return false
@@ -392,7 +390,7 @@ sub showBlockedRatingsOverlay()
     m.blockedRatingsCheckList.setFocus(true)
 end sub
 
-sub onBlockedRatingsSave()
+sub saveBlockedRatings()
     if m.blockedRatingsCheckList = invalid then return
     state = m.blockedRatingsCheckList.checkedState
     parts = []
@@ -408,10 +406,6 @@ sub onBlockedRatingsSave()
     m.registry.Write("blockedRatings", joined)
     m.registry.Flush()
     m.carouselPosters = []
-    closeBlockedRatingsOverlay()
-end sub
-
-sub onBlockedRatingsCancel()
     closeBlockedRatingsOverlay()
 end sub
 
@@ -817,7 +811,7 @@ function formatLocalTime12() as String
     else if h > 12 then
         h = h - 12
     end if
-    return Stri(h) + ":" + padTwo(mins) + " " + ampm
+    return Stri(h) + ":" + padTwo(mins) + ampm
 end function
 
 sub renderProgress(positionMs as Integer)
@@ -825,7 +819,7 @@ sub renderProgress(positionMs as Integer)
     totalText = formatTime(m.duration)
     remainingMs = m.duration - positionMs
     if remainingMs < 0 then remainingMs = 0
-    remainingText = "REMAINING " + formatTime(remainingMs)
+    remainingText = formatTime(remainingMs)
     endTimeText = formatEndTime(remainingMs)
 
     m.currentTimeLabel.text = currentText
@@ -841,9 +835,9 @@ sub renderProgress(positionMs as Integer)
         ratio = positionMs / m.duration
         if ratio < 0 then ratio = 0
         if ratio > 1 then ratio = 1
-        landscapeW = Int(ratio * 800)
+        landscapeW = Int(ratio * 960)
         if landscapeW < 1 then landscapeW = 1
-        portraitW = Int(ratio * 360)
+        portraitW = Int(ratio * 520)
         if portraitW < 1 then portraitW = 1
         m.progressBarFill.width = landscapeW
         m.portraitProgressBarFill.width = portraitW
@@ -867,7 +861,7 @@ function formatEndTime(remainingMs as Integer) as String
     else if h > 12 then
         h = h - 12
     end if
-    return "END TIME: " + Stri(h) + ":" + padTwo(mins) + " " + ampm
+    return "END " + Stri(h) + ":" + padTwo(mins) + ampm
 end function
 
 sub updateInfoVisibility()

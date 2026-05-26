@@ -51,49 +51,49 @@
                 <Label
                     id="remainingTimeLabel"
                     translation="[20, 16]"
-                    width="240"
+                    width="120"
                     height="48"
                     text=""
                     color="0xFFFFFFFF"
                     horizAlign="left"
                     vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/RobotoMono-Bold.ttf" size="28" />
+                    <Font role="font" uri="pkg:/fonts/JetBrainsMono-Bold.ttf" size="26" />
                 </Label>
                 <Label
                     id="currentTimeLabel"
-                    translation="[280, 16]"
+                    translation="[160, 16]"
                     width="140"
                     height="48"
                     text="0:00"
                     color="0xFFFFFFFF"
                     horizAlign="left"
                     vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/RobotoMono-Medium.ttf" size="28" />
+                    <Font role="font" uri="pkg:/fonts/JetBrainsMono-Medium.ttf" size="26" />
                 </Label>
-                <Rectangle translation="[440, 36]" width="800" height="10" color="0x666666FF" />
-                <Rectangle id="progressBarFill" translation="[440, 36]" width="1" height="10" color="0xFFA500FF" />
+                <Rectangle translation="[320, 36]" width="960" height="10" color="0x666666FF" />
+                <Rectangle id="progressBarFill" translation="[320, 36]" width="1" height="10" color="0xFFA500FF" />
                 <Label
                     id="totalTimeLabel"
-                    translation="[1260, 16]"
+                    translation="[1300, 16]"
                     width="140"
                     height="48"
                     text="0:00"
                     color="0xFFFFFFFF"
                     horizAlign="right"
                     vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/RobotoMono-Medium.ttf" size="28" />
+                    <Font role="font" uri="pkg:/fonts/JetBrainsMono-Medium.ttf" size="26" />
                 </Label>
                 <Label
                     id="endTimeLabel"
-                    translation="[1420, 16]"
-                    width="260"
+                    translation="[1460, 16]"
+                    width="220"
                     height="48"
                     text=""
                     color="0xFFFFFFFF"
                     horizAlign="right"
                     vertAlign="center"
                     wrap="false">
-                    <Font role="font" uri="pkg:/fonts/RobotoMono-Bold.ttf" size="28" />
+                    <Font role="font" uri="pkg:/fonts/JetBrainsMono-Bold.ttf" size="26" />
                 </Label>
             </Group>
 
@@ -146,7 +146,7 @@
                 horizAlign="right"
                 vertAlign="center"
                 wrap="false">
-                <Font role="font" uri="pkg:/fonts/RobotoMono-Bold.ttf" size="32" />
+                <Font role="font" uri="pkg:/fonts/JetBrainsMono-Bold.ttf" size="30" />
             </Label>
 
             <!-- Settings icon (top-right) -->
@@ -176,49 +176,49 @@
                 <Label
                     id="portraitRemainingTimeLabel"
                     translation="[20, 0]"
-                    width="170"
+                    width="90"
                     height="32"
                     text=""
                     color="0xFFFFFFFF"
                     horizAlign="left"
                     vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/RobotoMono-Bold.ttf" size="22" />
+                    <Font role="font" uri="pkg:/fonts/JetBrainsMono-Bold.ttf" size="20" />
                 </Label>
                 <Label
                     id="portraitCurrentTimeLabel"
-                    translation="[210, 0]"
+                    translation="[130, 0]"
                     width="90"
                     height="32"
                     text="0:00"
                     color="0xFFFFFFFF"
                     horizAlign="left"
                     vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/RobotoMono-Medium.ttf" size="22" />
+                    <Font role="font" uri="pkg:/fonts/JetBrainsMono-Medium.ttf" size="20" />
                 </Label>
-                <Rectangle translation="[320, 12]" width="360" height="8" color="0x666666FF" />
-                <Rectangle id="portraitProgressBarFill" translation="[320, 12]" width="1" height="8" color="0xFFA500FF" />
+                <Rectangle translation="[240, 12]" width="520" height="8" color="0x666666FF" />
+                <Rectangle id="portraitProgressBarFill" translation="[240, 12]" width="1" height="8" color="0xFFA500FF" />
                 <Label
                     id="portraitTotalTimeLabel"
-                    translation="[700, 0]"
+                    translation="[780, 0]"
                     width="90"
                     height="32"
                     text="0:00"
                     color="0xFFFFFFFF"
                     horizAlign="right"
                     vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/RobotoMono-Medium.ttf" size="22" />
+                    <Font role="font" uri="pkg:/fonts/JetBrainsMono-Medium.ttf" size="20" />
                 </Label>
                 <Label
                     id="portraitEndTimeLabel"
-                    translation="[810, 0]"
-                    width="200"
+                    translation="[890, 0]"
+                    width="170"
                     height="32"
                     text=""
                     color="0xFFFFFFFF"
                     horizAlign="right"
                     vertAlign="center"
                     wrap="false">
-                    <Font role="font" uri="pkg:/fonts/RobotoMono-Bold.ttf" size="22" />
+                    <Font role="font" uri="pkg:/fonts/JetBrainsMono-Bold.ttf" size="20" />
                 </Label>
             </Group>
 
@@ -269,7 +269,7 @@
                 horizAlign="right"
                 vertAlign="center"
                 wrap="false">
-                <Font role="font" uri="pkg:/fonts/RobotoMono-Bold.ttf" size="26" />
+                <Font role="font" uri="pkg:/fonts/JetBrainsMono-Bold.ttf" size="24" />
             </Label>
 
             <!-- Settings icon (right side of strip in viewer) -->
@@ -343,7 +343,7 @@
                 translation="[540, 200]"
                 width="840"
                 height="80"
-                text="Press OK to toggle each rating. Items with these ratings will be skipped in the random carousel."
+                text="Press OK to toggle each rating. Items with these ratings will be skipped in the random carousel. Press BACK to save and close."
                 color="0xCCCCCCFF"
                 horizAlign="left"
                 vertAlign="top"
@@ -352,23 +352,9 @@
             </Label>
             <CheckList
                 id="blockedRatingsCheckList"
-                translation="[540, 300]"
+                translation="[540, 320]"
                 itemSize="[840, 50]"
                 numRows="10" />
-            <Button
-                id="blockedRatingsSave"
-                translation="[540, 815]"
-                minWidth="160"
-                height="50"
-                text="Save"
-                showFocusFootprint="true" />
-            <Button
-                id="blockedRatingsCancel"
-                translation="[730, 815]"
-                minWidth="160"
-                height="50"
-                text="Cancel"
-                showFocusFootprint="true" />
         </Group>
 
         <Group id="modeIndicator" visible="false" translation="[60,60]">
