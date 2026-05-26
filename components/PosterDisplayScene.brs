@@ -34,6 +34,7 @@ sub init()
     m.portraitTotalTimeLabel = m.top.findNode("portraitTotalTimeLabel")
     m.portraitProgressBarFill = m.top.findNode("portraitProgressBarFill")
     m.portraitClockLabel = m.top.findNode("portraitClockLabel")
+    m.portraitPosterBorder = m.top.findNode("portraitPosterBorder")
 
     ' App logo + episode poster overlay
     m.appLogo = m.top.findNode("appLogo")
@@ -79,6 +80,26 @@ sub init()
     m.portraitFlip = (m.registry.Read("portraitFlip") = "1")
     m.transitionStyle = m.registry.Read("transitionStyle")
     if m.transitionStyle <> "fade" and m.transitionStyle <> "slide" then m.transitionStyle = "abrupt"
+    m.portraitBorderEnabled = (m.registry.Read("portraitBorderEnabled") = "1")
+
+    ' Progress-bar color palette. Persisted as an index so the names can change
+    ' without invalidating existing saves. Index defaults to 0 (orange).
+    m.progressColors = [
+        { name: "Orange", hex: "0xFFA500FF" },
+        { name: "Red", hex: "0xFF3030FF" },
+        { name: "Amber", hex: "0xFFBF00FF" },
+        { name: "Yellow", hex: "0xFFE600FF" },
+        { name: "Lime", hex: "0xA8FF30FF" },
+        { name: "Green", hex: "0x33CC33FF" },
+        { name: "Teal", hex: "0x009999FF" },
+        { name: "Cyan", hex: "0x00CCFFFF" },
+        { name: "Blue", hex: "0x3060FFFF" },
+        { name: "Indigo", hex: "0x6020A0FF" },
+        { name: "Purple", hex: "0x9933CCFF" },
+        { name: "Pink", hex: "0xFF3399FF" }
+    ]
+    m.progressColorIndex = m.registry.Read("progressColorIndex").ToInt()
+    if m.progressColorIndex < 0 or m.progressColorIndex >= m.progressColors.Count() then m.progressColorIndex = 0
     m.transitionInProgress = false
     m.pendingPosterUri = ""
     m.pendingBackgroundUri = ""
@@ -109,6 +130,7 @@ sub init()
     m.tickTimer.control = "start"
     m.carouselTimer.observeField("fire", "onCarouselTick")
 
+    applyProgressColor()
     applyViewMode()
 
     if m.settings.plexServer <> "" and m.settings.plexToken <> "" then
@@ -214,6 +236,7 @@ sub applyViewMode()
     else
         applyPlainViewMode()
     end if
+    applyPortraitPosterBorder()
     updateInfoVisibility()
     isLandscape = (m.viewMode = 0 or m.viewMode = 1)
     ' Blurred ambient backdrop only in landscape modes
@@ -361,11 +384,14 @@ sub openSettingsMenu()
     flipDisplay = "Top on right (CW mount)"
     if m.portraitFlip then flipDisplay = "Top on left (CCW mount)"
     transitionDisplay = transitionLabel(m.transitionStyle)
+    colorDisplay = m.progressColors[m.progressColorIndex].name
+    borderDisplay = "Off"
+    if m.portraitBorderEnabled then borderDisplay = "On"
 
     dialog = createObject("roSGNode", "StandardMessageDialog")
     dialog.title = "Settings"
-    dialog.message = "Server: " + serverDisplay + chr(10) + "Token: " + tokenDisplay + chr(10) + "Carousel blocks ratings: " + ratingsDisplay + chr(10) + "Portrait orientation: " + flipDisplay + chr(10) + "Poster transition: " + transitionDisplay
-    dialog.buttons = ["Change Plex server", "Change Plex token", "Edit carousel rating filter", "Flip portrait orientation", "Cycle poster transition", "Close"]
+    dialog.message = "Server: " + serverDisplay + chr(10) + "Token: " + tokenDisplay + chr(10) + "Carousel blocks ratings: " + ratingsDisplay + chr(10) + "Portrait orientation: " + flipDisplay + chr(10) + "Poster transition: " + transitionDisplay + chr(10) + "Progress bar color: " + colorDisplay + chr(10) + "Portrait poster border: " + borderDisplay
+    dialog.buttons = ["Change Plex server", "Change Plex token", "Edit carousel rating filter", "Flip portrait orientation", "Cycle poster transition", "Change progress bar color", "Toggle portrait poster border", "Close"]
     dialog.observeField("buttonSelected", "onSettingsMenuSelected")
     m.top.dialog = dialog
 end sub
@@ -384,6 +410,11 @@ sub onSettingsMenuSelected(event as Object)
         openSettingsMenu()
     else if selectedIndex = 4 then
         cycleTransitionStyle()
+        openSettingsMenu()
+    else if selectedIndex = 5 then
+        showProgressColorMenu()
+    else if selectedIndex = 6 then
+        togglePortraitPosterBorder()
         openSettingsMenu()
     else
         cancelSettings()
@@ -415,6 +446,70 @@ sub cycleTransitionStyle()
     end if
     m.registry.Write("transitionStyle", m.transitionStyle)
     m.registry.Flush()
+end sub
+
+sub applyProgressColor()
+    color = m.progressColors[m.progressColorIndex].hex
+    m.progressBarFill.color = color
+    m.portraitProgressBarFill.color = color
+end sub
+
+sub showProgressColorMenu()
+    dialog = createObject("roSGNode", "StandardMessageDialog")
+    dialog.title = "Progress Bar Color"
+    dialog.message = "Current: " + m.progressColors[m.progressColorIndex].name
+    buttons = []
+    for each c in m.progressColors
+        buttons.push(c.name)
+    end for
+    buttons.push("Cancel")
+    dialog.buttons = buttons
+    dialog.observeField("buttonSelected", "onProgressColorSelected")
+    m.top.dialog = dialog
+end sub
+
+sub onProgressColorSelected(event as Object)
+    selectedIndex = event.getData()
+    m.top.dialog = invalid
+    if selectedIndex >= 0 and selectedIndex < m.progressColors.Count() then
+        m.progressColorIndex = selectedIndex
+        m.registry.Write("progressColorIndex", m.progressColorIndex.ToStr())
+        m.registry.Flush()
+        applyProgressColor()
+    end if
+    openSettingsMenu()
+end sub
+
+sub togglePortraitPosterBorder()
+    m.portraitBorderEnabled = not m.portraitBorderEnabled
+    state = "0"
+    if m.portraitBorderEnabled then state = "1"
+    m.registry.Write("portraitBorderEnabled", state)
+    m.registry.Flush()
+    applyPortraitPosterBorder()
+end sub
+
+' Render a thick black matte behind the portrait poster when enabled. Geometry
+' mirrors the poster (same rotation + pivot translated by the border thickness)
+' so the matte appears as a consistent frame regardless of view mode or mount
+' direction. Hidden when the theater border is on (that PNG provides its own
+' frame) or in landscape modes.
+sub applyPortraitPosterBorder()
+    isPortrait = (m.viewMode = 2 or m.viewMode = 3)
+    showBorder = m.portraitBorderEnabled and isPortrait and not m.borderEnabled
+    m.portraitPosterBorder.visible = showBorder
+    if not showBorder then return
+
+    thickness = 40
+    w = m.poster.width
+    h = m.poster.height
+    posterT = m.poster.translation
+
+    m.portraitPosterBorder.width = w + thickness * 2
+    m.portraitPosterBorder.height = h + thickness * 2
+    m.portraitPosterBorder.scaleRotateCenter = [w / 2 + thickness, h / 2 + thickness]
+    m.portraitPosterBorder.rotation = m.poster.rotation
+    m.portraitPosterBorder.translation = [posterT[0] - thickness, posterT[1] - thickness]
 end sub
 
 ' Swap the main poster (and ambient backdrop) to new images, optionally animated.
@@ -984,6 +1079,8 @@ function getRatingIcon(rating as String) as Object
     if r = "r" then return { uri: "pkg:/images/ratings/rating_r.png", aspect: 1.0 }
     if r = "nc-17" then return { uri: "pkg:/images/ratings/rating_nc17.png", aspect: 1.5 }
     if r = "xxx" then return { uri: "pkg:/images/ratings/rating_xxx.png", aspect: 1.5 }
+    if r = "tv-y" then return { uri: "pkg:/images/ratings/rating_tvy.png", aspect: 1.0 }
+    if r = "tv-y7" then return { uri: "pkg:/images/ratings/rating_tvy7.png", aspect: 1.0 }
     if r = "tv-g" then return { uri: "pkg:/images/ratings/rating_tvg.png", aspect: 1.0 }
     if r = "tv-pg" then return { uri: "pkg:/images/ratings/rating_tvpg.png", aspect: 1.0 }
     if r = "tv-14" then return { uri: "pkg:/images/ratings/rating_tv14.png", aspect: 1.5 }

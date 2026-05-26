@@ -17,6 +17,13 @@
             opacity="0.18"
             visible="false" />
 
+        <!-- Optional black matte rendered behind the portrait poster (no-border modes
+             only). Geometry follows the poster's translation + rotation in BRS. -->
+        <Rectangle
+            id="portraitPosterBorder"
+            color="0x000000FF"
+            visible="false" />
+
         <Poster
             id="poster"
             width="1920"
