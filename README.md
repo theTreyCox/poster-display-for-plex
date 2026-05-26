@@ -130,7 +130,9 @@ poster-display-for-plex/
 │       ├── landscape/landscape-border-01.png
 │       └── portrait/portrait-border-01.png
 ├── fonts/
-│   ├── BebasNeue-Regular.ttf            # all chrome text + clock/time displays
+│   ├── Oswald-Bold.ttf                  # chrome text (titles, prefix, messages, settings glyph)
+│   ├── Oswald-Medium.ttf                # available for lighter chrome weights if needed
+│   ├── BebasNeue-Regular.ttf            # clock + progress bar time displays (numbers only)
 │   └── RetroSigned-DYYY0.ttf            # marquee title font inside the Now Playing border
 └── package.sh                            # builds poster-display-for-plex.zip for sideloading
 ```

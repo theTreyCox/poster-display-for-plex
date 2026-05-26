@@ -911,13 +911,17 @@ sub setNowPlayingTitle(title as String, showName as String, year as String, cont
     m.portraitNowPlayingPrefix.text = prefixText
 
     if m.carouselEnabled then
-        ' Carousel: combine title + year so the centered display reads as one block.
+        ' Landscape carousel: combine title + year so the centered display reads as
+        ' one block (the prefix is hidden in landscape carousel anyway).
         combined = upperTitle
         if yearText <> "" then combined = combined + " " + yearText
         m.nowPlayingTitle.text = combined
-        m.portraitNowPlayingTitle.text = combined
         m.nowPlayingYear.text = ""
-        m.portraitNowPlayingYear.text = ""
+
+        ' Portrait carousel: keep title and year as separate labels so the year
+        ' can render at 80% opacity. The rating prefix is also shown on the left.
+        m.portraitNowPlayingTitle.text = upperTitle
+        m.portraitNowPlayingYear.text = yearText
     else
         m.nowPlayingTitle.text = upperTitle
         m.portraitNowPlayingTitle.text = upperTitle
@@ -1049,28 +1053,38 @@ sub updateInfoVisibility()
     m.nowPlayingTitle.visible = showLandscapeStatus and m.isPlaying
     m.nowPlayingYear.visible = showLandscapeStatus and m.isPlaying and not m.carouselEnabled and (m.nowPlayingYear.text <> "")
 
-    ' Portrait: similar status swap (no marquee in portrait)
+    ' Portrait: prefix + year are shown in BOTH carousel and non-carousel modes
+    ' (carousel portrait gets the rating on the left mirroring the clock on the right).
     m.portraitMessageLabel.visible = m.portraitChrome.visible and not m.isPlaying
-    m.portraitNowPlayingPrefix.visible = m.portraitChrome.visible and m.isPlaying and not m.carouselEnabled and (m.portraitNowPlayingPrefix.text <> "")
+    m.portraitNowPlayingPrefix.visible = m.portraitChrome.visible and m.isPlaying and (m.portraitNowPlayingPrefix.text <> "")
     m.portraitNowPlayingTitle.visible = m.portraitChrome.visible and m.isPlaying
-    m.portraitNowPlayingYear.visible = m.portraitChrome.visible and m.isPlaying and not m.carouselEnabled and (m.portraitNowPlayingYear.text <> "")
+    m.portraitNowPlayingYear.visible = m.portraitChrome.visible and m.isPlaying and (m.portraitNowPlayingYear.text <> "")
 
-    ' In carousel mode, expand the title to span the available status row width
-    ' (left of the clock) and center it (no prefix). Outside carousel, title sits
-    ' to the right of the NOW PLAYING prefix and is left-aligned.
+    ' Carousel mode layouts:
+    '   Landscape: title centered across the full status row (prefix hidden,
+    '              year concatenated into the title text).
+    '   Portrait:  rating prefix on the LEFT at the same edge-padding as the
+    '              clock has on the right, title left-aligned after it, year
+    '              follows the title via the boundingRect observer.
     if m.carouselEnabled then
         m.nowPlayingTitle.translation = [130, 952]
         m.nowPlayingTitle.width = 1430
         m.nowPlayingTitle.horizAlign = "center"
-        m.portraitNowPlayingTitle.translation = [20, 80]
-        m.portraitNowPlayingTitle.width = 770
-        m.portraitNowPlayingTitle.horizAlign = "center"
+
+        m.portraitNowPlayingPrefix.translation = [90, 80]
+        m.portraitNowPlayingPrefix.width = 140
+        m.portraitNowPlayingTitle.translation = [240, 80]
+        m.portraitNowPlayingTitle.width = 540
+        m.portraitNowPlayingTitle.horizAlign = "left"
     else
-        m.nowPlayingTitle.translation = [420, 952]
-        m.nowPlayingTitle.width = 1140
+        m.nowPlayingTitle.translation = [310, 952]
+        m.nowPlayingTitle.width = 1250
         m.nowPlayingTitle.horizAlign = "left"
-        m.portraitNowPlayingTitle.translation = [270, 80]
-        m.portraitNowPlayingTitle.width = 510
+
+        m.portraitNowPlayingPrefix.translation = [20, 80]
+        m.portraitNowPlayingPrefix.width = 120
+        m.portraitNowPlayingTitle.translation = [150, 80]
+        m.portraitNowPlayingTitle.width = 640
         m.portraitNowPlayingTitle.horizAlign = "left"
     end if
 
