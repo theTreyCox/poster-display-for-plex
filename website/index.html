@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Poster Display for Plex — Roku channel</title>
+    <meta name="description" content="A Roku channel that turns any TV into a beautiful, always-on movie and TV poster display driven by your Plex Media Server." />
+
+    <meta property="og:title" content="Poster Display for Plex" />
+    <meta property="og:description" content="Turn any Roku TV into an always-on movie & TV poster display, driven by your Plex library." />
+    <meta property="og:image" content="https://treycoxcreative.com/posterdisplay/assets/logo.png" />
+    <meta property="og:url" content="https://treycoxcreative.com/posterdisplay" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" type="image/png" href="assets/logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <header class="hero">
+        <div class="container hero-inner">
+            <img src="assets/logo.png" alt="Poster Display for Plex logo" class="hero-logo" />
+            <h1>Poster Display for Plex</h1>
+            <p class="tagline">Turn any Roku TV into a beautiful, always-on movie &amp; TV poster display, driven by your own Plex library.</p>
+            <div class="cta-row">
+                <a class="btn btn-primary" href="https://github.com/theTreyCox/poster-display-for-plex" target="_blank" rel="noopener">View on GitHub</a>
+                <a class="btn btn-ghost" href="#sideload">How to install</a>
+            </div>
+            <p class="hero-meta">Free &middot; Open source &middot; No subscription</p>
+        </div>
+    </header>
+
+    <main>
+        <section class="section">
+            <div class="container">
+                <h2>Why this exists</h2>
+                <p class="lead">If you've ever wanted a dedicated "now playing" poster display next to your home theater (or just a rotating digital art frame fed by your own Plex library), today's options are surprisingly limited.</p>
+                <ul class="why-list">
+                    <li><strong>devMikeFrancis/digital-movie-poster</strong> is a great open-source project, but it needs a dedicated computer or Raspberry Pi wired to the TV.</li>
+                    <li><strong>PosterBox</strong> is a polished commercial app, but it doesn't run on Roku — leaving every Roku TV owner without a native option.</li>
+                </ul>
+                <p>Most of us already have a Roku stick or a Roku TV sitting in the living room. This project fills that gap: install the channel, point it at your Plex server, and the TV does the rest. No extra hardware, no second device, no PC running in the background.</p>
+            </div>
+        </section>
+
+        <section class="section section-alt" id="features">
+            <div class="container">
+                <h2>Features</h2>
+                <div class="feature-grid">
+                    <div class="feature">
+                        <h3>Live now-playing poster</h3>
+                        <p>Polls Plex every 15 seconds for the current session and shows the artwork. TV episodes get the series poster with a small episode thumbnail overlay.</p>
+                    </div>
+                    <div class="feature">
+                        <h3>Random carousel mode</h3>
+                        <p>Cycle randomly through your whole Plex library every 30 seconds. Pause, advance, or filter by content rating &mdash; or hide individual items with a Plex label.</p>
+                    </div>
+                    <div class="feature">
+                        <h3>Four view modes</h3>
+                        <p>Landscape Fit, Landscape Fill, Portrait Fit, Portrait Fill. Mount the TV vertically and the channel auto-rotates content to fit, with a flip option for either mount direction.</p>
+                    </div>
+                    <div class="feature">
+                        <h3>Theater-style "Now Playing" border</h3>
+                        <p>Optional marquee frame with retro lights, gold trim, and a dynamic "NOW PLAYING" sign showing the actual show or movie name.</p>
+                    </div>
+                    <div class="feature">
+                        <h3>Customizable poster matte</h3>
+                        <p>Toggle a thick black gallery-style matte around the portrait poster. Pairs nicely with vertical wall mounts.</p>
+                    </div>
+                    <div class="feature">
+                        <h3>Progress bar color picker</h3>
+                        <p>Pick from a 12-color palette &mdash; Orange, Red, Amber, Yellow, Lime, Green, Teal, Cyan, Blue, Indigo, Purple, or Pink.</p>
+                    </div>
+                    <div class="feature">
+                        <h3>Info overlay with live clock</h3>
+                        <p>Toggleable status strip with content-rating icon, title, year, progress bar, current and total runtime, and a wall clock.</p>
+                    </div>
+                    <div class="feature">
+                        <h3>Auto Plex discovery</h3>
+                        <p>First-time setup scans your local network for Plex Media Servers using GDM, so you can pick from a list instead of typing an IP.</p>
+                    </div>
+                    <div class="feature">
+                        <h3>Smooth transitions</h3>
+                        <p>Pick between Abrupt, Fade, or Slide animations for poster changes &mdash; applies in both carousel and live now-playing modes.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="sideload">
+            <div class="container">
+                <h2>How to install</h2>
+                <p class="lead">The channel isn't in the Roku Store yet, so you'll sideload it in Developer Mode. Takes about five minutes.</p>
+                <ol class="steps">
+                    <li>
+                        <strong>Enable Developer Mode on your Roku.</strong>
+                        <span>On your Roku remote press: <code>Home &times; 3, Up &times; 2, Right, Left, Right, Left, Right</code>. Follow the prompts to set a developer username/password and note your Roku's IP address.</span>
+                    </li>
+                    <li>
+                        <strong>Grab the sideload zip.</strong>
+                        <span>From the <a href="https://github.com/theTreyCox/poster-display-for-plex" target="_blank" rel="noopener">GitHub repo</a>, clone the project and run <code>./package.sh</code>, or download a pre-built <code>poster-display-for-plex.zip</code> from the latest release.</span>
+                    </li>
+                    <li>
+                        <strong>Upload the zip.</strong>
+                        <span>Open <code>http://&lt;your-roku-ip&gt;</code> in a browser, sign in with the developer credentials you set, and use the <strong>Upload</strong> button to install the zip.</span>
+                    </li>
+                    <li>
+                        <strong>Launch and configure.</strong>
+                        <span>The channel appears on your Roku home screen. On first launch, press <strong>OK</strong> on the visible Settings button. The app scans your network for Plex servers &mdash; pick yours and enter your Plex token. <a href="https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/" target="_blank" rel="noopener">How to find your token &rarr;</a></span>
+                    </li>
+                    <li>
+                        <strong>Start playing something.</strong>
+                        <span>Within ~15 seconds the poster appears on the TV. Press <code>*</code> or Left on the remote any time to open the Settings menu.</span>
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+        <section class="section section-alt">
+            <div class="container">
+                <h2>Hardware support</h2>
+                <p>Works on any Roku TV directly, or on any television connected to a Roku streaming stick or box. Designed for 1080p output; the channel renders crisply on 4K Roku devices too.</p>
+                <p>Mount the TV in landscape or vertically &mdash; the channel rotates content to fit either orientation, with a flip option for left-mount or right-mount portrait setups.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-inner">
+            <p><a href="https://github.com/theTreyCox/poster-display-for-plex" target="_blank" rel="noopener">GitHub</a> &middot; <a href="https://github.com/theTreyCox/poster-display-for-plex/blob/main/README.md" target="_blank" rel="noopener">README</a> &middot; <a href="https://github.com/theTreyCox/poster-display-for-plex/issues" target="_blank" rel="noopener">Report an issue</a></p>
+            <p class="muted">Made by <a href="https://treycoxcreative.com">Trey Cox</a>. Not affiliated with Plex or Roku.</p>
+        </div>
+    </footer>
+</body>
+</html>
