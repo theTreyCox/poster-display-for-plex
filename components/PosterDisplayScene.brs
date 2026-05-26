@@ -947,28 +947,43 @@ sub setNowPlayingTitle(title as String, showName as String, year as String, cont
     end if
 end sub
 
-' Year-label positioning helpers. We compute the year's X from the title's
-' current translation + the rendered text width (boundingRect.width), instead
-' of trusting boundingRect.x — on some Roku firmwares boundingRect.x comes
-' back in label-local coordinates rather than parent coords, which would
-' park the year at the chrome's left edge and clobber the title.
+' Year-label positioning helpers. boundingRect on Roku Labels isn't always
+' fresh when read synchronously (or even observable on some firmwares), so we
+' use the rendered-text width when it's valid and otherwise fall back to a
+' text-length × average-char-width estimate based on Oswald Bold metrics.
+' That keeps the year glued right after the title even before the first paint
+' completes for a new title.
 sub positionYearLabel()
-    rect = m.nowPlayingTitle.boundingRect
-    if rect = invalid then return
-    if rect.width = invalid then return
     yearY = m.nowPlayingYear.translation[1]
     titleX = m.nowPlayingTitle.translation[0]
-    m.nowPlayingYear.translation = [titleX + rect.width + 20, yearY]
+    width = 0
+    rect = m.nowPlayingTitle.boundingRect
+    if rect <> invalid and rect.width <> invalid and rect.width > 0 then
+        width = rect.width
+    end if
+    if width <= 0 then width = estimatedTextWidth(m.nowPlayingTitle.text, 25)
+    m.nowPlayingYear.translation = [titleX + width + 20, yearY]
 end sub
 
 sub positionPortraitYearLabel()
-    rect = m.portraitNowPlayingTitle.boundingRect
-    if rect = invalid then return
-    if rect.width = invalid then return
     yearY = m.portraitNowPlayingYear.translation[1]
     titleX = m.portraitNowPlayingTitle.translation[0]
-    m.portraitNowPlayingYear.translation = [titleX + rect.width + 20, yearY]
+    width = 0
+    rect = m.portraitNowPlayingTitle.boundingRect
+    if rect <> invalid and rect.width <> invalid and rect.width > 0 then
+        width = rect.width
+    end if
+    if width <= 0 then width = estimatedTextWidth(m.portraitNowPlayingTitle.text, 20)
+    m.portraitNowPlayingYear.translation = [titleX + width + 20, yearY]
 end sub
+
+' Rough text-width estimator for Oswald Bold uppercase. The avg-char-width
+' value should be a tiny bit larger than the real average so the year never
+' visually crowds the title.
+function estimatedTextWidth(text as String, avgCharWidth as Integer) as Integer
+    if text = invalid or text = "" then return 0
+    return text.Len() * avgCharWidth
+end function
 
 ' Map a Plex contentRating string to the bundled rating PNG. Returns invalid
 ' when no icon exists for that rating (caller falls back to a text badge).
