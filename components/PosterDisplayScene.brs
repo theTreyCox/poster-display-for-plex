@@ -29,6 +29,7 @@ sub init()
     m.portraitNowPlayingTitle = m.top.findNode("portraitNowPlayingTitle")
     m.portraitNowPlayingYear = m.top.findNode("portraitNowPlayingYear")
     m.portraitSettingsButton = m.top.findNode("portraitSettingsButton")
+    m.portraitSettingsButtonBg = m.top.findNode("portraitSettingsButtonBg")
     m.portraitProgressGroup = m.top.findNode("portraitProgressGroup")
     m.portraitCurrentTimeLabel = m.top.findNode("portraitCurrentTimeLabel")
     m.portraitTotalTimeLabel = m.top.findNode("portraitTotalTimeLabel")
@@ -1252,16 +1253,32 @@ sub updateInfoVisibility()
     m.nowPlayingTitle.width = 1560 - landscapeTitleX
     m.nowPlayingTitle.horizAlign = "left"
 
-    m.portraitRatingIcon.translation = [90, 132]
-    m.portraitNowPlayingPrefix.translation = [90, 132]
+    ' Vertical layout inside the 230-tall strip:
+    '   With progress: 50 top + 32 progress + 50 gap + 48 row + 50 bottom (progress y=50, row y=132)
+    '   Without progress (live stream, no duration yet): row alone centered at y=91
+    hasPortraitProgress = (m.infoEnabled and not isLandscape and m.duration > 0)
+    portraitRowY = 132
+    if not hasPortraitProgress then portraitRowY = 91
+
+    m.portraitRatingIcon.translation = [90, portraitRowY]
+    m.portraitNowPlayingPrefix.translation = [90, portraitRowY]
     portraitTitleX = 90 + portraitRatingWidth + 20
-    m.portraitNowPlayingTitle.translation = [portraitTitleX, 132]
+    m.portraitNowPlayingTitle.translation = [portraitTitleX, portraitRowY]
     m.portraitNowPlayingTitle.width = 780 - portraitTitleX
     m.portraitNowPlayingTitle.horizAlign = "left"
+    yearX = m.portraitNowPlayingYear.translation[0]
+    m.portraitNowPlayingYear.translation = [yearX, portraitRowY]
+    clockX = m.portraitClockLabel.translation[0]
+    m.portraitClockLabel.translation = [clockX, portraitRowY]
     ' Clock only renders alongside the now-playing row, so when nothing is
     ' playing the message label can sit cleanly centered without a stray clock
     ' on the right pulling the eye off-center.
     m.portraitClockLabel.visible = m.portraitChrome.visible and m.isPlaying
+
+    ' Settings button (60 tall) sits centered on the row (48 tall): rowY + (48-60)/2 = rowY - 6
+    settingsY = portraitRowY - 6
+    m.portraitSettingsButton.translation = [m.portraitSettingsButton.translation[0], settingsY]
+    m.portraitSettingsButtonBg.translation = [m.portraitSettingsButtonBg.translation[0], settingsY]
 
     if chromeVisible then updateClock()
 

@@ -282,7 +282,7 @@
             </Label>
 
             <!-- Settings icon (right side of strip in viewer) -->
-            <Rectangle width="60" height="60" translation="[1010, 126]" color="0x000000FF" />
+            <Rectangle id="portraitSettingsButtonBg" width="60" height="60" translation="[1010, 126]" color="0x000000FF" />
             <Button
                 id="portraitSettingsButton"
                 translation="[1010, 126]"
