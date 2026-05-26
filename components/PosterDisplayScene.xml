@@ -123,6 +123,14 @@
                 vertAlign="center">
                 <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="40" />
             </Label>
+            <Poster
+                id="ratingIcon"
+                visible="false"
+                translation="[130, 952]"
+                width="84"
+                height="56"
+                opacity="0.85"
+                loadDisplayMode="scaleToFit" />
             <Label
                 id="nowPlayingTitle"
                 visible="false"
@@ -259,6 +267,14 @@
                 vertAlign="center">
                 <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="32" />
             </Label>
+            <Poster
+                id="portraitRatingIcon"
+                visible="false"
+                translation="[20, 80]"
+                width="72"
+                height="48"
+                opacity="0.85"
+                loadDisplayMode="scaleToFit" />
             <Label
                 id="portraitNowPlayingTitle"
                 visible="false"

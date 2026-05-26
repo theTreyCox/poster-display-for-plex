@@ -11,6 +11,7 @@ sub init()
     m.overlay = m.top.findNode("overlay")
     m.messageLabel = m.top.findNode("messageLabel")
     m.nowPlayingPrefix = m.top.findNode("nowPlayingPrefix")
+    m.ratingIcon = m.top.findNode("ratingIcon")
     m.nowPlayingTitle = m.top.findNode("nowPlayingTitle")
     m.nowPlayingYear = m.top.findNode("nowPlayingYear")
     m.settingsButton = m.top.findNode("settingsButton")
@@ -26,6 +27,7 @@ sub init()
     m.portraitChrome = m.top.findNode("portraitChrome")
     m.portraitMessageLabel = m.top.findNode("portraitMessageLabel")
     m.portraitNowPlayingPrefix = m.top.findNode("portraitNowPlayingPrefix")
+    m.portraitRatingIcon = m.top.findNode("portraitRatingIcon")
     m.portraitNowPlayingTitle = m.top.findNode("portraitNowPlayingTitle")
     m.portraitNowPlayingYear = m.top.findNode("portraitNowPlayingYear")
     m.portraitSettingsButton = m.top.findNode("portraitSettingsButton")
@@ -904,11 +906,26 @@ sub setNowPlayingTitle(title as String, showName as String, year as String, cont
     yearText = ""
     if year <> "" and year <> "0" then yearText = "(" + year + ")"
 
-    prefixText = ""
-    if contentRating <> "" then prefixText = "[" + UCase(contentRating) + "]"
-
-    m.nowPlayingPrefix.text = prefixText
-    m.portraitNowPlayingPrefix.text = prefixText
+    ' Rating: prefer a PNG icon, fall back to bracketed text if none exists for
+    ' this rating (TV-Y / TV-Y7 currently have no icon, for example).
+    iconInfo = getRatingIcon(contentRating)
+    if iconInfo <> invalid then
+        m.ratingIcon.uri = iconInfo.uri
+        m.ratingIcon.width = Int(56 * iconInfo.aspect)
+        m.ratingIcon.height = 56
+        m.portraitRatingIcon.uri = iconInfo.uri
+        m.portraitRatingIcon.width = Int(48 * iconInfo.aspect)
+        m.portraitRatingIcon.height = 48
+        m.nowPlayingPrefix.text = ""
+        m.portraitNowPlayingPrefix.text = ""
+    else
+        m.ratingIcon.uri = ""
+        m.portraitRatingIcon.uri = ""
+        prefixText = ""
+        if contentRating <> "" then prefixText = "[" + UCase(contentRating) + "]"
+        m.nowPlayingPrefix.text = prefixText
+        m.portraitNowPlayingPrefix.text = prefixText
+    end if
 
     if m.carouselEnabled then
         ' Landscape carousel: combine title + year so the centered display reads as
@@ -934,15 +951,39 @@ sub positionYearLabel()
     rect = m.nowPlayingTitle.boundingRect
     if rect = invalid then return
     yearY = m.nowPlayingYear.translation[1]
-    m.nowPlayingYear.translation = [rect.x + rect.width + 14, yearY]
+    m.nowPlayingYear.translation = [rect.x + rect.width + 20, yearY]
 end sub
 
 sub positionPortraitYearLabel()
     rect = m.portraitNowPlayingTitle.boundingRect
     if rect = invalid then return
     yearY = m.portraitNowPlayingYear.translation[1]
-    m.portraitNowPlayingYear.translation = [rect.x + rect.width + 12, yearY]
+    m.portraitNowPlayingYear.translation = [rect.x + rect.width + 20, yearY]
 end sub
+
+' Map a Plex contentRating string to the bundled rating PNG. Returns invalid
+' when no icon exists for that rating (caller falls back to a text badge).
+function getRatingIcon(rating as String) as Object
+    if rating = invalid then return invalid
+    r = LCase(rating).Trim()
+    if r = "" then return invalid
+    slash = Instr(1, r, "/")
+    if slash > 0 then r = r.Mid(slash + 1).Trim()
+    if r = "" or r = "unrated" or r = "not rated" or r = "nr" then
+        return { uri: "pkg:/images/ratings/rating_nr.png", aspect: 1.0 }
+    end if
+    if r = "g" then return { uri: "pkg:/images/ratings/rating_g.png", aspect: 1.0 }
+    if r = "pg" then return { uri: "pkg:/images/ratings/rating_pg.png", aspect: 1.0 }
+    if r = "pg-13" then return { uri: "pkg:/images/ratings/rating_pg13.png", aspect: 1.5 }
+    if r = "r" then return { uri: "pkg:/images/ratings/rating_r.png", aspect: 1.0 }
+    if r = "nc-17" then return { uri: "pkg:/images/ratings/rating_nc17.png", aspect: 1.5 }
+    if r = "xxx" then return { uri: "pkg:/images/ratings/rating_xxx.png", aspect: 1.5 }
+    if r = "tv-g" then return { uri: "pkg:/images/ratings/rating_tvg.png", aspect: 1.0 }
+    if r = "tv-pg" then return { uri: "pkg:/images/ratings/rating_tvpg.png", aspect: 1.0 }
+    if r = "tv-14" then return { uri: "pkg:/images/ratings/rating_tv14.png", aspect: 1.5 }
+    if r = "tv-ma" then return { uri: "pkg:/images/ratings/rating_tvma.png", aspect: 1.0 }
+    return invalid
+end function
 
 sub onTick()
     if not m.infoEnabled then return
@@ -1049,42 +1090,56 @@ sub updateInfoVisibility()
     showLandscapeStatus = m.landscapeChrome.visible and not marqueeVisible
     m.overlay.visible = showLandscapeStatus
     m.messageLabel.visible = showLandscapeStatus and not m.isPlaying
-    m.nowPlayingPrefix.visible = showLandscapeStatus and m.isPlaying and not m.carouselEnabled and (m.nowPlayingPrefix.text <> "")
+    landscapeRatingShown = showLandscapeStatus and m.isPlaying and not m.carouselEnabled
+    m.ratingIcon.visible = landscapeRatingShown and (m.ratingIcon.uri <> "")
+    m.nowPlayingPrefix.visible = landscapeRatingShown and (m.ratingIcon.uri = "") and (m.nowPlayingPrefix.text <> "")
     m.nowPlayingTitle.visible = showLandscapeStatus and m.isPlaying
     m.nowPlayingYear.visible = showLandscapeStatus and m.isPlaying and not m.carouselEnabled and (m.nowPlayingYear.text <> "")
 
-    ' Portrait: prefix + year are shown in BOTH carousel and non-carousel modes
-    ' (carousel portrait gets the rating on the left mirroring the clock on the right).
+    ' Portrait: rating slot + year are shown in BOTH carousel and non-carousel
+    ' modes (carousel portrait gets the rating on the left mirroring the clock).
+    portraitRatingShown = m.portraitChrome.visible and m.isPlaying
     m.portraitMessageLabel.visible = m.portraitChrome.visible and not m.isPlaying
-    m.portraitNowPlayingPrefix.visible = m.portraitChrome.visible and m.isPlaying and (m.portraitNowPlayingPrefix.text <> "")
+    m.portraitRatingIcon.visible = portraitRatingShown and (m.portraitRatingIcon.uri <> "")
+    m.portraitNowPlayingPrefix.visible = portraitRatingShown and (m.portraitRatingIcon.uri = "") and (m.portraitNowPlayingPrefix.text <> "")
     m.portraitNowPlayingTitle.visible = m.portraitChrome.visible and m.isPlaying
     m.portraitNowPlayingYear.visible = m.portraitChrome.visible and m.isPlaying and (m.portraitNowPlayingYear.text <> "")
 
+    ' Width of whatever fills the rating slot — the PNG icon if we have one
+    ' (variable, depends on aspect), otherwise the fixed-width text badge.
+    landscapeRatingWidth = 160
+    if m.ratingIcon.uri <> "" then landscapeRatingWidth = m.ratingIcon.width
+    portraitRatingWidth = 120
+    if m.portraitRatingIcon.uri <> "" then portraitRatingWidth = m.portraitRatingIcon.width
+
     ' Carousel mode layouts:
-    '   Landscape: title centered across the full status row (prefix hidden,
-    '              year concatenated into the title text).
-    '   Portrait:  rating prefix on the LEFT at the same edge-padding as the
-    '              clock has on the right, title left-aligned after it, year
-    '              follows the title via the boundingRect observer.
+    '   Landscape: title centered across the full status row (no prefix/icon).
+    '   Portrait:  rating slot on the LEFT at the same edge padding as the
+    '              clock has on the right; title left-aligned after the slot.
     if m.carouselEnabled then
         m.nowPlayingTitle.translation = [130, 952]
         m.nowPlayingTitle.width = 1430
         m.nowPlayingTitle.horizAlign = "center"
 
+        m.portraitRatingIcon.translation = [90, 80]
         m.portraitNowPlayingPrefix.translation = [90, 80]
-        m.portraitNowPlayingPrefix.width = 140
-        m.portraitNowPlayingTitle.translation = [240, 80]
-        m.portraitNowPlayingTitle.width = 540
+        portraitTitleX = 90 + portraitRatingWidth + 20
+        m.portraitNowPlayingTitle.translation = [portraitTitleX, 80]
+        m.portraitNowPlayingTitle.width = 780 - portraitTitleX
         m.portraitNowPlayingTitle.horizAlign = "left"
     else
-        m.nowPlayingTitle.translation = [310, 952]
-        m.nowPlayingTitle.width = 1250
+        m.ratingIcon.translation = [130, 952]
+        m.nowPlayingPrefix.translation = [130, 952]
+        landscapeTitleX = 130 + landscapeRatingWidth + 20
+        m.nowPlayingTitle.translation = [landscapeTitleX, 952]
+        m.nowPlayingTitle.width = 1560 - landscapeTitleX
         m.nowPlayingTitle.horizAlign = "left"
 
+        m.portraitRatingIcon.translation = [20, 80]
         m.portraitNowPlayingPrefix.translation = [20, 80]
-        m.portraitNowPlayingPrefix.width = 120
-        m.portraitNowPlayingTitle.translation = [150, 80]
-        m.portraitNowPlayingTitle.width = 640
+        portraitTitleX = 20 + portraitRatingWidth + 20
+        m.portraitNowPlayingTitle.translation = [portraitTitleX, 80]
+        m.portraitNowPlayingTitle.width = 780 - portraitTitleX
         m.portraitNowPlayingTitle.horizAlign = "left"
     end if
 
