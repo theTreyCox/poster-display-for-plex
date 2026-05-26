@@ -557,6 +557,10 @@ sub applyPortraitPosterBorder()
     m.poster.height = innerH
     m.poster.scaleRotateCenter = [innerW / 2, innerH / 2]
     m.poster.translation = [posterCenter[0] - innerW / 2, posterCenter[1] - innerH / 2]
+    ' Fill the matte's inner box even for off-aspect posters (square album art,
+    ' 4:3 covers, etc.) so the matte stays a clean uniform frame. Without this
+    ' override, scaleToFit would letterbox the content inside the 2:3 inner box.
+    m.poster.loadDisplayMode = "scaleToFill"
 end sub
 
 ' Swap the main poster (and ambient backdrop) to new images, optionally animated.
