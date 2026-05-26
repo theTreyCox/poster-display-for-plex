@@ -19,8 +19,6 @@ sub init()
     m.currentTimeLabel = m.top.findNode("currentTimeLabel")
     m.totalTimeLabel = m.top.findNode("totalTimeLabel")
     m.progressBarFill = m.top.findNode("progressBarFill")
-    m.remainingTimeLabel = m.top.findNode("remainingTimeLabel")
-    m.endTimeLabel = m.top.findNode("endTimeLabel")
     m.clockLabel = m.top.findNode("clockLabel")
 
     ' Portrait chrome
@@ -35,8 +33,6 @@ sub init()
     m.portraitCurrentTimeLabel = m.top.findNode("portraitCurrentTimeLabel")
     m.portraitTotalTimeLabel = m.top.findNode("portraitTotalTimeLabel")
     m.portraitProgressBarFill = m.top.findNode("portraitProgressBarFill")
-    m.portraitRemainingTimeLabel = m.top.findNode("portraitRemainingTimeLabel")
-    m.portraitEndTimeLabel = m.top.findNode("portraitEndTimeLabel")
     m.portraitClockLabel = m.top.findNode("portraitClockLabel")
 
     ' App logo + episode poster overlay
@@ -904,7 +900,7 @@ sub setNowPlayingTitle(title as String, showName as String, year as String, cont
 
     upperTitle = UCase(fullTitle)
     yearText = ""
-    if year <> "" and year <> "0" then yearText = "(" + year + ")"
+    if year <> "" and year <> "0" then yearText = year
 
     ' Rating: prefer a PNG icon, fall back to bracketed text if none exists for
     ' this rating (TV-Y / TV-Y7 currently have no icon, for example).
@@ -1034,52 +1030,24 @@ end function
 sub renderProgress(positionMs as Integer)
     currentText = formatTime(positionMs)
     totalText = formatTime(m.duration)
-    remainingMs = m.duration - positionMs
-    if remainingMs < 0 then remainingMs = 0
-    remainingText = formatTime(remainingMs)
-    endTimeText = formatEndTime(remainingMs)
 
     m.currentTimeLabel.text = currentText
     m.totalTimeLabel.text = totalText
-    m.remainingTimeLabel.text = remainingText
-    m.endTimeLabel.text = endTimeText
     m.portraitCurrentTimeLabel.text = currentText
     m.portraitTotalTimeLabel.text = totalText
-    m.portraitRemainingTimeLabel.text = remainingText
-    m.portraitEndTimeLabel.text = endTimeText
 
     if m.duration > 0 then
         ratio = positionMs / m.duration
         if ratio < 0 then ratio = 0
         if ratio > 1 then ratio = 1
-        landscapeW = Int(ratio * 960)
+        landscapeW = Int(ratio * 1340)
         if landscapeW < 1 then landscapeW = 1
-        portraitW = Int(ratio * 520)
+        portraitW = Int(ratio * 690)
         if portraitW < 1 then portraitW = 1
         m.progressBarFill.width = landscapeW
         m.portraitProgressBarFill.width = portraitW
     end if
 end sub
-
-' Compute what time of day the current media will finish playing — current
-' wall clock plus the remaining playback time, formatted as 12-hour local.
-function formatEndTime(remainingMs as Integer) as String
-    now = createObject("roDateTime")
-    endSeconds = now.AsSeconds() + Int(remainingMs / 1000)
-    dt = createObject("roDateTime")
-    dt.FromSeconds(endSeconds)
-    dt.ToLocalTime()
-    h = dt.GetHours()
-    mins = dt.GetMinutes()
-    ampm = "AM"
-    if h >= 12 then ampm = "PM"
-    if h = 0 then
-        h = 12
-    else if h > 12 then
-        h = h - 12
-    end if
-    return "END " + Stri(h) + ":" + padTwo(mins) + ampm
-end function
 
 sub updateInfoVisibility()
     needsSetup = (m.settings.plexServer = "" or m.settings.plexToken = "")

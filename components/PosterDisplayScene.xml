@@ -45,23 +45,12 @@
         <!-- =============== LANDSCAPE CHROME =============== -->
         <Group id="landscapeChrome">
             <!-- Progress bar (above status). Layout left→right:
-                 [REMAINING xx:xx] [current] [---bar---] [total] [END TIME: x:xx PM] -->
+                 [current] [---bar---] [total] -->
             <Group id="progressGroup" visible="false" translation="[110, 850]">
                 <Rectangle width="1700" height="80" color="0x000000DD" />
                 <Label
-                    id="remainingTimeLabel"
-                    translation="[20, 16]"
-                    width="120"
-                    height="48"
-                    text=""
-                    color="0xFFFFFFFF"
-                    horizAlign="left"
-                    vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="36" />
-                </Label>
-                <Label
                     id="currentTimeLabel"
-                    translation="[160, 16]"
+                    translation="[20, 16]"
                     width="140"
                     height="48"
                     text="0:00"
@@ -70,29 +59,17 @@
                     vertAlign="center">
                     <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="36" />
                 </Label>
-                <Rectangle translation="[320, 36]" width="960" height="10" color="0x666666FF" />
-                <Rectangle id="progressBarFill" translation="[320, 36]" width="1" height="10" color="0xFFA500FF" />
+                <Rectangle translation="[180, 36]" width="1340" height="10" color="0x666666FF" />
+                <Rectangle id="progressBarFill" translation="[180, 36]" width="1" height="10" color="0xFFA500FF" />
                 <Label
                     id="totalTimeLabel"
-                    translation="[1300, 16]"
+                    translation="[1540, 16]"
                     width="140"
                     height="48"
                     text="0:00"
                     color="0xFFFFFFFF"
                     horizAlign="right"
                     vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="36" />
-                </Label>
-                <Label
-                    id="endTimeLabel"
-                    translation="[1460, 16]"
-                    width="220"
-                    height="48"
-                    text=""
-                    color="0xFFFFFFFF"
-                    horizAlign="right"
-                    vertAlign="center"
-                    wrap="false">
                     <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="36" />
                 </Label>
             </Group>
@@ -191,23 +168,12 @@
             <!-- 1080x200 pre-rotation; becomes 200x1080 buffer-left strip; viewer sees as bottom 200 of vertical screen -->
             <Rectangle width="1080" height="200" color="0x000000DD" />
 
-            <!-- Progress bar (top of strip in viewer). Same 5-element layout as landscape:
-                 [REMAINING xx:xx] [current] [---bar---] [total]   plus a sibling clock label. -->
+            <!-- Progress bar (top of strip in viewer). Layout:
+                 [current] [---bar---] [total]   plus a sibling clock label below. -->
             <Group id="portraitProgressGroup" visible="false" translation="[0, 30]">
                 <Label
-                    id="portraitRemainingTimeLabel"
-                    translation="[20, 0]"
-                    width="90"
-                    height="32"
-                    text=""
-                    color="0xFFFFFFFF"
-                    horizAlign="left"
-                    vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="28" />
-                </Label>
-                <Label
                     id="portraitCurrentTimeLabel"
-                    translation="[130, 0]"
+                    translation="[90, 0]"
                     width="90"
                     height="32"
                     text="0:00"
@@ -216,29 +182,17 @@
                     vertAlign="center">
                     <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="28" />
                 </Label>
-                <Rectangle translation="[240, 12]" width="520" height="8" color="0x666666FF" />
-                <Rectangle id="portraitProgressBarFill" translation="[240, 12]" width="1" height="8" color="0xFFA500FF" />
+                <Rectangle translation="[200, 12]" width="690" height="8" color="0x666666FF" />
+                <Rectangle id="portraitProgressBarFill" translation="[200, 12]" width="1" height="8" color="0xFFA500FF" />
                 <Label
                     id="portraitTotalTimeLabel"
-                    translation="[780, 0]"
+                    translation="[900, 0]"
                     width="90"
                     height="32"
                     text="0:00"
                     color="0xFFFFFFFF"
                     horizAlign="right"
                     vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="28" />
-                </Label>
-                <Label
-                    id="portraitEndTimeLabel"
-                    translation="[890, 0]"
-                    width="170"
-                    height="32"
-                    text=""
-                    color="0xFFFFFFFF"
-                    horizAlign="right"
-                    vertAlign="center"
-                    wrap="false">
                     <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="28" />
                 </Label>
             </Group>
