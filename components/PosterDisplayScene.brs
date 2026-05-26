@@ -1252,12 +1252,16 @@ sub updateInfoVisibility()
     m.nowPlayingTitle.width = 1560 - landscapeTitleX
     m.nowPlayingTitle.horizAlign = "left"
 
-    m.portraitRatingIcon.translation = [90, 110]
-    m.portraitNowPlayingPrefix.translation = [90, 110]
+    m.portraitRatingIcon.translation = [90, 132]
+    m.portraitNowPlayingPrefix.translation = [90, 132]
     portraitTitleX = 90 + portraitRatingWidth + 20
-    m.portraitNowPlayingTitle.translation = [portraitTitleX, 110]
+    m.portraitNowPlayingTitle.translation = [portraitTitleX, 132]
     m.portraitNowPlayingTitle.width = 780 - portraitTitleX
     m.portraitNowPlayingTitle.horizAlign = "left"
+    ' Clock only renders alongside the now-playing row, so when nothing is
+    ' playing the message label can sit cleanly centered without a stray clock
+    ' on the right pulling the eye off-center.
+    m.portraitClockLabel.visible = m.portraitChrome.visible and m.isPlaying
 
     if chromeVisible then updateClock()
 

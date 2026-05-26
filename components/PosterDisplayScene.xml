@@ -181,7 +181,7 @@
 
             <!-- Progress bar (top of strip in viewer). Layout:
                  [current] [ bar ] [total]   plus a sibling clock label below. -->
-            <Group id="portraitProgressGroup" visible="false" translation="[0, 30]">
+            <Group id="portraitProgressGroup" visible="false" translation="[0, 50]">
                 <Label
                     id="portraitCurrentTimeLabel"
                     translation="[90, 0]"
@@ -208,22 +208,24 @@
                 </Label>
             </Group>
 
-            <!-- Status (bottom of strip in viewer). portraitClockLabel sits on the right. -->
+            <!-- Status (centered in strip when shown alone). When playing+info, the
+                 now-playing row + clock sit at y=132 (vertically centered as a group
+                 with the progress bar above); the message label hides. -->
             <Label
                 id="portraitMessageLabel"
-                translation="[20, 110]"
-                width="770"
+                translation="[20, 91]"
+                width="1040"
                 height="48"
                 text="Waiting for Plex"
                 color="0xFFFFFFFF"
-                horizAlign="left"
+                horizAlign="center"
                 vertAlign="center">
                 <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="32" />
             </Label>
             <Label
                 id="portraitNowPlayingPrefix"
                 visible="false"
-                translation="[20, 110]"
+                translation="[20, 132]"
                 width="120"
                 height="48"
                 text=""
@@ -235,7 +237,7 @@
             <Poster
                 id="portraitRatingIcon"
                 visible="false"
-                translation="[20, 110]"
+                translation="[20, 132]"
                 width="72"
                 height="48"
                 opacity="0.85"
@@ -243,7 +245,7 @@
             <Label
                 id="portraitNowPlayingTitle"
                 visible="false"
-                translation="[150, 110]"
+                translation="[150, 132]"
                 width="640"
                 height="48"
                 text=""
@@ -256,7 +258,7 @@
             <Label
                 id="portraitNowPlayingYear"
                 visible="false"
-                translation="[150, 110]"
+                translation="[150, 132]"
                 width="160"
                 height="48"
                 text=""
@@ -268,7 +270,7 @@
             </Label>
             <Label
                 id="portraitClockLabel"
-                translation="[790, 110]"
+                translation="[790, 132]"
                 width="200"
                 height="48"
                 text=""
@@ -280,10 +282,10 @@
             </Label>
 
             <!-- Settings icon (right side of strip in viewer) -->
-            <Rectangle width="60" height="60" translation="[1010, 105]" color="0x000000FF" />
+            <Rectangle width="60" height="60" translation="[1010, 126]" color="0x000000FF" />
             <Button
                 id="portraitSettingsButton"
-                translation="[1010, 105]"
+                translation="[1010, 126]"
                 minWidth="60"
                 height="60"
                 text="≡"
