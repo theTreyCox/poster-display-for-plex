@@ -927,24 +927,10 @@ sub setNowPlayingTitle(title as String, showName as String, year as String, cont
         m.portraitNowPlayingPrefix.text = prefixText
     end if
 
-    if m.carouselEnabled then
-        ' Landscape carousel: combine title + year so the centered display reads as
-        ' one block (the prefix is hidden in landscape carousel anyway).
-        combined = upperTitle
-        if yearText <> "" then combined = combined + " " + yearText
-        m.nowPlayingTitle.text = combined
-        m.nowPlayingYear.text = ""
-
-        ' Portrait carousel: keep title and year as separate labels so the year
-        ' can render at 80% opacity. The rating prefix is also shown on the left.
-        m.portraitNowPlayingTitle.text = upperTitle
-        m.portraitNowPlayingYear.text = yearText
-    else
-        m.nowPlayingTitle.text = upperTitle
-        m.portraitNowPlayingTitle.text = upperTitle
-        m.nowPlayingYear.text = yearText
-        m.portraitNowPlayingYear.text = yearText
-    end if
+    m.nowPlayingTitle.text = upperTitle
+    m.portraitNowPlayingTitle.text = upperTitle
+    m.nowPlayingYear.text = yearText
+    m.portraitNowPlayingYear.text = yearText
 end sub
 
 ' Year-label positioning helpers. boundingRect on Roku Labels isn't always
@@ -1110,18 +1096,19 @@ sub updateInfoVisibility()
     m.settingsButton.visible = needsSetup
     m.portraitSettingsButton.visible = needsSetup
 
-    ' Landscape: swap status mode (message vs now-playing) and hide status when marquee shows
+    ' Landscape: swap status mode (message vs now-playing) and hide status when marquee shows.
+    ' Layout is identical in carousel and now-playing modes so the chrome reads
+    ' the same regardless of source.
     showLandscapeStatus = m.landscapeChrome.visible and not marqueeVisible
     m.overlay.visible = showLandscapeStatus
     m.messageLabel.visible = showLandscapeStatus and not m.isPlaying
-    landscapeRatingShown = showLandscapeStatus and m.isPlaying and not m.carouselEnabled
+    landscapeRatingShown = showLandscapeStatus and m.isPlaying
     m.ratingIcon.visible = landscapeRatingShown and (m.ratingIcon.uri <> "")
     m.nowPlayingPrefix.visible = landscapeRatingShown and (m.ratingIcon.uri = "") and (m.nowPlayingPrefix.text <> "")
     m.nowPlayingTitle.visible = showLandscapeStatus and m.isPlaying
-    m.nowPlayingYear.visible = showLandscapeStatus and m.isPlaying and not m.carouselEnabled and (m.nowPlayingYear.text <> "")
+    m.nowPlayingYear.visible = showLandscapeStatus and m.isPlaying and (m.nowPlayingYear.text <> "")
 
-    ' Portrait: rating slot + year are shown in BOTH carousel and non-carousel
-    ' modes (carousel portrait gets the rating on the left mirroring the clock).
+    ' Portrait: same identical layout in both modes.
     portraitRatingShown = m.portraitChrome.visible and m.isPlaying
     m.portraitMessageLabel.visible = m.portraitChrome.visible and not m.isPlaying
     m.portraitRatingIcon.visible = portraitRatingShown and (m.portraitRatingIcon.uri <> "")
@@ -1136,36 +1123,24 @@ sub updateInfoVisibility()
     portraitRatingWidth = 120
     if m.portraitRatingIcon.uri <> "" then portraitRatingWidth = m.portraitRatingIcon.width
 
-    ' Carousel mode layouts:
-    '   Landscape: title centered across the full status row (no prefix/icon).
-    '   Portrait:  rating slot on the LEFT at the same edge padding as the
-    '              clock has on the right; title left-aligned after the slot.
-    if m.carouselEnabled then
-        m.nowPlayingTitle.translation = [130, 952]
-        m.nowPlayingTitle.width = 1430
-        m.nowPlayingTitle.horizAlign = "center"
+    ' Identical layout in carousel and now-playing:
+    '   Landscape: icon at 20px from overlay left edge, title left-aligned after,
+    '              year right after title, clock at 20px from overlay right edge.
+    '   Portrait:  icon at 90px from strip left edge (matches clock's 90px from
+    '              right edge), title + year after, clock on right.
+    m.ratingIcon.translation = [130, 952]
+    m.nowPlayingPrefix.translation = [130, 952]
+    landscapeTitleX = 130 + landscapeRatingWidth + 20
+    m.nowPlayingTitle.translation = [landscapeTitleX, 952]
+    m.nowPlayingTitle.width = 1560 - landscapeTitleX
+    m.nowPlayingTitle.horizAlign = "left"
 
-        m.portraitRatingIcon.translation = [90, 80]
-        m.portraitNowPlayingPrefix.translation = [90, 80]
-        portraitTitleX = 90 + portraitRatingWidth + 20
-        m.portraitNowPlayingTitle.translation = [portraitTitleX, 80]
-        m.portraitNowPlayingTitle.width = 780 - portraitTitleX
-        m.portraitNowPlayingTitle.horizAlign = "left"
-    else
-        m.ratingIcon.translation = [130, 952]
-        m.nowPlayingPrefix.translation = [130, 952]
-        landscapeTitleX = 130 + landscapeRatingWidth + 20
-        m.nowPlayingTitle.translation = [landscapeTitleX, 952]
-        m.nowPlayingTitle.width = 1560 - landscapeTitleX
-        m.nowPlayingTitle.horizAlign = "left"
-
-        m.portraitRatingIcon.translation = [20, 80]
-        m.portraitNowPlayingPrefix.translation = [20, 80]
-        portraitTitleX = 20 + portraitRatingWidth + 20
-        m.portraitNowPlayingTitle.translation = [portraitTitleX, 80]
-        m.portraitNowPlayingTitle.width = 780 - portraitTitleX
-        m.portraitNowPlayingTitle.horizAlign = "left"
-    end if
+    m.portraitRatingIcon.translation = [90, 80]
+    m.portraitNowPlayingPrefix.translation = [90, 80]
+    portraitTitleX = 90 + portraitRatingWidth + 20
+    m.portraitNowPlayingTitle.translation = [portraitTitleX, 80]
+    m.portraitNowPlayingTitle.width = 780 - portraitTitleX
+    m.portraitNowPlayingTitle.horizAlign = "left"
 
     if chromeVisible then updateClock()
 

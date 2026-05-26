@@ -155,7 +155,7 @@
                 horizAlign="left"
                 vertAlign="center"
                 wrap="false">
-                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="40" />
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="36" />
             </Label>
             <Label
                 id="clockLabel"
@@ -193,7 +193,7 @@
 
             <!-- Progress bar (top of strip in viewer). Same 5-element layout as landscape:
                  [REMAINING xx:xx] [current] [---bar---] [total]   plus a sibling clock label. -->
-            <Group id="portraitProgressGroup" visible="false" translation="[0, 10]">
+            <Group id="portraitProgressGroup" visible="false" translation="[0, 30]">
                 <Label
                     id="portraitRemainingTimeLabel"
                     translation="[20, 0]"
@@ -299,7 +299,7 @@
                 horizAlign="left"
                 vertAlign="center"
                 wrap="false">
-                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="32" />
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="28" />
             </Label>
             <Label
                 id="portraitClockLabel"
