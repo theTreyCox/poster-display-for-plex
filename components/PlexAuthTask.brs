@@ -168,28 +168,31 @@ function listServers(clientId as String, plexToken as String) as Object
             owned = stringOrEmpty(attrs["owned"])
             print "[plex.listServers] device name='" + name + "' provides='" + provides + "' owned=" + owned + " tokenLen=" + Len(accessToken).ToStr()
             if Instr(1, provides, "server") > 0 then
-                conns = dev.GetNamedElements("Connection")
+                ' Plex.tv's v2 XML response uses lowercase element names
+                ' (<resource>, <connection>) inside a <resources> root, not the
+                ' Capitalized names the legacy /api/resources used. Look for
+                ' either, and also handle the case where connections are wrapped
+                ' in a <connections> parent.
+                conns = collectConnectionElements(dev)
                 bestUrl = ""
                 bestLocal = false
-                if conns <> invalid then
-                    print "[plex.listServers]   connections=" + conns.Count().ToStr()
-                    for each conn in conns
-                        connAttrs = conn.GetAttributes()
-                        uri = stringOrEmpty(connAttrs["uri"])
-                        local = (stringOrEmpty(connAttrs["local"]) = "1")
-                        relay = (stringOrEmpty(connAttrs["relay"]) = "1")
-                        print "[plex.listServers]     uri=" + uri + " local=" + local.ToStr() + " relay=" + relay.ToStr()
-                        if uri <> "" then
-                            if bestUrl = "" then
-                                bestUrl = uri
-                                bestLocal = local
-                            else if local and not bestLocal then
-                                bestUrl = uri
-                                bestLocal = local
-                            end if
+                print "[plex.listServers]   connections found=" + conns.Count().ToStr()
+                for each conn in conns
+                    connAttrs = conn.GetAttributes()
+                    uri = stringOrEmpty(connAttrs["uri"])
+                    local = (stringOrEmpty(connAttrs["local"]) = "1")
+                    relay = (stringOrEmpty(connAttrs["relay"]) = "1")
+                    print "[plex.listServers]     uri=" + uri + " local=" + local.ToStr() + " relay=" + relay.ToStr()
+                    if uri <> "" then
+                        if bestUrl = "" then
+                            bestUrl = uri
+                            bestLocal = local
+                        else if local and not bestLocal then
+                            bestUrl = uri
+                            bestLocal = local
                         end if
-                    end for
-                end if
+                    end if
+                end for
                 if accessToken <> "" and bestUrl <> "" then
                     servers.push({ name: name, url: bestUrl, accessToken: accessToken, owned: (owned = "1") })
                     print "[plex.listServers]   ADDED url=" + bestUrl
@@ -203,6 +206,32 @@ function listServers(clientId as String, plexToken as String) as Object
     result.ok = true
     result.servers = servers
     return result
+end function
+
+' Collect all Connection elements from a Plex resource/Device, regardless of
+' element casing or whether they're wrapped in a <connections> parent. Also
+' dumps each direct child's name for diagnostic visibility while we figure out
+' which response shape Plex.tv is returning.
+function collectConnectionElements(resource as Object) as Object
+    out = []
+    children = resource.GetChildElements()
+    if children = invalid then return out
+    for each child in children
+        nm = child.GetName()
+        print "[plex.listServers]     child=<" + nm + ">"
+        lname = LCase(nm)
+        if lname = "connection" then
+            out.push(child)
+        else if lname = "connections" then
+            inner = child.GetChildElements()
+            if inner <> invalid then
+                for each c in inner
+                    if LCase(c.GetName()) = "connection" then out.push(c)
+                end for
+            end if
+        end if
+    end for
+    return out
 end function
 
 function createPlexTransfer(clientId as String) as Object
