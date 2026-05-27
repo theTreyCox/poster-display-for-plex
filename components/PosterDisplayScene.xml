@@ -314,7 +314,7 @@
             <!-- Slogan / tagline (accent color, uppercase, Oswald Bold) -->
             <Label
                 id="landscapeMetaTagline"
-                translation="[20, 40]"
+                translation="[20, 80]"
                 width="360"
                 height="200"
                 text=""
@@ -324,25 +324,25 @@
                 wrap="true">
                 <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="38" />
             </Label>
-            <!-- Year · Runtime · Genres in the time-label font + 80% opacity -->
+            <!-- Year · Runtime · Genres — BebasNeue-Regular @ 80% opacity (CC alpha) -->
             <Label
                 id="landscapeMetaStats"
-                translation="[20, 270]"
+                translation="[20, 310]"
                 width="360"
-                height="40"
+                height="46"
                 text=""
                 color="0xFFFFFFCC"
                 horizAlign="left"
                 vertAlign="center"
                 wrap="false">
-                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="30" />
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="35" />
             </Label>
-            <!-- Description (smaller body font, generous top gap from stats) -->
+            <!-- Description (smaller body font) -->
             <Label
                 id="landscapeMetaSummary"
-                translation="[20, 380]"
+                translation="[20, 391]"
                 width="360"
-                height="670"
+                height="659"
                 text=""
                 color="0xE5E5E5FF"
                 horizAlign="left"
@@ -359,7 +359,7 @@
             <Rectangle width="1080" height="360" color="0x000000FF" />
             <Label
                 id="portraitMetaTagline"
-                translation="[90, 24]"
+                translation="[90, 40]"
                 width="900"
                 height="50"
                 text=""
@@ -371,15 +371,15 @@
             </Label>
             <Label
                 id="portraitMetaStats"
-                translation="[90, 86]"
+                translation="[90, 106]"
                 width="900"
-                height="36"
+                height="40"
                 text=""
                 color="0xFFFFFFCC"
                 horizAlign="center"
                 vertAlign="center"
                 wrap="false">
-                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="28" />
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="32" />
             </Label>
             <Label
                 id="portraitMetaSummary"
