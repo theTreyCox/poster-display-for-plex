@@ -342,13 +342,26 @@
                 id="landscapeMetaSummary"
                 translation="[20, 391]"
                 width="360"
-                height="659"
+                height="620"
                 text=""
                 color="0xE5E5E5FF"
                 horizAlign="left"
                 vertAlign="top"
                 font="font:SmallestSystemFont"
                 wrap="true" />
+            <Label
+                id="landscapeMetaReadMoreHint"
+                visible="false"
+                translation="[20, 1030]"
+                width="360"
+                height="28"
+                text="▼ PRESS OK TO READ MORE"
+                color="0xFFA500FF"
+                horizAlign="center"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="16" />
+            </Label>
         </Group>
 
         <!-- =============== PORTRAIT METADATA (rotated, viewer-top strip) ===============
@@ -388,10 +401,23 @@
                 height="170"
                 text=""
                 color="0xE5E5E5FF"
-                horizAlign="center"
+                horizAlign="left"
                 vertAlign="top"
                 font="font:SmallestSystemFont"
                 wrap="true" />
+            <Label
+                id="portraitMetaReadMoreHint"
+                visible="false"
+                translation="[90, 332]"
+                width="900"
+                height="22"
+                text="▼ PRESS OK TO READ MORE"
+                color="0xFFA500FF"
+                horizAlign="center"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="14" />
+            </Label>
         </Group>
 
         <!-- App logo (landscape only, shown alongside info overlay) -->
@@ -541,6 +567,71 @@
                 horizAlign="center"
                 vertAlign="center">
                 <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="20" />
+            </Label>
+        </Group>
+
+        <!-- Expanded description ("Read more"). Full-screen modal opened with OK
+             while the metadata overlay is visible. Pauses the carousel while open;
+             Back closes it. -->
+        <Group id="expandedDescription" visible="false">
+            <Rectangle width="1920" height="1080" color="0x000000FF" />
+            <Label
+                id="expandedTitle"
+                translation="[260, 70]"
+                width="1400"
+                height="80"
+                text=""
+                color="0xFFFFFFFF"
+                horizAlign="center"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="58" />
+            </Label>
+            <Label
+                id="expandedTagline"
+                translation="[260, 170]"
+                width="1400"
+                height="60"
+                text=""
+                color="0xFFA500FF"
+                horizAlign="center"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="34" />
+            </Label>
+            <Label
+                id="expandedStats"
+                translation="[260, 240]"
+                width="1400"
+                height="48"
+                text=""
+                color="0xFFFFFFCC"
+                horizAlign="center"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="32" />
+            </Label>
+            <Label
+                id="expandedSummary"
+                translation="[260, 330]"
+                width="1400"
+                height="660"
+                text=""
+                color="0xE5E5E5FF"
+                horizAlign="left"
+                vertAlign="top"
+                font="font:MediumSystemFont"
+                wrap="true" />
+            <Label
+                translation="[260, 1020]"
+                width="1400"
+                height="40"
+                text="PRESS BACK TO CLOSE"
+                color="0x808080FF"
+                horizAlign="center"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="18" />
             </Label>
         </Group>
 

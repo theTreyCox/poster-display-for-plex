@@ -39,10 +39,17 @@ sub init()
     m.landscapeMetaTagline = m.top.findNode("landscapeMetaTagline")
     m.landscapeMetaStats = m.top.findNode("landscapeMetaStats")
     m.landscapeMetaSummary = m.top.findNode("landscapeMetaSummary")
+    m.landscapeMetaReadMoreHint = m.top.findNode("landscapeMetaReadMoreHint")
     m.portraitMetadata = m.top.findNode("portraitMetadata")
     m.portraitMetaTagline = m.top.findNode("portraitMetaTagline")
     m.portraitMetaStats = m.top.findNode("portraitMetaStats")
     m.portraitMetaSummary = m.top.findNode("portraitMetaSummary")
+    m.portraitMetaReadMoreHint = m.top.findNode("portraitMetaReadMoreHint")
+    m.expandedDescription = m.top.findNode("expandedDescription")
+    m.expandedTitle = m.top.findNode("expandedTitle")
+    m.expandedTagline = m.top.findNode("expandedTagline")
+    m.expandedStats = m.top.findNode("expandedStats")
+    m.expandedSummary = m.top.findNode("expandedSummary")
     m.portraitPosterBorderGroup = m.top.findNode("portraitPosterBorderGroup")
     m.portraitPosterBorderTop = m.top.findNode("portraitPosterBorderTop")
     m.portraitPosterBorderBottom = m.top.findNode("portraitPosterBorderBottom")
@@ -224,6 +231,26 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
         return true  ' swallow all other keys while the overlay is up
     end if
 
+    ' Expanded "Read more" description modal: Back closes; all other keys
+    ' are swallowed so they don't drive the underlying display while reading.
+    if m.expandedDescription.visible then
+        if key = "back" then
+            closeExpandedDescription()
+            return true
+        end if
+        return true
+    end if
+
+    ' OK opens the expanded description when metadata is visible AND the
+    ' read-more hint is showing (so we don't open an "expanded" modal for
+    ' a 30-word summary that's already fully visible).
+    if key = "OK" and m.metadataEnabled and m.isPlaying then
+        if m.landscapeMetaReadMoreHint.visible or m.portraitMetaReadMoreHint.visible then
+            openExpandedDescription()
+            return true
+        end if
+    end if
+
     ' In carousel mode, Play pauses/resumes auto-advance and Fwd manually advances.
     ' These take precedence over the global Play=cycle-view-mode binding.
     if m.carouselEnabled then
@@ -320,9 +347,14 @@ sub applyPortraitFlip()
     if m.portraitFlip then
         m.portraitChrome.rotation = -1.5707963
         m.portraitChrome.translation = [-425, 425]
+        ' Metadata sits at viewer-TOP — mirrored translation from the chrome strip.
+        m.portraitMetadata.rotation = -1.5707963
+        m.portraitMetadata.translation = [1200, 360]
     else
         m.portraitChrome.rotation = 1.5707963
         m.portraitChrome.translation = [1265, 425]
+        m.portraitMetadata.rotation = 1.5707963
+        m.portraitMetadata.translation = [-360, 360]
     end if
 end sub
 
@@ -763,6 +795,40 @@ sub toggleMetadata()
     showModeIndicator(label)
 end sub
 
+' Open the full-screen "Read more" modal with the current session's full
+' description + a recap of the chrome (title, tagline, stats). Pauses the
+' carousel timer so it doesn't advance behind the modal.
+sub openExpandedDescription()
+    if m.currentSessionMetadata = invalid then return
+
+    ' Recover the current title from whichever chrome label is on screen.
+    isLandscape = (m.viewMode = 0 or m.viewMode = 1)
+    if isLandscape then
+        title = m.nowPlayingTitle.text
+    else
+        title = m.portraitNowPlayingTitle.text
+    end if
+
+    stats = m.landscapeMetaStats.text  ' Already computed, matches what's on screen
+    tagline = m.landscapeMetaTagline.text
+
+    m.expandedTitle.text = title
+    m.expandedTagline.text = tagline
+    m.expandedTagline.color = m.accentColors[m.accentColorIndex].hex
+    m.expandedStats.text = stats
+    m.expandedSummary.text = m.currentSessionMetadata.summary
+
+    if m.carouselEnabled then m.carouselTimer.control = "stop"
+    m.expandedDescription.visible = true
+end sub
+
+sub closeExpandedDescription()
+    m.expandedDescription.visible = false
+    if m.carouselEnabled and not m.carouselPaused then
+        m.carouselTimer.control = "start"
+    end if
+end sub
+
 ' Snapshot the current session's metadata so we can show it whenever the user
 ' toggles the panel — even between Plex poll refreshes.
 sub setMetadataFromSession(sessionInfo as Object)
@@ -798,6 +864,12 @@ sub setMetadataFromSession(sessionInfo as Object)
     m.portraitMetaTagline.text = taglineUpper
     m.portraitMetaStats.text = stats
     m.portraitMetaSummary.text = sessionInfo.summary
+
+    ' Show the "Read more" hint only when the description is long enough to
+    ' actually be truncated in the metadata panel.
+    needsReadMore = (Len(sessionInfo.summary) > 250)
+    m.landscapeMetaReadMoreHint.visible = needsReadMore
+    m.portraitMetaReadMoreHint.visible = needsReadMore
 end sub
 
 ' Format a duration in ms as "Xh Ym" or "Ym" if under an hour.
