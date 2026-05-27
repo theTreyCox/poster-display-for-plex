@@ -15,7 +15,9 @@ sub run()
     end if
 end sub
 
-' POST https://plex.tv/api/v2/pins?strong=true
+' POST https://plex.tv/api/v2/pins  (no strong=true — that returns a 25-char
+' device-strong code that the user can't type into plex.tv/link. The plain
+' endpoint returns the short 4-char human-friendly code.)
 ' roUrlTransfer.PostFromString returns only the HTTP status code, not the
 ' body. We need the XML body to extract the PIN, so we use AsyncPostFromString
 ' against an roMessagePort and wait for the roUrlEvent.
@@ -26,7 +28,7 @@ function requestPin(clientId as String) as Object
         result.error = "transfer create failed"
         return result
     end if
-    transfer.SetUrl("https://plex.tv/api/v2/pins?strong=true")
+    transfer.SetUrl("https://plex.tv/api/v2/pins")
     transfer.AddHeader("Accept", "application/xml")
     transfer.AddHeader("Content-Length", "0")
 
@@ -65,6 +67,9 @@ function requestPin(clientId as String) as Object
 end function
 
 ' GET https://plex.tv/api/v2/pins/{id}?code={code}
+' Uses async so we can read the response code from the roUrlEvent (404 means
+' the PIN expired). roUrlTransfer itself has no GetResponseCode method on a
+' sync GET — the code lives on roUrlEvent.
 function pollPin(clientId as String, pinId as String, pinCode as String) as Object
     result = { mode: "pollPin", ok: false, authToken: "", expired: false, error: "" }
     if pinId = "" then
@@ -80,9 +85,22 @@ function pollPin(clientId as String, pinId as String, pinCode as String) as Obje
     if pinCode <> "" then url = url + "?code=" + transfer.Escape(pinCode)
     transfer.SetUrl(url)
     transfer.AddHeader("Accept", "application/xml")
-    body = transfer.GetToString()
-    code = transfer.GetResponseCode()
-    if code = 404 then
+
+    port = createObject("roMessagePort")
+    transfer.SetMessagePort(port)
+    if not transfer.AsyncGetToString() then
+        result.error = "async get failed to start"
+        return result
+    end if
+
+    body = ""
+    httpCode = -1
+    msg = wait(15000, port)
+    if type(msg) = "roUrlEvent" then
+        body = msg.GetString()
+        httpCode = msg.GetResponseCode()
+    end if
+    if httpCode = 404 then
         result.expired = true
         return result
     end if
