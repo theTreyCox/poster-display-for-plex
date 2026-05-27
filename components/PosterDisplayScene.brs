@@ -105,6 +105,23 @@ sub init()
     ]
     m.progressColorIndex = m.registry.Read("progressColorIndex").ToInt()
     if m.progressColorIndex < 0 or m.progressColorIndex >= m.progressColors.Count() then m.progressColorIndex = 0
+
+    ' Portrait theater-frame styles. Geometry below is a fallback used until the
+    ' BorderCutoutTask returns a measured cutout for each PNG; once it does, the
+    ' fit/fill values are recomputed from the actual alpha=0 region so the
+    ' poster always lands inside whatever cutout the artwork defines.
+    m.portraitBorderStyles = [
+        { id: "01", name: "Marquee Gold",
+          uri: "pkg:/images/borders/portrait/portrait-border-01.png",
+          fitW: 760, fitH: 1140, fitPivot: [380, 570], fitT: [551, -34],
+          fillW: 1027, fillH: 1540, fillPivot: [513, 770], fillT: [417, -234] },
+        { id: "02", name: "Theater Silver",
+          uri: "pkg:/images/borders/portrait/portrait-border-02.png",
+          fitW: 900, fitH: 1695, fitPivot: [450, 847], fitT: [115, -307],
+          fillW: 1215, fillH: 2288, fillPivot: [608, 1144], fillT: [355, -607] }
+    ]
+    m.portraitBorderStyleIndex = m.registry.Read("portraitBorderStyleIndex").ToInt()
+    if m.portraitBorderStyleIndex < 0 or m.portraitBorderStyleIndex >= m.portraitBorderStyles.Count() then m.portraitBorderStyleIndex = 0
     m.transitionInProgress = false
     m.pendingPosterUri = ""
     m.pendingBackgroundUri = ""
@@ -137,6 +154,7 @@ sub init()
 
     applyProgressColor()
     applyViewMode()
+    startPortraitBorderCutoutDetection()
 
     if m.settings.plexServer <> "" and m.settings.plexToken <> "" then
         if m.carouselEnabled then
@@ -342,17 +360,20 @@ sub applyBorderedViewMode()
         m.poster.translation = [626, 4]
         m.poster.scaleRotateCenter = [335, 502]
         m.poster.rotation = 0
-    else if m.viewMode = 2 then
-        m.poster.width = 760
-        m.poster.height = 1140
-        m.poster.translation = [551, -34]
-        m.poster.scaleRotateCenter = [380, 570]
-        m.poster.rotation = portraitRotation()
-    else if m.viewMode = 3 then
-        m.poster.width = 1027
-        m.poster.height = 1540
-        m.poster.translation = [417, -234]
-        m.poster.scaleRotateCenter = [513, 770]
+    else if m.viewMode = 2 or m.viewMode = 3 then
+        style = m.portraitBorderStyles[m.portraitBorderStyleIndex]
+        m.borderPortrait.uri = style.uri
+        if m.viewMode = 2 then
+            m.poster.width = style.fitW
+            m.poster.height = style.fitH
+            m.poster.scaleRotateCenter = style.fitPivot
+            m.poster.translation = style.fitT
+        else
+            m.poster.width = style.fillW
+            m.poster.height = style.fillH
+            m.poster.scaleRotateCenter = style.fillPivot
+            m.poster.translation = style.fillT
+        end if
         m.poster.rotation = portraitRotation()
     end if
 end sub
@@ -384,24 +405,46 @@ sub openSettingsMenu()
     if serverDisplay = "" then serverDisplay = "(not set)"
     tokenDisplay = "(set)"
     if m.settings.plexToken = "" then tokenDisplay = "(not set)"
-    ratingsDisplay = m.settings.blockedRatings
-    if ratingsDisplay = "" then ratingsDisplay = "(none)"
-    flipDisplay = "Top on right (CW mount)"
-    if m.portraitFlip then flipDisplay = "Top on left (CCW mount)"
-    transitionDisplay = transitionLabel(m.transitionStyle)
-    colorDisplay = m.progressColors[m.progressColorIndex].name
-    borderDisplay = "Off"
-    if m.portraitBorderEnabled then borderDisplay = "On"
 
     dialog = createObject("roSGNode", "StandardMessageDialog")
     dialog.title = "Settings"
-    dialog.message = "Server: " + serverDisplay + chr(10) + "Token: " + tokenDisplay + chr(10) + "Carousel blocks ratings: " + ratingsDisplay + chr(10) + "Portrait orientation: " + flipDisplay + chr(10) + "Poster transition: " + transitionDisplay + chr(10) + "Progress bar color: " + colorDisplay + chr(10) + "Portrait poster border: " + borderDisplay
-    dialog.buttons = ["Change Plex server", "Change Plex token", "Edit carousel rating filter", "Flip portrait orientation", "Cycle poster transition", "Change progress bar color", "Toggle portrait poster border", "Close"]
+    dialog.message = "Server: " + serverDisplay + chr(10) + "Token: " + tokenDisplay
+    dialog.buttons = ["Plex Connection", "Display & Appearance", "Close"]
     dialog.observeField("buttonSelected", "onSettingsMenuSelected")
+    m.settingsContext = "main"
     m.top.dialog = dialog
 end sub
 
 sub onSettingsMenuSelected(event as Object)
+    selectedIndex = event.getData()
+    m.top.dialog = invalid
+    if selectedIndex = 0 then
+        openPlexSettings()
+    else if selectedIndex = 1 then
+        openDisplaySettings()
+    else
+        cancelSettings()
+    end if
+end sub
+
+sub openPlexSettings()
+    serverDisplay = m.settings.plexServer
+    if serverDisplay = "" then serverDisplay = "(not set)"
+    tokenDisplay = "(set)"
+    if m.settings.plexToken = "" then tokenDisplay = "(not set)"
+    ratingsDisplay = m.settings.blockedRatings
+    if ratingsDisplay = "" then ratingsDisplay = "(none)"
+
+    dialog = createObject("roSGNode", "StandardMessageDialog")
+    dialog.title = "Plex Connection"
+    dialog.message = "Server: " + serverDisplay + chr(10) + "Token: " + tokenDisplay + chr(10) + "Carousel blocks ratings: " + ratingsDisplay
+    dialog.buttons = ["Change Plex server", "Change Plex token", "Edit carousel rating filter", "Back"]
+    dialog.observeField("buttonSelected", "onPlexMenuSelected")
+    m.settingsContext = "plex"
+    m.top.dialog = dialog
+end sub
+
+sub onPlexMenuSelected(event as Object)
     selectedIndex = event.getData()
     m.top.dialog = invalid
     if selectedIndex = 0 then
@@ -410,19 +453,58 @@ sub onSettingsMenuSelected(event as Object)
         promptToken()
     else if selectedIndex = 2 then
         showBlockedRatingsOverlay()
-    else if selectedIndex = 3 then
-        togglePortraitFlip()
-        openSettingsMenu()
-    else if selectedIndex = 4 then
-        cycleTransitionStyle()
-        openSettingsMenu()
-    else if selectedIndex = 5 then
-        showProgressColorMenu()
-    else if selectedIndex = 6 then
-        togglePortraitPosterBorder()
-        openSettingsMenu()
     else
-        cancelSettings()
+        openSettingsMenu()
+    end if
+end sub
+
+sub openDisplaySettings()
+    flipDisplay = "Top on right (CW mount)"
+    if m.portraitFlip then flipDisplay = "Top on left (CCW mount)"
+    transitionDisplay = transitionLabel(m.transitionStyle)
+    colorDisplay = m.progressColors[m.progressColorIndex].name
+    matteDisplay = "Off"
+    if m.portraitBorderEnabled then matteDisplay = "On"
+    frameStyleDisplay = m.portraitBorderStyles[m.portraitBorderStyleIndex].name
+
+    dialog = createObject("roSGNode", "StandardMessageDialog")
+    dialog.title = "Display & Appearance"
+    dialog.message = "Portrait orientation: " + flipDisplay + chr(10) + "Poster transition: " + transitionDisplay + chr(10) + "Progress bar color: " + colorDisplay + chr(10) + "Portrait poster matte: " + matteDisplay + chr(10) + "Portrait frame style: " + frameStyleDisplay
+    dialog.buttons = ["Cycle poster transition", "Change progress bar color", "Flip portrait orientation", "Toggle portrait poster matte", "Change portrait frame style", "Back"]
+    dialog.observeField("buttonSelected", "onDisplayMenuSelected")
+    m.settingsContext = "display"
+    m.top.dialog = dialog
+end sub
+
+sub onDisplayMenuSelected(event as Object)
+    selectedIndex = event.getData()
+    m.top.dialog = invalid
+    if selectedIndex = 0 then
+        cycleTransitionStyle()
+        openDisplaySettings()
+    else if selectedIndex = 1 then
+        showProgressColorMenu()
+    else if selectedIndex = 2 then
+        togglePortraitFlip()
+        openDisplaySettings()
+    else if selectedIndex = 3 then
+        togglePortraitPosterBorder()
+        openDisplaySettings()
+    else if selectedIndex = 4 then
+        showPortraitFrameStyleMenu()
+    else
+        openSettingsMenu()
+    end if
+end sub
+
+' After a sub-dialog (prompt or picker) closes, return to the menu that opened it.
+sub returnToSettingsContext()
+    if m.settingsContext = "plex" then
+        openPlexSettings()
+    else if m.settingsContext = "display" then
+        openDisplaySettings()
+    else
+        openSettingsMenu()
     end if
 end sub
 
@@ -459,6 +541,63 @@ sub applyProgressColor()
     m.portraitProgressBarFill.color = color
 end sub
 
+' Spin up the BorderCutoutTask once at startup to measure each portrait
+' border's alpha=0 region. Results come back asynchronously and we recompute
+' the poster fit/fill geometry from the measured cutouts.
+sub startPortraitBorderCutoutDetection()
+    uris = []
+    for each style in m.portraitBorderStyles
+        uris.push(style.uri)
+    end for
+    m.borderCutoutTask = createObject("roSGNode", "BorderCutoutTask")
+    if m.borderCutoutTask = invalid then return
+    m.borderCutoutTask.observeField("result", "onBorderCutoutsDetected")
+    m.borderCutoutTask.uris = uris
+    m.borderCutoutTask.control = "RUN"
+end sub
+
+sub onBorderCutoutsDetected(event as Object)
+    cutouts = event.getData()
+    if cutouts = invalid then return
+    for each c in cutouts
+        if c.w > 0 and c.h > 0 then
+            for each style in m.portraitBorderStyles
+                if style.uri = c.uri then
+                    applyCutoutToStyle(style, c)
+                    exit for
+                end if
+            end for
+        end if
+    end for
+    ' Refresh the screen so the active border picks up the new geometry.
+    applyViewMode()
+end sub
+
+' Given a measured cutout, derive fit/fill poster geometry. The poster is
+' rotated ±π/2 around its center, so pre-rotation (width × height) maps to
+' post-rotation (height × width) on screen. Pre-rotation width = cutout
+' height; pre-rotation height = cutout width. Fill mode is 1.35× fit so the
+' poster bleeds past the cutout edges (the frame covers the overflow).
+sub applyCutoutToStyle(style as Object, cutout as Object)
+    cw = cutout.w
+    ch = cutout.h
+    centerX = cutout.x + cw / 2
+    centerY = cutout.y + ch / 2
+
+    style.fitW = ch
+    style.fitH = cw
+    style.fitPivot = [ch / 2, cw / 2]
+    style.fitT = [centerX - ch / 2, centerY - cw / 2]
+
+    fillFactor = 1.35
+    fillW = Int(ch * fillFactor)
+    fillH = Int(cw * fillFactor)
+    style.fillW = fillW
+    style.fillH = fillH
+    style.fillPivot = [fillW / 2, fillH / 2]
+    style.fillT = [centerX - fillW / 2, centerY - fillH / 2]
+end sub
+
 sub showProgressColorMenu()
     dialog = createObject("roSGNode", "StandardMessageDialog")
     dialog.title = "Progress Bar Color"
@@ -482,7 +621,33 @@ sub onProgressColorSelected(event as Object)
         m.registry.Flush()
         applyProgressColor()
     end if
-    openSettingsMenu()
+    returnToSettingsContext()
+end sub
+
+sub showPortraitFrameStyleMenu()
+    dialog = createObject("roSGNode", "StandardMessageDialog")
+    dialog.title = "Portrait Frame Style"
+    dialog.message = "Current: " + m.portraitBorderStyles[m.portraitBorderStyleIndex].name
+    buttons = []
+    for each s in m.portraitBorderStyles
+        buttons.push(s.name)
+    end for
+    buttons.push("Cancel")
+    dialog.buttons = buttons
+    dialog.observeField("buttonSelected", "onPortraitFrameStyleSelected")
+    m.top.dialog = dialog
+end sub
+
+sub onPortraitFrameStyleSelected(event as Object)
+    selectedIndex = event.getData()
+    m.top.dialog = invalid
+    if selectedIndex >= 0 and selectedIndex < m.portraitBorderStyles.Count() then
+        m.portraitBorderStyleIndex = selectedIndex
+        m.registry.Write("portraitBorderStyleIndex", m.portraitBorderStyleIndex.ToStr())
+        m.registry.Flush()
+        applyViewMode()
+    end if
+    returnToSettingsContext()
 end sub
 
 sub togglePortraitPosterBorder()
@@ -680,7 +845,7 @@ end sub
 sub closeBlockedRatingsOverlay()
     m.blockedRatingsOverlay.visible = false
     refocusSettings()
-    openSettingsMenu()
+    returnToSettingsContext()
 end sub
 
 function parseBlockedRatingsLocal(s as String) as Object
@@ -850,11 +1015,11 @@ sub onServerSelected(event as Object)
         m.registry.Write("plexServer", server.url)
         m.registry.Flush()
         m.carouselPosters = []
-        openSettingsMenu()
+        returnToSettingsContext()
     else if selectedIndex = numServers then
         promptServerManual()
     else
-        openSettingsMenu()
+        returnToSettingsContext()
     end if
 end sub
 
@@ -895,14 +1060,14 @@ sub onServerEntered(event as Object)
     m.top.dialog = invalid
 
     if selectedIndex <> 0 then
-        openSettingsMenu()
+        returnToSettingsContext()
         return
     end if
 
     normalized = normalizeServer(enteredText)
     if normalized = "" then
         setStatusMessage("Invalid Plex server URL. Try again.")
-        openSettingsMenu()
+        returnToSettingsContext()
         return
     end if
 
@@ -910,7 +1075,7 @@ sub onServerEntered(event as Object)
     m.registry.Write("plexServer", normalized)
     m.registry.Flush()
     m.carouselPosters = []
-    openSettingsMenu()
+    returnToSettingsContext()
 end sub
 
 sub promptToken()
@@ -941,7 +1106,7 @@ sub onTokenEntered(event as Object)
     m.registry.Write("plexToken", m.settings.plexToken)
     m.registry.Flush()
     m.carouselPosters = []
-    openSettingsMenu()
+    returnToSettingsContext()
 end sub
 
 sub refocusSettings()
