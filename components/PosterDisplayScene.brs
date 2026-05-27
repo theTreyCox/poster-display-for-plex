@@ -51,7 +51,6 @@ sub init()
     m.expandedStatsGroup = m.top.findNode("expandedStatsGroup")
     m.expandedStatsDots = []
     m.expandedCreditDots = []
-    m.lastStatsCenterWidth = invalid
     m.expandedDirectorLabel = m.top.findNode("expandedDirectorLabel")
     m.expandedDirectorValue = m.top.findNode("expandedDirectorValue")
     m.expandedWriterLabel = m.top.findNode("expandedWriterLabel")
@@ -201,9 +200,6 @@ sub init()
     ' When the title text re-renders, reposition the year label so it sits right after.
     m.nowPlayingTitle.observeField("boundingRect", "positionYearLabel")
     m.portraitNowPlayingTitle.observeField("boundingRect", "positionPortraitYearLabel")
-    ' Center the modal's stats LayoutGroup within its outlined box once Roku
-    ' lays out its dynamic children (LayoutGroup boundingRect is set async).
-    m.expandedStatsGroup.observeField("boundingRect", "centerExpandedStats")
 
     m.posterFadeOut.observeField("state", "onPosterFadeOutState")
     m.posterFadeIn.observeField("state", "onPosterFadeInState")
@@ -960,57 +956,62 @@ sub onOmdbResult(event as Object)
     if result.metacritic <> "" then m.ratingMetaValue.text = result.metacritic
 end sub
 
-' Build the modal stats row: white text segments separated by accent-color "·"
-' dot labels, all inside the expandedStatsGroup LayoutGroup. Clears prior
-' children; centering happens in centerExpandedStats once Roku finishes the
-' async layout pass and fires the boundingRect observer.
+' Build the modal stats row inside expandedStatsGroup (a plain Group anchored
+' at the box's center, [960, 315]). Children are positioned manually using
+' estimated text widths so the row is reliably centered — LayoutGroup's
+' boundingRect is set async and was leaving the row hanging off the right.
 sub buildExpandedStats(parts as Object)
     while m.expandedStatsGroup.getChildCount() > 0
         m.expandedStatsGroup.removeChildIndex(0)
     end while
     m.expandedStatsDots = []
-    m.lastStatsCenterWidth = invalid
-
     accent = m.accentColors[m.accentColorIndex].hex
-    for i = 0 to parts.Count() - 1
-        if i > 0 then
-            dot = createObject("roSGNode", "Label")
-            dot.color = accent
-            dot.text = "·"
-            dot.vertAlign = "center"
-            dot.horizAlign = "center"
-            dotFont = createObject("roSGNode", "Font")
-            dotFont.uri = "pkg:/fonts/Oswald-Bold.ttf"
-            dotFont.size = 36
-            dot.font = dotFont
-            m.expandedStatsGroup.appendChild(dot)
-            m.expandedStatsDots.push(dot)
-        end if
-        seg = createObject("roSGNode", "Label")
-        seg.color = "0xFFFFFFFF"
-        seg.text = UCase(parts[i])
-        seg.vertAlign = "center"
-        seg.horizAlign = "center"
-        segFont = createObject("roSGNode", "Font")
-        segFont.uri = "pkg:/fonts/Oswald-Medium.ttf"
-        segFont.size = 28
-        seg.font = segFont
-        m.expandedStatsGroup.appendChild(seg)
-    end for
-end sub
 
-' Fired whenever the stats LayoutGroup's bounding rect changes (initial layout
-' or content change). Recenter horizontally inside the white-outlined box
-' (center x=960). Skip if width hasn't changed to avoid an observer loop —
-' our own translation set re-fires this observer.
-sub centerExpandedStats()
-    rect = m.expandedStatsGroup.boundingRect
-    if type(rect) = "Function" or type(rect) = "roFunction" then rect = rect()
-    if type(rect) <> "roAssociativeArray" then return
-    if rect.width = invalid or rect.width <= 0 then return
-    if m.lastStatsCenterWidth <> invalid and m.lastStatsCenterWidth = rect.width then return
-    m.lastStatsCenterWidth = rect.width
-    m.expandedStatsGroup.translation = [960 - rect.width / 2, 315]
+    ' Width estimates for Oswald-Medium 28pt segments and Oswald-Bold 36pt dots.
+    ' Slightly oversized so horizAlign=center inside each cell leaves a tiny
+    ' breathing buffer on either side and the row stays visually centered.
+    segCharW = 14
+    dotW = 18
+    spacing = 16
+
+    items = []
+    for i = 0 to parts.Count() - 1
+        if i > 0 then items.push({ kind: "dot", text: "·", w: dotW })
+        text = UCase(parts[i])
+        items.push({ kind: "seg", text: text, w: text.Len() * segCharW })
+    end for
+
+    total = 0
+    for each it in items
+        total = total + it.w
+    end for
+    if items.Count() > 1 then total = total + spacing * (items.Count() - 1)
+
+    cursor = -total / 2
+    for each it in items
+        node = createObject("roSGNode", "Label")
+        node.text = it.text
+        node.vertAlign = "center"
+        node.horizAlign = "center"
+        node.width = it.w
+        node.height = 80
+        node.translation = [cursor, -40]
+        nFont = createObject("roSGNode", "Font")
+        if it.kind = "dot" then
+            node.color = accent
+            nFont.uri = "pkg:/fonts/Oswald-Bold.ttf"
+            nFont.size = 36
+            node.font = nFont
+            m.expandedStatsDots.push(node)
+        else
+            node.color = "0xFFFFFFFF"
+            nFont.uri = "pkg:/fonts/Oswald-Medium.ttf"
+            nFont.size = 28
+            node.font = nFont
+        end if
+        m.expandedStatsGroup.appendChild(node)
+        cursor = cursor + it.w + spacing
+    end for
 end sub
 
 ' Build a credit value LayoutGroup: SmallestSystemFont white name segments
