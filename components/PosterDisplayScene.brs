@@ -357,11 +357,11 @@ sub applyPlainViewMode()
     if m.viewMode = 0 then
         m.poster.width = 720
         m.poster.height = 1080
-        ' With the metadata panel pinned to the right 300px, center the poster
-        ' in the freed area on the left. Default centers it across the full
+        ' Metadata panel pins to the right 400px (x=1520..1920); center the
+        ' poster in the freed area 0..1520. Default centers it across the full
         ' 1920 width.
         if m.metadataEnabled and m.isPlaying then
-            m.poster.translation = [450, 0]
+            m.poster.translation = [400, 0]
         else
             m.poster.translation = [600, 0]
         end if
@@ -381,19 +381,33 @@ sub applyPlainViewMode()
         metaActive = m.metadataEnabled and m.isPlaying
         infoActive = m.infoEnabled
         if metaActive and infoActive then
-            ' Sandwiched: shrink the poster to fit between both panels.
-            setPortraitFitPoster(940, 1410, 985)
+            ' Sandwiched between meta (top 360) and info (bottom 230). 1330 tall.
+            ' 2:3 aspect: width = 886.
+            setPortraitFitPoster(886, 1330, 1025)
         else if metaActive then
-            setPortraitFitPoster(1080, 1620, 1100)
+            ' Meta only: 1560 tall available (360..1920). 2:3 width = 1040.
+            setPortraitFitPoster(1040, 1560, 1140)
         else if infoActive then
             setPortraitFitPoster(1080, 1620, 830)
         else
             setPortraitFitPoster(1080, 1620, 960)
         end if
     else if m.viewMode = 3 then
-        ' Portrait Fill — info on shrinks the fill area to above the chrome.
+        ' Portrait Fill. Metadata flips the behavior from "bleed off-screen" to
+        ' "fill the available area between metadata (top) and info (bottom)
+        ' using scaleToFill" so the artwork shrinks instead of getting covered.
         m.poster.rotation = portraitRotation()
-        if m.infoEnabled then
+        metaActive = m.metadataEnabled and m.isPlaying
+        if metaActive then
+            m.poster.loadDisplayMode = "scaleToFill"
+            if m.infoEnabled then
+                ' Both panels: poster fills viewer 1080×1330, centered at y=1025.
+                setPortraitFitPoster(1080, 1330, 1025)
+            else
+                ' Meta only: 1080×1560 between metadata bottom and viewer bottom.
+                setPortraitFitPoster(1080, 1560, 1140)
+            end if
+        else if m.infoEnabled then
             m.poster.width = 1147
             m.poster.height = 1720
             m.poster.scaleRotateCenter = [574, 860]
