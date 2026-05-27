@@ -393,35 +393,43 @@ sub applyPlainViewMode()
             setPortraitFitPoster(1080, 1620, 960)
         end if
     else if m.viewMode = 3 then
-        ' Portrait Fill. Metadata flips the behavior from "bleed off-screen" to
-        ' "fill the available area between metadata (top) and info (bottom)
-        ' using scaleToFill" so the artwork shrinks instead of getting covered.
+        ' Portrait Fill. The bbox is sized at the poster's content aspect (2:3)
+        ' and centered on the available viewer area. Whichever axis is smaller
+        ' than the content needs bleeds past the visible area (under panels or
+        ' off-screen). Because the bbox aspect matches the content, the poster
+        ' never stretches — it fits perfectly inside the bbox.
         m.poster.rotation = portraitRotation()
+        contentAspect = 2.0 / 3.0  ' W:H for Plex movie posters
+        viewerW = 1080
         metaActive = m.metadataEnabled and m.isPlaying
-        if metaActive then
-            m.poster.loadDisplayMode = "scaleToFill"
-            if m.infoEnabled then
-                ' Both panels: poster fills viewer 1080×1330, centered at y=1025.
-                setPortraitFitPoster(1080, 1330, 1025)
-            else
-                ' Meta only: 1080×1560 between metadata bottom and viewer bottom.
-                setPortraitFitPoster(1080, 1560, 1140)
-            end if
+        if metaActive and m.infoEnabled then
+            availTop = 360
+            availBottom = 1690
+        else if metaActive then
+            availTop = 360
+            availBottom = 1920
         else if m.infoEnabled then
-            m.poster.width = 1147
-            m.poster.height = 1720
-            m.poster.scaleRotateCenter = [574, 860]
-            if m.portraitFlip then
-                m.poster.translation = [517, -320]
-            else
-                m.poster.translation = [257, -320]
-            end if
+            availTop = 0
+            availBottom = 1690
         else
-            m.poster.width = 1280
-            m.poster.height = 1920
-            m.poster.translation = [320, -420]
-            m.poster.scaleRotateCenter = [640, 960]
+            availTop = 0
+            availBottom = 1920
         end if
+        availHeight = availBottom - availTop
+        centerY = (availTop + availBottom) / 2
+
+        ' Pick the smaller bbox that fully covers viewerW × availHeight while
+        ' keeping the content's 2:3 aspect. Either height-limited (wide bleed)
+        ' or width-limited (vertical bleed).
+        needHeightForWidth = viewerW / contentAspect
+        if availHeight > needHeightForWidth then
+            boxH = availHeight
+            boxW = Int(availHeight * contentAspect)
+        else
+            boxH = Int(needHeightForWidth)
+            boxW = viewerW
+        end if
+        setPortraitFitPoster(boxW, boxH, centerY)
     end if
 end sub
 
@@ -881,7 +889,8 @@ sub applyPortraitPosterBorder()
     ' Fill the matte's inner box even for off-aspect posters (square album art,
     ' 4:3 covers, etc.) so the matte stays a clean uniform frame. Without this
     ' override, scaleToFit would letterbox the content inside the 2:3 inner box.
-    m.poster.loadDisplayMode = "scaleToFill"
+    ' (Note: zoomToFill preserves aspect and crops; scaleToFill stretches.)
+    m.poster.loadDisplayMode = "zoomToFill"
 end sub
 
 ' Swap the main poster (and ambient backdrop) to new images, optionally animated.
@@ -1131,8 +1140,39 @@ sub showNextCarouselPoster()
     m.isPlaying = true
     m.duration = 0
     m.hasEpisodePoster = false
+    ' Library items carry the same metadata fields as session items (extracted
+    ' by PlexLibraryTask), so we can reuse the same overlay setter.
+    setMetadataFromSession(carouselItemAsMetadata(item))
     updateInfoVisibility()
 end sub
+
+' Normalize a carousel item into the shape setMetadataFromSession expects.
+' PlexLibraryTask doesn't expose `state` and never has a duration > 0 right
+' now (we don't track playback progress on library items), so we fill those
+' with safe defaults.
+function carouselItemAsMetadata(item as Object) as Object
+    return {
+        tagline: stringOrEmptyAny(item.tagline),
+        summary: stringOrEmptyAny(item.summary),
+        studio: stringOrEmptyAny(item.studio),
+        releaseDate: stringOrEmptyAny(item.releaseDate),
+        directors: stringOrEmptyAny(item.directors),
+        genres: stringOrEmptyAny(item.genres),
+        year: stringOrEmptyAny(item.year),
+        duration: intOrZeroAny(item.duration),
+        contentRating: stringOrEmptyAny(item.contentRating)
+    }
+end function
+
+function stringOrEmptyAny(v as Dynamic) as String
+    if v = invalid then return ""
+    return v
+end function
+
+function intOrZeroAny(v as Dynamic) as Integer
+    if v = invalid then return 0
+    return v
+end function
 
 ' Entry point for the Settings flow. Tries Plex GDM discovery first so the user
 ' can pick a server from a list rather than typing an IP. Falls back to manual

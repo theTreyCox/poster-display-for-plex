@@ -75,7 +75,27 @@ sub fetchLibrary()
                                         if thumb <> "" then
                                             posterUri = buildPlexUri(server, thumb, token, libraryTransfer)
                                             backgroundUri = buildBlurredPlexUri(server, thumb, token, libraryTransfer)
-                                            items.push({ title: title, year: year, contentRating: rawRating, posterUri: posterUri, backgroundUri: backgroundUri })
+                                            tagline = stringOrEmpty(itemAttrs["tagline"])
+                                            summary = stringOrEmpty(itemAttrs["summary"])
+                                            studio = stringOrEmpty(itemAttrs["studio"])
+                                            releaseDate = stringOrEmpty(itemAttrs["originallyAvailableAt"])
+                                            duration = intOrZero(itemAttrs["duration"])
+                                            directors = collectTagAttribute(itemEl, "Director")
+                                            genres = collectTagAttribute(itemEl, "Genre")
+                                            items.push({
+                                                title: title,
+                                                year: year,
+                                                contentRating: rawRating,
+                                                posterUri: posterUri,
+                                                backgroundUri: backgroundUri,
+                                                tagline: tagline,
+                                                summary: summary,
+                                                studio: studio,
+                                                releaseDate: releaseDate,
+                                                duration: duration,
+                                                directors: directors,
+                                                genres: genres
+                                            })
                                         end if
                                     end if
                                 end for
@@ -116,6 +136,31 @@ end function
 function stringOrEmpty(value as Dynamic) as String
     if value = invalid then return ""
     return value
+end function
+
+function intOrZero(value as Dynamic) as Integer
+    if value = invalid then return 0
+    return value.ToInt()
+end function
+
+' Collect each <TagName tag="..."/> child and join the tag attributes with " · ".
+function collectTagAttribute(itemEl as Object, tagName as String) as String
+    elements = itemEl.GetNamedElements(tagName)
+    if elements = invalid or elements.Count() = 0 then return ""
+    parts = []
+    for each el in elements
+        a = el.GetAttributes()
+        if a <> invalid then
+            t = stringOrEmpty(a["tag"])
+            if t <> "" then parts.push(t)
+        end if
+    end for
+    if parts.Count() = 0 then return ""
+    out = parts[0]
+    for i = 1 to parts.Count() - 1
+        out = out + " · " + parts[i]
+    end for
+    return out
 end function
 
 function buildPlexUri(server as String, path as String, token as String, transfer as Object) as String
