@@ -60,10 +60,15 @@ sub init()
     m.expandedReleasedLabel = m.top.findNode("expandedReleasedLabel")
     m.expandedReleasedValue = m.top.findNode("expandedReleasedValue")
     m.expandedSummary = m.top.findNode("expandedSummary")
+    m.expandedBackdrop = m.top.findNode("expandedBackdrop")
     m.ratingPlexValue = m.top.findNode("ratingPlexValue")
     m.ratingImdbValue = m.top.findNode("ratingImdbValue")
     m.ratingRtValue = m.top.findNode("ratingRtValue")
     m.ratingMetaValue = m.top.findNode("ratingMetaValue")
+    m.ratingPlexUnderline = m.top.findNode("ratingPlexUnderline")
+    m.ratingImdbUnderline = m.top.findNode("ratingImdbUnderline")
+    m.ratingRtUnderline = m.top.findNode("ratingRtUnderline")
+    m.ratingMetaUnderline = m.top.findNode("ratingMetaUnderline")
 
     ' OMDB integration. Hardcoded key for now; could move to Settings later.
     m.omdbApiKey = "89ae9603"
@@ -686,6 +691,14 @@ sub applyAccentColor()
     m.expandedCastLabel.color = color
     m.expandedStudioLabel.color = color
     m.expandedReleasedLabel.color = color
+    m.ratingPlexValue.color = color
+    m.ratingImdbValue.color = color
+    m.ratingRtValue.color = color
+    m.ratingMetaValue.color = color
+    m.ratingPlexUnderline.color = color
+    m.ratingImdbUnderline.color = color
+    m.ratingRtUnderline.color = color
+    m.ratingMetaUnderline.color = color
 end sub
 
 ' Spin up the BorderCutoutTask once at startup to measure each portrait
@@ -837,9 +850,8 @@ sub openExpandedDescription()
 
     meta = m.currentSessionMetadata
 
-    m.expandedTitle.text = title
+    m.expandedTitle.text = UCase(title)
     m.expandedTagline.text = m.landscapeMetaTagline.text  ' already uppercased
-    m.expandedTagline.color = m.accentColors[m.accentColorIndex].hex
 
     ' Modal stats line: UPPERCASE and includes the content rating between year
     ' and runtime. The metadata strip stats (no rating, mixed case) stays as-is.
@@ -858,14 +870,12 @@ sub openExpandedDescription()
 
     m.expandedSummary.text = meta.summary
 
+    ' Subtle blurred poster behind the modal — same URI the chrome backdrop uses.
+    m.expandedBackdrop.uri = m.backgroundPoster.uri
+
     ' Ratings section: Plex is populated immediately from the session
     ' metadata; IMDb / Rotten Tomatoes / Metacritic come from OMDB and arrive
     ' asynchronously. Show "—" placeholders until the OMDB task returns.
-    accent = m.accentColors[m.accentColorIndex].hex
-    m.ratingPlexValue.color = accent
-    m.ratingImdbValue.color = accent
-    m.ratingRtValue.color = accent
-    m.ratingMetaValue.color = accent
     if meta.audienceRating <> "" then
         m.ratingPlexValue.text = meta.audienceRating + "/10"
     else

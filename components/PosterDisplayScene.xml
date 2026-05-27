@@ -575,24 +575,34 @@
              Back closes it. -->
         <Group id="expandedDescription" visible="false">
             <Rectangle width="1920" height="1080" color="0x000000FF" />
+            <!-- Subtle blurred-poster backdrop — URI is set to the current
+                 backgroundPoster URI when the modal opens. Low opacity layers
+                 the artwork over the black for a soft, themed feel. -->
+            <Poster
+                id="expandedBackdrop"
+                width="1920"
+                height="1080"
+                translation="[0, 0]"
+                opacity="0.25"
+                loadDisplayMode="zoomToFill" />
             <Label
                 id="expandedTitle"
                 translation="[200, 50]"
                 width="1520"
-                height="80"
+                height="100"
                 text=""
                 color="0xFFFFFFFF"
                 horizAlign="center"
                 vertAlign="center"
                 wrap="false">
-                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="58" />
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="76" />
             </Label>
             <!-- Tagline / slogan — BebasNeue, accent color, wraps if long -->
             <Label
                 id="expandedTagline"
-                translation="[200, 140]"
+                translation="[200, 175]"
                 width="1520"
-                height="110"
+                height="80"
                 text=""
                 color="0xFFA500FF"
                 horizAlign="center"
@@ -601,16 +611,14 @@
                 <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="38" />
             </Label>
 
-            <!-- Stats box: Oswald-Medium inside a white-outlined rectangle. Top
-                 gap (slogan → stats) and bottom gap (stats → credits) are equal
-                 at 20px. -->
-            <Rectangle translation="[560, 270]" width="800" height="2" color="0xFFFFFFFF" />
-            <Rectangle translation="[560, 348]" width="800" height="2" color="0xFFFFFFFF" />
-            <Rectangle translation="[560, 270]" width="2" height="80" color="0xFFFFFFFF" />
-            <Rectangle translation="[1358, 270]" width="2" height="80" color="0xFFFFFFFF" />
+            <!-- Stats box: Oswald-Medium inside a white-outlined rectangle. -->
+            <Rectangle translation="[560, 275]" width="800" height="2" color="0xFFFFFFFF" />
+            <Rectangle translation="[560, 353]" width="800" height="2" color="0xFFFFFFFF" />
+            <Rectangle translation="[560, 275]" width="2" height="80" color="0xFFFFFFFF" />
+            <Rectangle translation="[1358, 275]" width="2" height="80" color="0xFFFFFFFF" />
             <Label
                 id="expandedStats"
-                translation="[580, 270]"
+                translation="[580, 275]"
                 width="760"
                 height="80"
                 text=""
@@ -621,57 +629,57 @@
                 <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="28" />
             </Label>
 
-            <!-- Credit lines: accent-bold label + white value side by side. Delta 40
-                 between lines (tight, since the big gap goes between the last credit
-                 and the summary). -->
+            <!-- Credit lines: accent-bold label + white value side by side -->
             <Label id="expandedDirectorLabel"
-                   translation="[200, 370]" width="200" height="32" text="Director:"
+                   translation="[200, 380]" width="200" height="32" text="Director:"
                    color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false"
                    font="font:SmallBoldSystemFont" />
             <Label id="expandedDirectorValue"
-                   translation="[420, 370]" width="1300" height="32" text=""
+                   translation="[420, 380]" width="1300" height="32" text=""
                    color="0xE5E5E5FF" horizAlign="left" vertAlign="center" wrap="false"
                    font="font:SmallSystemFont" />
             <Label id="expandedWriterLabel"
-                   translation="[200, 410]" width="200" height="32" text="Writer:"
+                   translation="[200, 418]" width="200" height="32" text="Writer:"
                    color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false"
                    font="font:SmallBoldSystemFont" />
             <Label id="expandedWriterValue"
-                   translation="[420, 410]" width="1300" height="32" text=""
+                   translation="[420, 418]" width="1300" height="32" text=""
                    color="0xE5E5E5FF" horizAlign="left" vertAlign="center" wrap="false"
                    font="font:SmallSystemFont" />
             <Label id="expandedCastLabel"
-                   translation="[200, 450]" width="200" height="32" text="Starring:"
+                   translation="[200, 456]" width="200" height="32" text="Starring:"
                    color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false"
                    font="font:SmallBoldSystemFont" />
             <Label id="expandedCastValue"
-                   translation="[420, 450]" width="1300" height="32" text=""
+                   translation="[420, 456]" width="1300" height="32" text=""
                    color="0xE5E5E5FF" horizAlign="left" vertAlign="center" wrap="false"
                    font="font:SmallSystemFont" />
             <Label id="expandedStudioLabel"
-                   translation="[200, 490]" width="200" height="32" text="Studio:"
+                   translation="[200, 494]" width="200" height="32" text="Studio:"
                    color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false"
                    font="font:SmallBoldSystemFont" />
             <Label id="expandedStudioValue"
-                   translation="[420, 490]" width="1300" height="32" text=""
+                   translation="[420, 494]" width="1300" height="32" text=""
                    color="0xE5E5E5FF" horizAlign="left" vertAlign="center" wrap="false"
                    font="font:SmallSystemFont" />
             <Label id="expandedReleasedLabel"
-                   translation="[200, 530]" width="200" height="32" text="Released:"
+                   translation="[200, 532]" width="200" height="32" text="Released:"
                    color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false"
                    font="font:SmallBoldSystemFont" />
             <Label id="expandedReleasedValue"
-                   translation="[420, 530]" width="1300" height="32" text=""
+                   translation="[420, 532]" width="1300" height="32" text=""
                    color="0xE5E5E5FF" horizAlign="left" vertAlign="center" wrap="false"
                    font="font:SmallSystemFont" />
 
-            <!-- Summary — big gap above (released ends y=562, summary y=630 = 68px)
-                 so the description reads as its own block instead of crowding credits. -->
+            <!-- Horizontal separator between credits and description -->
+            <Rectangle translation="[200, 590]" width="1520" height="2" color="0x80808066" />
+
+            <!-- Summary / description -->
             <Label
                 id="expandedSummary"
-                translation="[200, 630]"
+                translation="[200, 610]"
                 width="1520"
-                height="240"
+                height="150"
                 text=""
                 color="0xE5E5E5FF"
                 horizAlign="left"
@@ -680,48 +688,67 @@
                 font="font:SmallSystemFont"
                 wrap="true" />
 
-            <!-- Ratings row (no header — section is identified by the column titles).
-                 Lifted ~30px so there's more breathing room between the values row
-                 and the "PRESS BACK TO CLOSE" footer below. -->
-            <Label translation="[200, 880]" width="380" height="28" text="PLEX"
-                   color="0xFFFFFFCC" horizAlign="center" vertAlign="center"
-                   font="font:SmallBoldSystemFont" />
-            <Label id="ratingPlexValue"
-                   translation="[200, 918]" width="380" height="40" text="—"
-                   color="0xFFA500FF" horizAlign="center" vertAlign="center"
-                   wrap="false">
-                <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="30" />
-            </Label>
-
-            <Label translation="[580, 880]" width="380" height="28" text="IMDB"
-                   color="0xFFFFFFCC" horizAlign="center" vertAlign="center"
-                   font="font:SmallBoldSystemFont" />
-            <Label id="ratingImdbValue"
-                   translation="[580, 918]" width="380" height="40" text="—"
-                   color="0xFFA500FF" horizAlign="center" vertAlign="center"
-                   wrap="false">
-                <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="30" />
-            </Label>
-
-            <Label translation="[960, 880]" width="380" height="28" text="ROTTEN TOMATOES"
-                   color="0xFFFFFFCC" horizAlign="center" vertAlign="center"
-                   font="font:SmallBoldSystemFont" />
-            <Label id="ratingRtValue"
-                   translation="[960, 918]" width="380" height="40" text="—"
-                   color="0xFFA500FF" horizAlign="center" vertAlign="center"
-                   wrap="false">
-                <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="30" />
-            </Label>
-
-            <Label translation="[1340, 880]" width="380" height="28" text="METACRITIC"
-                   color="0xFFFFFFCC" horizAlign="center" vertAlign="center"
-                   font="font:SmallBoldSystemFont" />
-            <Label id="ratingMetaValue"
-                   translation="[1340, 918]" width="380" height="40" text="—"
-                   color="0xFFA500FF" horizAlign="center" vertAlign="center"
-                   wrap="false">
-                <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="30" />
-            </Label>
+            <!-- ===== Ratings: 4 bordered boxes, each w=360 h=140, gap=20 ===== -->
+            <!-- PLEX -->
+            <Group translation="[210, 790]">
+                <Rectangle translation="[0, 0]" width="360" height="2" color="0xFFFFFF40" />
+                <Rectangle translation="[0, 138]" width="360" height="2" color="0xFFFFFF40" />
+                <Rectangle translation="[0, 0]" width="2" height="140" color="0xFFFFFF40" />
+                <Rectangle translation="[358, 0]" width="2" height="140" color="0xFFFFFF40" />
+                <Label translation="[0, 18]" width="360" height="30" text="PLEX"
+                       color="0xCCCCCCFF" horizAlign="center" vertAlign="center"
+                       font="font:SmallBoldSystemFont" />
+                <Rectangle id="ratingPlexUnderline" translation="[160, 56]" width="40" height="3" color="0xFFA500FF" />
+                <Label id="ratingPlexValue" translation="[0, 66]" width="360" height="64" text="—"
+                       color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="48" />
+                </Label>
+            </Group>
+            <!-- IMDB -->
+            <Group translation="[590, 790]">
+                <Rectangle translation="[0, 0]" width="360" height="2" color="0xFFFFFF40" />
+                <Rectangle translation="[0, 138]" width="360" height="2" color="0xFFFFFF40" />
+                <Rectangle translation="[0, 0]" width="2" height="140" color="0xFFFFFF40" />
+                <Rectangle translation="[358, 0]" width="2" height="140" color="0xFFFFFF40" />
+                <Label translation="[0, 18]" width="360" height="30" text="IMDB"
+                       color="0xCCCCCCFF" horizAlign="center" vertAlign="center"
+                       font="font:SmallBoldSystemFont" />
+                <Rectangle id="ratingImdbUnderline" translation="[160, 56]" width="40" height="3" color="0xFFA500FF" />
+                <Label id="ratingImdbValue" translation="[0, 66]" width="360" height="64" text="—"
+                       color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="48" />
+                </Label>
+            </Group>
+            <!-- ROTTEN TOMATOES -->
+            <Group translation="[970, 790]">
+                <Rectangle translation="[0, 0]" width="360" height="2" color="0xFFFFFF40" />
+                <Rectangle translation="[0, 138]" width="360" height="2" color="0xFFFFFF40" />
+                <Rectangle translation="[0, 0]" width="2" height="140" color="0xFFFFFF40" />
+                <Rectangle translation="[358, 0]" width="2" height="140" color="0xFFFFFF40" />
+                <Label translation="[0, 18]" width="360" height="30" text="ROTTEN TOMATOES"
+                       color="0xCCCCCCFF" horizAlign="center" vertAlign="center"
+                       font="font:SmallBoldSystemFont" />
+                <Rectangle id="ratingRtUnderline" translation="[160, 56]" width="40" height="3" color="0xFFA500FF" />
+                <Label id="ratingRtValue" translation="[0, 66]" width="360" height="64" text="—"
+                       color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="48" />
+                </Label>
+            </Group>
+            <!-- METACRITIC -->
+            <Group translation="[1350, 790]">
+                <Rectangle translation="[0, 0]" width="360" height="2" color="0xFFFFFF40" />
+                <Rectangle translation="[0, 138]" width="360" height="2" color="0xFFFFFF40" />
+                <Rectangle translation="[0, 0]" width="2" height="140" color="0xFFFFFF40" />
+                <Rectangle translation="[358, 0]" width="2" height="140" color="0xFFFFFF40" />
+                <Label translation="[0, 18]" width="360" height="30" text="METACRITIC"
+                       color="0xCCCCCCFF" horizAlign="center" vertAlign="center"
+                       font="font:SmallBoldSystemFont" />
+                <Rectangle id="ratingMetaUnderline" translation="[160, 56]" width="40" height="3" color="0xFFA500FF" />
+                <Label id="ratingMetaValue" translation="[0, 66]" width="360" height="64" text="—"
+                       color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="48" />
+                </Label>
+            </Group>
 
             <!-- Footer -->
             <Label
