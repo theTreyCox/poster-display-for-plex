@@ -1383,6 +1383,7 @@ sub startPlexSignIn()
     m.plexSignInCodeLabel.text = "----"
     m.plexSignInStatusLabel.text = "Requesting code..."
     m.plexSignInOverlay.visible = true
+    print "[plex.signin] starting; clientId=" + m.plexClientId
 
     task = createObject("roSGNode", "PlexAuthTask")
     if task = invalid then
@@ -1397,7 +1398,13 @@ end sub
 
 sub onPlexPinRequested(event as Object)
     result = event.getData()
-    if result = invalid or not result.ok then
+    if result = invalid then
+        print "[plex.signin] pin request returned invalid result"
+        cancelPlexSignIn("Couldn't reach Plex.tv. Try again later.")
+        return
+    end if
+    if not result.ok then
+        print "[plex.signin] pin request failed: " + result.error
         cancelPlexSignIn("Couldn't reach Plex.tv. Try again later.")
         return
     end if
@@ -1406,6 +1413,7 @@ sub onPlexPinRequested(event as Object)
     m.plexSignInCodeLabel.text = UCase(result.pinCode)
     m.plexSignInStatusLabel.text = "Waiting for authorization..."
     m.plexSignInPollTimer.control = "start"
+    print "[plex.signin] PIN ready: id=" + result.pinId + " code=" + result.pinCode
 end sub
 
 sub onPlexSignInPollTick()
@@ -1429,6 +1437,7 @@ sub onPlexPinPolled(event as Object)
     result = event.getData()
     if result = invalid then return
     if result.expired then
+        print "[plex.signin] PIN expired"
         cancelPlexSignIn("Code expired. Please try again.")
         return
     end if
@@ -1439,6 +1448,7 @@ sub onPlexPinPolled(event as Object)
     m.plexSignInPollTimer.control = "stop"
     m.plexAuthToken = result.authToken
     m.plexSignInStatusLabel.text = "Signed in. Loading servers..."
+    print "[plex.signin] got authToken (len=" + Len(result.authToken).ToStr() + "); requesting server list"
 
     task = createObject("roSGNode", "PlexAuthTask")
     if task = invalid then
@@ -1454,14 +1464,22 @@ end sub
 
 sub onPlexServersListed(event as Object)
     result = event.getData()
-    if result = invalid or not result.ok then
+    if result = invalid then
+        print "[plex.signin] server list result was invalid"
+        cancelPlexSignIn("Couldn't load your Plex servers.")
+        return
+    end if
+    if not result.ok then
+        print "[plex.signin] server list failed: " + result.error
         cancelPlexSignIn("Couldn't load your Plex servers.")
         return
     end if
     if result.servers.Count() = 0 then
+        print "[plex.signin] server list returned zero servers"
         cancelPlexSignIn("No Plex servers found on your account.")
         return
     end if
+    print "[plex.signin] got " + result.servers.Count().ToStr() + " server(s) — showing picker"
 
     m.plexServerChoices = result.servers
     m.plexSignInOverlay.visible = false
@@ -1485,17 +1503,23 @@ sub onPlexServerChosen(event as Object)
     idx = event.getData()
     m.top.dialog = invalid
     if idx < 0 or idx >= m.plexServerChoices.Count() then
+        print "[plex.signin] server picker cancelled"
         returnToSettingsContext()
         return
     end if
     server = m.plexServerChoices[idx]
+    print "[plex.signin] selected server: name=" + server.name + " url=" + server.url + " tokenLen=" + Len(server.accessToken).ToStr()
     m.settings.plexServer = server.url
     m.settings.plexToken = server.accessToken
     m.registry.Write("plexServer", server.url)
     m.registry.Write("plexToken", server.accessToken)
     m.registry.Flush()
     m.carouselPosters = []
-    returnToSettingsContext()
+    ' Exit settings directly so cancelSettings can kick off the carousel /
+    ' session refresh. If we returned to the Plex Connection sub-menu the user
+    ' would still see "Press OK to enter your Plex server and token..." until
+    ' they manually closed every menu level.
+    cancelSettings()
 end sub
 
 sub cancelPlexSignIn(msg as String)
