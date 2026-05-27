@@ -826,7 +826,15 @@ sub openExpandedDescription()
     m.expandedTitle.text = title
     m.expandedTagline.text = m.landscapeMetaTagline.text  ' already uppercased
     m.expandedTagline.color = m.accentColors[m.accentColorIndex].hex
-    m.expandedStats.text = m.landscapeMetaStats.text
+
+    ' Modal stats line: UPPERCASE and includes the content rating between year
+    ' and runtime. The metadata strip stats (no rating, mixed case) stays as-is.
+    modalParts = []
+    if meta.year <> "" then modalParts.push(meta.year)
+    if meta.contentRating <> "" then modalParts.push(meta.contentRating)
+    if meta.duration > 0 then modalParts.push(formatRuntime(meta.duration))
+    if meta.genres <> "" then modalParts.push(meta.genres)
+    m.expandedStats.text = UCase(joinSeparator(modalParts, "  ·  "))
 
     m.expandedDirector.text = labeledLine("Directed by", meta.directors)
     m.expandedWriter.text = labeledLine("Written by", meta.writers)
@@ -851,7 +859,7 @@ sub openExpandedDescription()
     m.ratingRtValue.color = accent
     m.ratingMetaValue.color = accent
     if meta.audienceRating <> "" then
-        m.ratingPlexValue.text = "★ " + meta.audienceRating
+        m.ratingPlexValue.text = meta.audienceRating + "/10"
     else
         m.ratingPlexValue.text = "—"
     end if
@@ -882,7 +890,7 @@ sub onOmdbResult(event as Object)
     if result = invalid or not result.ok then return
     if not m.expandedDescription.visible then return  ' user closed before we returned
 
-    if result.imdbRating <> "" then m.ratingImdbValue.text = "★ " + result.imdbRating
+    if result.imdbRating <> "" then m.ratingImdbValue.text = result.imdbRating + "/10"
     if result.rottenTomatoes <> "" then m.ratingRtValue.text = result.rottenTomatoes
     if result.metacritic <> "" then m.ratingMetaValue.text = result.metacritic
 end sub
