@@ -164,11 +164,11 @@ function extractImdbId(itemEl as Object) as String
     if attrs <> invalid then
         guidAttr = stringOrEmpty(attrs["guid"])
         if guidAttr <> "" then
-            pos = Instr(1, guidAttr, "imdb://")
-            if pos > 0 then
-                after = guidAttr.Mid(pos + 6)
-                qPos = Instr(1, after, "?")
-                if qPos > 0 then after = after.Mid(0, qPos - 1)
+            idx = Instr(1, guidAttr, "imdb://")
+            if idx > 0 then
+                after = guidAttr.Mid(idx + 6)
+                qIdx = Instr(1, after, "?")
+                if qIdx > 0 then after = after.Mid(0, qIdx - 1)
                 if Instr(1, after, "tt") = 1 then return after
             end if
         end if
