@@ -33,7 +33,8 @@ Most of us already have a Roku stick or a Roku TV sitting in the living room. Th
 - **Blurred ambient backdrop** — landscape view fills the area around the poster with a softly-blurred, dimmed copy of the same artwork (generated server-side by Plex's image transcoder, ~18% opacity)
 - **Info overlay** — toggleable chrome strip with rating icon, title, year, live wall clock, and a progress bar showing current and total runtime. Times always read as zero-padded `HH:MM:SS` so the field width stays stable
 - **Poster transitions** — pick between `Abrupt`, `Fade`, or `Slide` from the Settings menu; applies to both Carousel advances and Plex playback changes
-- **GDM server discovery** — auto-detects Plex Media Servers on your LAN during first-time setup so you can pick from a list instead of typing an IP
+- **Sign in with Plex (plex.tv/link PIN flow)** — no more copy-pasting tokens. Pick "Sign in with Plex" from Settings; the app shows a 4-character code, you enter it at `plex.tv/link` from any browser, and the app polls Plex.tv until you confirm. It then lists every owned + shared server on your account and lets you pick one
+- **GDM server discovery** — auto-detects Plex Media Servers on your LAN during first-time setup so you can pick from a list instead of typing an IP. Stays available as a fallback alongside Sign-in-with-Plex
 - **Screensaver suppression** — keeps the screen on indefinitely while the app is running, via a background-thread call to `roAppManager.UpdateLastKeyPressTime` every 30 seconds
 - **Persistent settings** — server URL, token, view mode, theater-frame state, info-overlay state, carousel state, blocked ratings, portrait flip, transition style, progress-bar color, portrait-matte state, and portrait-frame style all persist in the Roku registry
 
@@ -64,8 +65,9 @@ Pressing `*` or Left brings up the top-level menu, which has two sub-menus + Clo
 
 ### Plex Connection
 
-- **Change Plex server** — opens GDM discovery; pick from a list of detected servers, enter a URL manually, or cancel
-- **Change Plex token** — keyboard prompt for a new Plex token
+- **Sign in with Plex** — opens an overlay with a 4-character code and the `plex.tv/link` URL. Open that URL on any phone or computer, sign into Plex if you aren't already, and enter the code. The app polls plex.tv every 3 seconds; once you confirm, it pulls every server on your account (owned + shared) and lets you pick one. Back cancels the flow
+- **Change Plex server** — manual fallback: opens GDM discovery; pick from a list of detected servers, enter a URL manually, or cancel
+- **Change Plex token** — keyboard prompt for a new Plex token (only needed for unusual setups that don't go through Sign-in-with-Plex)
 - **Edit carousel rating filter** — checkbox list of content ratings to exclude from the random Carousel. OK toggles each item, **Back saves and closes**
 - **Back** — return to the top-level menu
 
@@ -84,16 +86,21 @@ Each option that opens a sub-dialog (server, token, rating filter) returns to th
 
 ## Initial setup
 
+### Easy path — Sign in with Plex (recommended)
+
 1. Sideload the app to your Roku in Developer Mode (see [Sideloading](#sideloading) below).
-2. On first launch, you'll see "Press OK to enter your Plex server and token." — press **OK** on the visible Settings button.
-3. The app automatically scans your local network for Plex Media Servers using Plex's GDM discovery protocol. After ~3 seconds:
-   - If servers are found, a list appears — pick the one you want.
-   - If none are found (or you'd rather type the URL yourself), choose **Enter manually** and provide `http://<your-server-ip>:32400`.
-4. Enter your Plex token. To find it:
+2. On first launch, press **OK** on the visible Settings button, then **Plex Connection → Sign in with Plex**.
+3. The TV shows a 4-character code and the URL `plex.tv/link`. On any phone or computer, open that URL, sign into Plex if you aren't, enter the code, and tap **Link**.
+4. Within a few seconds the app fetches your server list and shows a picker. Choose the server you want this display to use.
+5. Start playing something on Plex — within ~15 seconds the poster appears on the Roku.
+
+### Manual path (fallback for unusual networks)
+
+1. From Settings, choose **Plex Connection → Change Plex server** to enter the server URL by hand. The local-network discovery (GDM) runs first and offers any servers it finds; or pick **Enter manually** and type `http://<your-server-ip>:32400`.
+2. Choose **Change Plex token** and paste your token. To find it:
    - In the Plex web app, open any item's **Get Info → View XML**
    - Copy the `X-Plex-Token=...` value from the URL
    - Official guide: <https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/>
-5. Start playing something on Plex — within ~15 seconds the poster appears on the Roku.
 
 ## Hiding posters from the Carousel
 
@@ -137,6 +144,7 @@ poster-display-for-plex/
 │   ├── PlexSessionTask.xml/.brs         # polls /status/sessions for now-playing
 │   ├── PlexLibraryTask.xml/.brs         # fetches library items for the carousel
 │   ├── PlexDiscoveryTask.xml/.brs       # GDM UDP broadcast for server discovery
+│   ├── PlexAuthTask.xml/.brs            # plex.tv/link PIN flow (request, poll, list servers)
 │   ├── BorderCutoutTask.xml/.brs        # scans border PNG alpha channels at startup
 │   └── KeepAliveTask.xml/.brs           # suppresses the Roku screensaver
 ├── images/
@@ -158,6 +166,7 @@ poster-display-for-plex/
 ## Architecture notes
 
 - **All network I/O runs on Task threads.** `roUrlTransfer` cannot be created on the SceneGraph render thread; the scene observes `result` fields on the Tasks and reacts when they update.
+- **Plex.tv sign-in uses the standard PIN flow.** `PlexAuthTask` exposes three modes (`requestPin`, `pollPin`, `listServers`) against `plex.tv/api/v2`. Each request carries a persistent `X-Plex-Client-Identifier` generated once per install via `roDeviceInfo.GetRandomUUID()` and stored in the registry — Plex.tv treats reused identifiers as the same device, so polls correctly resolve to the user's just-entered PIN. When listing servers, the task prefers a local `http://` connection over a remote `https://` one for speed.
 - **Screensaver suppression also runs on a Task thread** for the same reason — `roAppManager` is a MAIN/TASK-only component.
 - **Two rendering paths per view mode:** with-theater-frame and without. The framed variants size the poster to fit precisely inside the PNG's transparent cutout — and the cutout itself is measured at runtime by `BorderCutoutTask`, not hardcoded, so any new border PNG works without code changes.
 - **Runtime alpha-cutout detection** uses `roBitmap.GetByteArray` on each border PNG at startup, scanning the alpha channel edge-by-edge (top → bottom → left → right) to find the bounding box of `alpha < 16` pixels. The scene then computes the poster's fit/fill width, height, pivot, and translation so the rotated portrait poster lands centered inside the cutout. Falls back to baked geometry if `roBitmap` isn't available on the device.
