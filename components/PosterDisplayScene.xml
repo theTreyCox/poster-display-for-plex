@@ -342,7 +342,7 @@
                 id="landscapeMetaSummary"
                 translation="[20, 391]"
                 width="360"
-                height="560"
+                height="540"
                 text=""
                 color="0xE5E5E5FF"
                 horizAlign="left"
@@ -352,7 +352,7 @@
             <Label
                 id="landscapeMetaReadMoreHint"
                 visible="false"
-                translation="[20, 990]"
+                translation="[20, 960]"
                 width="360"
                 height="56"
                 text="▼ PRESS OK TO READ MORE"
@@ -398,7 +398,7 @@
                 id="portraitMetaSummary"
                 translation="[90, 170]"
                 width="900"
-                height="130"
+                height="110"
                 text=""
                 color="0xE5E5E5FF"
                 horizAlign="left"
@@ -408,7 +408,7 @@
             <Label
                 id="portraitMetaReadMoreHint"
                 visible="false"
-                translation="[90, 310]"
+                translation="[90, 290]"
                 width="900"
                 height="46"
                 text="▼ PRESS OK TO READ MORE"
@@ -621,69 +621,57 @@
                 <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="28" />
             </Label>
 
-            <!-- Credit lines (delta 48 between lines so there's visible breathing room) -->
-            <Label
-                id="expandedDirector"
-                translation="[200, 370]"
-                width="1520"
-                height="32"
-                text=""
-                color="0xE5E5E5FF"
-                horizAlign="left"
-                vertAlign="center"
-                wrap="false"
-                font="font:SmallSystemFont" />
-            <Label
-                id="expandedWriter"
-                translation="[200, 418]"
-                width="1520"
-                height="32"
-                text=""
-                color="0xE5E5E5FF"
-                horizAlign="left"
-                vertAlign="center"
-                wrap="false"
-                font="font:SmallSystemFont" />
-            <Label
-                id="expandedCast"
-                translation="[200, 466]"
-                width="1520"
-                height="32"
-                text=""
-                color="0xE5E5E5FF"
-                horizAlign="left"
-                vertAlign="center"
-                wrap="false"
-                font="font:SmallSystemFont" />
-            <Label
-                id="expandedStudio"
-                translation="[200, 514]"
-                width="1520"
-                height="32"
-                text=""
-                color="0xE5E5E5FF"
-                horizAlign="left"
-                vertAlign="center"
-                wrap="false"
-                font="font:SmallSystemFont" />
-            <Label
-                id="expandedReleased"
-                translation="[200, 562]"
-                width="1520"
-                height="32"
-                text=""
-                color="0xE5E5E5FF"
-                horizAlign="left"
-                vertAlign="center"
-                wrap="false"
-                font="font:SmallSystemFont" />
+            <!-- Credit lines: accent-bold label + white value side by side. Delta 40
+                 between lines (tight, since the big gap goes between the last credit
+                 and the summary). -->
+            <Label id="expandedDirectorLabel"
+                   translation="[200, 370]" width="200" height="32" text="Director:"
+                   color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false"
+                   font="font:SmallBoldSystemFont" />
+            <Label id="expandedDirectorValue"
+                   translation="[420, 370]" width="1300" height="32" text=""
+                   color="0xE5E5E5FF" horizAlign="left" vertAlign="center" wrap="false"
+                   font="font:SmallSystemFont" />
+            <Label id="expandedWriterLabel"
+                   translation="[200, 410]" width="200" height="32" text="Writer:"
+                   color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false"
+                   font="font:SmallBoldSystemFont" />
+            <Label id="expandedWriterValue"
+                   translation="[420, 410]" width="1300" height="32" text=""
+                   color="0xE5E5E5FF" horizAlign="left" vertAlign="center" wrap="false"
+                   font="font:SmallSystemFont" />
+            <Label id="expandedCastLabel"
+                   translation="[200, 450]" width="200" height="32" text="Starring:"
+                   color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false"
+                   font="font:SmallBoldSystemFont" />
+            <Label id="expandedCastValue"
+                   translation="[420, 450]" width="1300" height="32" text=""
+                   color="0xE5E5E5FF" horizAlign="left" vertAlign="center" wrap="false"
+                   font="font:SmallSystemFont" />
+            <Label id="expandedStudioLabel"
+                   translation="[200, 490]" width="200" height="32" text="Studio:"
+                   color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false"
+                   font="font:SmallBoldSystemFont" />
+            <Label id="expandedStudioValue"
+                   translation="[420, 490]" width="1300" height="32" text=""
+                   color="0xE5E5E5FF" horizAlign="left" vertAlign="center" wrap="false"
+                   font="font:SmallSystemFont" />
+            <Label id="expandedReleasedLabel"
+                   translation="[200, 530]" width="200" height="32" text="Release Date:"
+                   color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false"
+                   font="font:SmallBoldSystemFont" />
+            <Label id="expandedReleasedValue"
+                   translation="[420, 530]" width="1300" height="32" text=""
+                   color="0xE5E5E5FF" horizAlign="left" vertAlign="center" wrap="false"
+                   font="font:SmallSystemFont" />
 
-            <!-- Summary — same horizontal padding as the slogan; more line height -->
+            <!-- Summary — big gap above (released ends y=562, summary y=630 = 68px)
+                 so the description reads as its own block instead of crowding credits. -->
             <Label
                 id="expandedSummary"
-                translation="[200, 620]"
+                translation="[200, 630]"
                 width="1520"
-                height="280"
+                height="270"
                 text=""
                 color="0xE5E5E5FF"
                 horizAlign="left"

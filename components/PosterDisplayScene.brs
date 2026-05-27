@@ -49,11 +49,16 @@ sub init()
     m.expandedTitle = m.top.findNode("expandedTitle")
     m.expandedTagline = m.top.findNode("expandedTagline")
     m.expandedStats = m.top.findNode("expandedStats")
-    m.expandedDirector = m.top.findNode("expandedDirector")
-    m.expandedWriter = m.top.findNode("expandedWriter")
-    m.expandedCast = m.top.findNode("expandedCast")
-    m.expandedStudio = m.top.findNode("expandedStudio")
-    m.expandedReleased = m.top.findNode("expandedReleased")
+    m.expandedDirectorLabel = m.top.findNode("expandedDirectorLabel")
+    m.expandedDirectorValue = m.top.findNode("expandedDirectorValue")
+    m.expandedWriterLabel = m.top.findNode("expandedWriterLabel")
+    m.expandedWriterValue = m.top.findNode("expandedWriterValue")
+    m.expandedCastLabel = m.top.findNode("expandedCastLabel")
+    m.expandedCastValue = m.top.findNode("expandedCastValue")
+    m.expandedStudioLabel = m.top.findNode("expandedStudioLabel")
+    m.expandedStudioValue = m.top.findNode("expandedStudioValue")
+    m.expandedReleasedLabel = m.top.findNode("expandedReleasedLabel")
+    m.expandedReleasedValue = m.top.findNode("expandedReleasedValue")
     m.expandedSummary = m.top.findNode("expandedSummary")
     m.ratingPlexValue = m.top.findNode("ratingPlexValue")
     m.ratingImdbValue = m.top.findNode("ratingImdbValue")
@@ -665,13 +670,22 @@ sub cycleTransitionStyle()
 end sub
 
 ' Apply the chosen accent (theme) color to every UI element that uses it:
-' progress bar fills + metadata taglines on both orientations.
+' progress bar fills, metadata taglines, Read More hints, modal tagline, and
+' the modal's credit labels (Director:, Writer:, etc).
 sub applyAccentColor()
     color = m.accentColors[m.accentColorIndex].hex
     m.progressBarFill.color = color
     m.portraitProgressBarFill.color = color
     m.landscapeMetaTagline.color = color
     m.portraitMetaTagline.color = color
+    m.landscapeMetaReadMoreHint.color = color
+    m.portraitMetaReadMoreHint.color = color
+    m.expandedTagline.color = color
+    m.expandedDirectorLabel.color = color
+    m.expandedWriterLabel.color = color
+    m.expandedCastLabel.color = color
+    m.expandedStudioLabel.color = color
+    m.expandedReleasedLabel.color = color
 end sub
 
 ' Spin up the BorderCutoutTask once at startup to measure each portrait
@@ -836,17 +850,11 @@ sub openExpandedDescription()
     if meta.genres <> "" then modalParts.push(meta.genres)
     m.expandedStats.text = UCase(joinSeparator(modalParts, "  ·  "))
 
-    m.expandedDirector.text = labeledLine("Directed by", meta.directors)
-    m.expandedWriter.text = labeledLine("Written by", meta.writers)
-    m.expandedCast.text = labeledLine("Starring", meta.cast)
-    m.expandedStudio.text = labeledLine("Studio", meta.studio)
-    m.expandedReleased.text = labeledLine("Released", formatReleaseDate(meta.releaseDate))
-
-    m.expandedDirector.visible = (meta.directors <> "")
-    m.expandedWriter.visible = (meta.writers <> "")
-    m.expandedCast.visible = (meta.cast <> "")
-    m.expandedStudio.visible = (meta.studio <> "")
-    m.expandedReleased.visible = (meta.releaseDate <> "")
+    setCreditPair(m.expandedDirectorLabel, m.expandedDirectorValue, meta.directors)
+    setCreditPair(m.expandedWriterLabel, m.expandedWriterValue, meta.writers)
+    setCreditPair(m.expandedCastLabel, m.expandedCastValue, meta.cast)
+    setCreditPair(m.expandedStudioLabel, m.expandedStudioValue, meta.studio)
+    setCreditPair(m.expandedReleasedLabel, m.expandedReleasedValue, formatReleaseDate(meta.releaseDate))
 
     m.expandedSummary.text = meta.summary
 
@@ -895,12 +903,13 @@ sub onOmdbResult(event as Object)
     if result.metacritic <> "" then m.ratingMetaValue.text = result.metacritic
 end sub
 
-' "Directed by " + "Steven Spielberg" -> "Directed by Steven Spielberg"; if the
-' value is empty, returns empty so the caller can hide the line.
-function labeledLine(label as String, value as String) as String
-    if value = "" then return ""
-    return label + " " + value
-end function
+' Set a credit pair's value text + show/hide both label and value together.
+sub setCreditPair(labelNode as Object, valueNode as Object, value as String)
+    valueNode.text = value
+    show = (value <> "")
+    labelNode.visible = show
+    valueNode.visible = show
+end sub
 
 ' Convert Plex's ISO-style "YYYY-MM-DD" date into "Month DD, YYYY".
 function formatReleaseDate(d as String) as String
