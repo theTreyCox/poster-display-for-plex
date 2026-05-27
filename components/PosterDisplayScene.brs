@@ -874,6 +874,7 @@ sub openExpandedDescription()
     if meta.contentRating <> "" then modalParts.push(meta.contentRating)
     if meta.duration > 0 then modalParts.push(formatRuntime(meta.duration))
     if meta.genres <> "" then modalParts.push(meta.genres)
+    print "[scene.modal] stat box year='" + meta.year + "' contentRating='" + meta.contentRating + "' duration=" + meta.duration.ToStr() + " genres='" + meta.genres + "'"
     buildExpandedStats(modalParts)
 
     ' Fresh credit-dot tracking for the just-opened modal — every credit row
@@ -968,11 +969,12 @@ sub buildExpandedStats(parts as Object)
     accent = m.accentColors[m.accentColorIndex].hex
 
     ' Width estimates for Oswald-Medium 28pt segments and Oswald-Bold 36pt dots.
-    ' Slightly oversized so horizAlign=center inside each cell leaves a tiny
-    ' breathing buffer on either side and the row stays visually centered.
-    segCharW = 14
-    dotW = 18
-    spacing = 16
+    ' Generously oversized so horizAlign=center inside each cell leaves a tiny
+    ' breathing buffer on either side and the text never visually clips when
+    ' the actual rendered width exceeds the estimate.
+    segCharW = 16
+    dotW = 22
+    spacing = 14
 
     items = []
     for i = 0 to parts.Count() - 1

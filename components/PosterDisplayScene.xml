@@ -611,22 +611,17 @@
                 <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="38" />
             </Label>
 
-            <!-- Stats box: white-outlined rectangle. Children are built in BRS
-                 (openExpandedDescription) as alternating white text + accent dot
-                 labels via a LayoutGroup, then the group is centered horizontally
-                 by reading its boundingRect. -->
-            <Rectangle translation="[560, 275]" width="800" height="2" color="0xFFFFFFFF" />
-            <Rectangle translation="[560, 353]" width="800" height="2" color="0xFFFFFFFF" />
-            <Rectangle translation="[560, 275]" width="2" height="80" color="0xFFFFFFFF" />
-            <Rectangle translation="[1358, 275]" width="2" height="80" color="0xFFFFFFFF" />
-            <!-- Children built + positioned in BRS using estimated text widths
-                 so we get reliable centering (LayoutGroup boundingRect is set
-                 async and was leaving the row anchored to the left). Group's
-                 translation is the box's center; children are placed relative
-                 to that origin. -->
+            <!-- Stat Box: white-outlined rectangle holding year/rating/runtime/
+                 genres. Children built + positioned in BRS using estimated text
+                 widths for reliable centering. Group's translation is the box's
+                 center; children placed relative to that origin. -->
+            <Rectangle translation="[560, 255]" width="800" height="2" color="0xFFFFFFFF" />
+            <Rectangle translation="[560, 333]" width="800" height="2" color="0xFFFFFFFF" />
+            <Rectangle translation="[560, 255]" width="2" height="80" color="0xFFFFFFFF" />
+            <Rectangle translation="[1358, 255]" width="2" height="80" color="0xFFFFFFFF" />
             <Group
                 id="expandedStatsGroup"
-                translation="[960, 315]" />
+                translation="[960, 295]" />
 
             <!-- Credit lines: BebasNeue accent label (right-aligned in a narrow
                  cell so the value sits close) + LayoutGroup of white name
@@ -640,7 +635,7 @@
                 <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
             </Label>
             <LayoutGroup id="expandedDirectorValue"
-                         translation="[380, 393]" layoutDirection="horiz"
+                         translation="[380, 403]" layoutDirection="horiz"
                          horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
             <Label id="expandedWriterLabel"
                    translation="[200, 434]" width="160" height="32" text="WRITER"
@@ -648,7 +643,7 @@
                 <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
             </Label>
             <LayoutGroup id="expandedWriterValue"
-                         translation="[380, 439]" layoutDirection="horiz"
+                         translation="[380, 449]" layoutDirection="horiz"
                          horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
             <Label id="expandedCastLabel"
                    translation="[200, 480]" width="160" height="32" text="STARRING"
@@ -656,7 +651,7 @@
                 <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
             </Label>
             <LayoutGroup id="expandedCastValue"
-                         translation="[380, 485]" layoutDirection="horiz"
+                         translation="[380, 495]" layoutDirection="horiz"
                          horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
             <Label id="expandedStudioLabel"
                    translation="[200, 526]" width="160" height="32" text="STUDIO"
@@ -664,7 +659,7 @@
                 <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
             </Label>
             <LayoutGroup id="expandedStudioValue"
-                         translation="[380, 531]" layoutDirection="horiz"
+                         translation="[380, 541]" layoutDirection="horiz"
                          horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
             <Label id="expandedReleasedLabel"
                    translation="[200, 572]" width="160" height="32" text="RELEASED"
@@ -672,7 +667,7 @@
                 <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
             </Label>
             <LayoutGroup id="expandedReleasedValue"
-                         translation="[380, 577]" layoutDirection="horiz"
+                         translation="[380, 587]" layoutDirection="horiz"
                          horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
 
             <!-- Horizontal separator between credits and description -->
@@ -694,65 +689,64 @@
                 wrap="true" />
 
             <!-- ===== Ratings: 4 bordered boxes spanning the row from 60px outer
-                 padding to 60px outer padding. Each box w=435 h=140, gap=20.
-                 Value font is 43pt (10% smaller than before) with more internal
-                 padding so the box content breathes. ===== -->
+                 padding to 60px outer padding. Each box w=435 h=180 with ~40px
+                 top + bottom internal padding around the title/value content. ===== -->
             <!-- PLEX -->
-            <Group translation="[60, 830]">
+            <Group translation="[60, 815]">
                 <Rectangle translation="[0, 0]" width="435" height="2" color="0xFFFFFFFF" />
-                <Rectangle translation="[0, 138]" width="435" height="2" color="0xFFFFFFFF" />
-                <Rectangle translation="[0, 0]" width="2" height="140" color="0xFFFFFFFF" />
-                <Rectangle translation="[433, 0]" width="2" height="140" color="0xFFFFFFFF" />
-                <Label translation="[0, 24]" width="435" height="30" text="PLEX"
+                <Rectangle translation="[0, 178]" width="435" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Rectangle translation="[433, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Label translation="[0, 40]" width="435" height="30" text="PLEX"
                        color="0xCCCCCCFF" horizAlign="center" vertAlign="center"
                        font="font:SmallBoldSystemFont" />
-                <Rectangle id="ratingPlexUnderline" translation="[197, 64]" width="40" height="3" color="0xFFA500FF" />
-                <Label id="ratingPlexValue" translation="[0, 72]" width="435" height="58" text="—"
+                <Rectangle id="ratingPlexUnderline" translation="[197, 78]" width="40" height="3" color="0xFFA500FF" />
+                <Label id="ratingPlexValue" translation="[0, 85]" width="435" height="58" text="—"
                        color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
                     <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="43" />
                 </Label>
             </Group>
             <!-- IMDB -->
-            <Group translation="[515, 830]">
+            <Group translation="[515, 815]">
                 <Rectangle translation="[0, 0]" width="435" height="2" color="0xFFFFFFFF" />
-                <Rectangle translation="[0, 138]" width="435" height="2" color="0xFFFFFFFF" />
-                <Rectangle translation="[0, 0]" width="2" height="140" color="0xFFFFFFFF" />
-                <Rectangle translation="[433, 0]" width="2" height="140" color="0xFFFFFFFF" />
-                <Label translation="[0, 24]" width="435" height="30" text="IMDB"
+                <Rectangle translation="[0, 178]" width="435" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Rectangle translation="[433, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Label translation="[0, 40]" width="435" height="30" text="IMDB"
                        color="0xCCCCCCFF" horizAlign="center" vertAlign="center"
                        font="font:SmallBoldSystemFont" />
-                <Rectangle id="ratingImdbUnderline" translation="[197, 64]" width="40" height="3" color="0xFFA500FF" />
-                <Label id="ratingImdbValue" translation="[0, 72]" width="435" height="58" text="—"
+                <Rectangle id="ratingImdbUnderline" translation="[197, 78]" width="40" height="3" color="0xFFA500FF" />
+                <Label id="ratingImdbValue" translation="[0, 85]" width="435" height="58" text="—"
                        color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
                     <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="43" />
                 </Label>
             </Group>
             <!-- ROTTEN TOMATOES -->
-            <Group translation="[970, 830]">
+            <Group translation="[970, 815]">
                 <Rectangle translation="[0, 0]" width="435" height="2" color="0xFFFFFFFF" />
-                <Rectangle translation="[0, 138]" width="435" height="2" color="0xFFFFFFFF" />
-                <Rectangle translation="[0, 0]" width="2" height="140" color="0xFFFFFFFF" />
-                <Rectangle translation="[433, 0]" width="2" height="140" color="0xFFFFFFFF" />
-                <Label translation="[0, 24]" width="435" height="30" text="ROTTEN TOMATOES"
+                <Rectangle translation="[0, 178]" width="435" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Rectangle translation="[433, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Label translation="[0, 40]" width="435" height="30" text="ROTTEN TOMATOES"
                        color="0xCCCCCCFF" horizAlign="center" vertAlign="center"
                        font="font:SmallBoldSystemFont" />
-                <Rectangle id="ratingRtUnderline" translation="[197, 64]" width="40" height="3" color="0xFFA500FF" />
-                <Label id="ratingRtValue" translation="[0, 72]" width="435" height="58" text="—"
+                <Rectangle id="ratingRtUnderline" translation="[197, 78]" width="40" height="3" color="0xFFA500FF" />
+                <Label id="ratingRtValue" translation="[0, 85]" width="435" height="58" text="—"
                        color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
                     <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="43" />
                 </Label>
             </Group>
             <!-- METACRITIC -->
-            <Group translation="[1425, 830]">
+            <Group translation="[1425, 815]">
                 <Rectangle translation="[0, 0]" width="435" height="2" color="0xFFFFFFFF" />
-                <Rectangle translation="[0, 138]" width="435" height="2" color="0xFFFFFFFF" />
-                <Rectangle translation="[0, 0]" width="2" height="140" color="0xFFFFFFFF" />
-                <Rectangle translation="[433, 0]" width="2" height="140" color="0xFFFFFFFF" />
-                <Label translation="[0, 24]" width="435" height="30" text="METACRITIC"
+                <Rectangle translation="[0, 178]" width="435" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Rectangle translation="[433, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Label translation="[0, 40]" width="435" height="30" text="METACRITIC"
                        color="0xCCCCCCFF" horizAlign="center" vertAlign="center"
                        font="font:SmallBoldSystemFont" />
-                <Rectangle id="ratingMetaUnderline" translation="[197, 64]" width="40" height="3" color="0xFFA500FF" />
-                <Label id="ratingMetaValue" translation="[0, 72]" width="435" height="58" text="—"
+                <Rectangle id="ratingMetaUnderline" translation="[197, 78]" width="40" height="3" color="0xFFA500FF" />
+                <Label id="ratingMetaValue" translation="[0, 85]" width="435" height="58" text="—"
                        color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
                     <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="43" />
                 </Label>
