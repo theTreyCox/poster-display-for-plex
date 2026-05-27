@@ -233,7 +233,7 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
     else if key = "right" then
         toggleInfo()
         return true
-    else if key = "left" or key = "info" then
+    else if key = "left" or key = "options" then
         openSettingsMenu()
         return true
     else if key = "rev" or key = "rewind" then
