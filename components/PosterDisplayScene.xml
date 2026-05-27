@@ -587,8 +587,8 @@
                 loadDisplayMode="zoomToFill" />
             <Label
                 id="expandedTitle"
-                translation="[200, 50]"
-                width="1520"
+                translation="[60, 50]"
+                width="1800"
                 height="100"
                 text=""
                 color="0xFFFFFFFF"
@@ -600,8 +600,8 @@
             <!-- Tagline / slogan — BebasNeue, accent color, wraps if long -->
             <Label
                 id="expandedTagline"
-                translation="[200, 175]"
-                width="1520"
+                translation="[60, 175]"
+                width="1800"
                 height="80"
                 text=""
                 color="0xFFA500FF"
@@ -615,10 +615,10 @@
                  genres. Children built + positioned in BRS using estimated text
                  widths for reliable centering. Group's translation is the box's
                  center; children placed relative to that origin. -->
-            <Rectangle translation="[560, 255]" width="800" height="2" color="0xFFFFFFFF" />
-            <Rectangle translation="[560, 333]" width="800" height="2" color="0xFFFFFFFF" />
-            <Rectangle translation="[560, 255]" width="2" height="80" color="0xFFFFFFFF" />
-            <Rectangle translation="[1358, 255]" width="2" height="80" color="0xFFFFFFFF" />
+            <Rectangle translation="[60, 255]" width="1800" height="2" color="0xFFFFFFFF" />
+            <Rectangle translation="[60, 333]" width="1800" height="2" color="0xFFFFFFFF" />
+            <Rectangle translation="[60, 255]" width="2" height="80" color="0xFFFFFFFF" />
+            <Rectangle translation="[1858, 255]" width="2" height="80" color="0xFFFFFFFF" />
             <Group
                 id="expandedStatsGroup"
                 translation="[960, 295]" />
@@ -630,55 +630,55 @@
                  offset +5px from the label Y because BebasNeue caps visually
                  center higher in their cell than SmallestSystemFont x-height. -->
             <Label id="expandedDirectorLabel"
-                   translation="[200, 388]" width="160" height="32" text="DIRECTOR"
+                   translation="[60, 388]" width="160" height="32" text="DIRECTOR"
                    color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
                 <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
             </Label>
             <LayoutGroup id="expandedDirectorValue"
-                         translation="[380, 403]" layoutDirection="horiz"
+                         translation="[240, 403]" layoutDirection="horiz"
                          horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
             <Label id="expandedWriterLabel"
-                   translation="[200, 434]" width="160" height="32" text="WRITER"
+                   translation="[60, 434]" width="160" height="32" text="WRITER"
                    color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
                 <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
             </Label>
             <LayoutGroup id="expandedWriterValue"
-                         translation="[380, 449]" layoutDirection="horiz"
+                         translation="[240, 449]" layoutDirection="horiz"
                          horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
             <Label id="expandedCastLabel"
-                   translation="[200, 480]" width="160" height="32" text="STARRING"
+                   translation="[60, 480]" width="160" height="32" text="STARRING"
                    color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
                 <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
             </Label>
             <LayoutGroup id="expandedCastValue"
-                         translation="[380, 495]" layoutDirection="horiz"
+                         translation="[240, 495]" layoutDirection="horiz"
                          horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
             <Label id="expandedStudioLabel"
-                   translation="[200, 526]" width="160" height="32" text="STUDIO"
+                   translation="[60, 526]" width="160" height="32" text="STUDIO"
                    color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
                 <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
             </Label>
             <LayoutGroup id="expandedStudioValue"
-                         translation="[380, 541]" layoutDirection="horiz"
+                         translation="[240, 541]" layoutDirection="horiz"
                          horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
             <Label id="expandedReleasedLabel"
-                   translation="[200, 572]" width="160" height="32" text="RELEASED"
+                   translation="[60, 572]" width="160" height="32" text="RELEASED"
                    color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
                 <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
             </Label>
             <LayoutGroup id="expandedReleasedValue"
-                         translation="[380, 587]" layoutDirection="horiz"
+                         translation="[240, 587]" layoutDirection="horiz"
                          horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
 
             <!-- Horizontal separator between credits and description -->
-            <Rectangle translation="[200, 640]" width="1520" height="2" color="0x80808066" />
+            <Rectangle translation="[60, 640]" width="1800" height="2" color="0x80808066" />
 
             <!-- Summary / description (smaller body font). Equal breathing room
                  above (credits→divider ≈ 36px) and below (divider→summary ≈ 38px). -->
             <Label
                 id="expandedSummary"
-                translation="[200, 680]"
-                width="1520"
+                translation="[60, 680]"
+                width="1800"
                 height="120"
                 text=""
                 color="0xE5E5E5FF"
@@ -758,8 +758,8 @@
 
             <!-- Footer -->
             <Label
-                translation="[200, 1020]"
-                width="1520"
+                translation="[60, 1020]"
+                width="1800"
                 height="40"
                 text="PRESS BACK TO CLOSE"
                 color="0x808080FF"
