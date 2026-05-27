@@ -19,19 +19,23 @@ Most of us already have a Roku stick or a Roku TV sitting in the living room. Th
 
 - **Live poster display** — polls Plex every 15 seconds for the current session and shows the artwork
 - **TV episode support** — episodes show the **series poster** as the main image with a small **episode thumbnail** overlay; the status bar reads `Show Name — Episode Title`
-- **Content rating badge + release year** in the status bar, e.g. `[PG-13] JAWS (1976)`. Rating and year are pulled from Plex metadata; both are rendered at 80% opacity so the title itself stays the focal point
+- **Content rating icons** — bundled PNG marks for G, PG, PG-13, R, NC-17, XXX, TV-Y, TV-Y7, TV-G, TV-PG, TV-14, TV-MA, and NR. The NR icon is used as the fallback whenever Plex doesn't return a rating; uncommon ratings fall back to a bracketed text badge
+- **Release year** sits to the right of the title in the chrome strip, rendered in the same font as the time displays so it reads as a metadata field rather than part of the title
 - **Four view modes**, cycling on a single keypress:
   - Landscape Fit / Landscape Fill
   - Portrait Fit / Portrait Fill (for vertically-mounted TVs — content auto-rotates 90°; orientation can be flipped if your TV is mounted the other way)
 - **Random Carousel mode** — cycles through random posters from your Plex library every 30 seconds. Manually advance with Fast-Forward, pause auto-advance with Play, exit with Rewind
 - **Carousel filtering** — block items from the carousel by content rating (checkbox UI in Settings) or by tagging individual items with a `no-poster` label in Plex
-- **Now Playing border** — optional theater-style frame with marquee lights, gold trim, and a dynamic "NOW PLAYING" sign showing the actual show/movie name in a retro display font
+- **Now Playing theater frame** — optional ornate frame around the poster with two bundled styles (Marquee Gold, Theater Silver) selectable from Settings. Add your own PNGs and they're picked up automatically — see [Customization](#customization)
+- **Auto-detected frame cutouts** — at startup the app scans each portrait border PNG's alpha channel to find the transparent rectangle, then sizes and places the poster to fit. Drop in a new border PNG with any cutout position and the poster aligns inside it without code changes
+- **Portrait poster matte** — optional 60px black gallery-style frame around the portrait poster (no theater-frame variant). The bottom side auto-hides when the info strip is on so it doesn't double up with the chrome
+- **Progress bar color picker** — choose from a 12-color palette (Orange, Red, Amber, Yellow, Lime, Green, Teal, Cyan, Blue, Indigo, Purple, Pink). Applies to both landscape and portrait progress fills
 - **Blurred ambient backdrop** — landscape view fills the area around the poster with a softly-blurred, dimmed copy of the same artwork (generated server-side by Plex's image transcoder, ~18% opacity)
-- **Info overlay** — toggleable status bar with rating, title, year, live wall clock, plus a progress bar showing remaining time, current position, total runtime, and end-of-media wall-clock time (so you can see at a glance when the movie will finish)
+- **Info overlay** — toggleable chrome strip with rating icon, title, year, live wall clock, and a progress bar showing current and total runtime. Times always read as zero-padded `HH:MM:SS` so the field width stays stable
 - **Poster transitions** — pick between `Abrupt`, `Fade`, or `Slide` from the Settings menu; applies to both Carousel advances and Plex playback changes
 - **GDM server discovery** — auto-detects Plex Media Servers on your LAN during first-time setup so you can pick from a list instead of typing an IP
 - **Screensaver suppression** — keeps the screen on indefinitely while the app is running, via a background-thread call to `roAppManager.UpdateLastKeyPressTime` every 30 seconds
-- **Persistent settings** — server URL, token, view mode, border state, info-overlay state, carousel state, blocked ratings, portrait flip, and transition style all persist in the Roku registry
+- **Persistent settings** — server URL, token, view mode, theater-frame state, info-overlay state, carousel state, blocked ratings, portrait flip, transition style, progress-bar color, portrait-matte state, and portrait-frame style all persist in the Roku registry
 
 ## Remote control
 
@@ -56,14 +60,25 @@ The on-screen Settings button is normally hidden once your Plex server and token
 
 ## Settings menu
 
-Pressing `*` or Left brings up a menu with the following options:
+Pressing `*` or Left brings up the top-level menu, which has two sub-menus + Close:
+
+### Plex Connection
 
 - **Change Plex server** — opens GDM discovery; pick from a list of detected servers, enter a URL manually, or cancel
 - **Change Plex token** — keyboard prompt for a new Plex token
 - **Edit carousel rating filter** — checkbox list of content ratings to exclude from the random Carousel. OK toggles each item, **Back saves and closes**
-- **Flip portrait orientation** — toggle between CW mount (top of TV on viewer's right) and CCW mount (top of TV on viewer's left). Affects poster rotation and the position of the bottom chrome strip
+- **Back** — return to the top-level menu
+
+### Display & Appearance
+
 - **Cycle poster transition** — rotates through `Abrupt` (instant URI swap), `Fade` (~0.6s opacity crossfade through black), `Slide` (~0.8s slide-out / slide-in animation)
-- **Close** — dismiss the menu and resume the display
+- **Change progress bar color** — picker dialog with the 12-color palette; selection persists and applies to both landscape and portrait progress fills
+- **Flip portrait orientation** — toggle between CW mount (top of TV on viewer's right) and CCW mount (top of TV on viewer's left). Affects poster rotation and the position of the bottom chrome strip
+- **Toggle portrait poster matte** — turn the 60px black gallery frame around the portrait poster on or off. Hidden automatically when the theater frame is on (that PNG provides its own frame)
+- **Change portrait frame style** — picker dialog with the bundled portrait theater-frame styles (Marquee Gold, Theater Silver, plus anything else dropped into `images/borders/portrait/`)
+- **Back** — return to the top-level menu
+
+Sub-dialogs (server prompt, token prompt, rating filter, color picker, frame style picker) return to the menu that opened them when they close, so you can chain multiple edits in one sitting.
 
 Each option that opens a sub-dialog (server, token, rating filter) returns to the Settings menu when you save or cancel, so you can edit multiple settings in one sitting.
 
@@ -122,13 +137,16 @@ poster-display-for-plex/
 │   ├── PlexSessionTask.xml/.brs         # polls /status/sessions for now-playing
 │   ├── PlexLibraryTask.xml/.brs         # fetches library items for the carousel
 │   ├── PlexDiscoveryTask.xml/.brs       # GDM UDP broadcast for server discovery
+│   ├── BorderCutoutTask.xml/.brs        # scans border PNG alpha channels at startup
 │   └── KeepAliveTask.xml/.brs           # suppresses the Roku screensaver
 ├── images/
 │   ├── rokuicon.png                      # 640x360 Roku channel tile + splash
 │   ├── logo-square.png                   # square brand icon for the on-screen overlay and README
+│   ├── ratings/                          # PNG icons per content rating (G, PG, ..., NR)
 │   └── borders/
 │       ├── landscape/landscape-border-01.png
-│       └── portrait/portrait-border-01.png
+│       └── portrait/portrait-border-01.png  (Marquee Gold)
+│       └── portrait/portrait-border-02.png  (Theater Silver)
 ├── fonts/
 │   ├── Oswald-Bold.ttf                  # chrome text (titles, prefix, messages, settings glyph)
 │   ├── Oswald-Medium.ttf                # available for lighter chrome weights if needed
@@ -141,10 +159,12 @@ poster-display-for-plex/
 
 - **All network I/O runs on Task threads.** `roUrlTransfer` cannot be created on the SceneGraph render thread; the scene observes `result` fields on the Tasks and reacts when they update.
 - **Screensaver suppression also runs on a Task thread** for the same reason — `roAppManager` is a MAIN/TASK-only component.
-- **Two rendering paths per view mode:** with-border and without-border. The bordered variants size the poster to fit precisely inside the border PNG's transparent cutout (cutout bounds were measured directly from the PNG's alpha channel).
-- **Chrome (status bar, progress, Settings) has separate landscape and portrait layouts.** The portrait layout sits in a `Group` with `rotation = ±π/2` (sign depends on the user's mount direction) so it appears correctly oriented for a vertically-mounted TV; the poster also shrinks slightly in portrait when info is on to leave room for the chrome strip below it.
+- **Two rendering paths per view mode:** with-theater-frame and without. The framed variants size the poster to fit precisely inside the PNG's transparent cutout — and the cutout itself is measured at runtime by `BorderCutoutTask`, not hardcoded, so any new border PNG works without code changes.
+- **Runtime alpha-cutout detection** uses `roBitmap.GetByteArray` on each border PNG at startup, scanning the alpha channel edge-by-edge (top → bottom → left → right) to find the bounding box of `alpha < 16` pixels. The scene then computes the poster's fit/fill width, height, pivot, and translation so the rotated portrait poster lands centered inside the cutout. Falls back to baked geometry if `roBitmap` isn't available on the device.
+- **Chrome (status bar, progress, Settings) has separate landscape and portrait layouts.** The portrait layout sits in a `Group` with `rotation = ±π/2` (sign depends on the user's mount direction) so it appears correctly oriented for a vertically-mounted TV. Inside the strip, the progress row + title row are vertically centered as a group with even spacing above, between, and below. The portrait poster shrinks slightly in portrait when info is on to leave room for the chrome strip below it.
+- **Portrait poster matte** is rendered as four separate Rectangle strips inside a Group sharing the poster's rotation + center, so each side can be individually hidden — the viewer-bottom strip hides whenever info is on so the chrome strip below the poster doesn't double up with a redundant matte band.
 - **Poster transitions** use Roku's `Animation` node. Fade interpolates the `opacity` field on the poster (and ambient backdrop); slide interpolates the `translation` field. The URI swap happens in the BRS handler between the "out" and "in" animations so the new image is in place before the fade-in / slide-in begins.
-- **Year label positioning** is dynamic. After the title label re-renders, its `boundingRect` field updates; the scene observes that field and snaps the year label to the right edge of the title text so the gap stays consistent regardless of title length.
+- **Year label positioning** is dynamic. After the title label re-renders, its `boundingRect` field updates; the scene observes that field and snaps the year label to the right edge of the title text so the gap stays consistent regardless of title length. Falls back to a text-length × average-char-width estimate when `boundingRect` isn't usable (on some Roku firmwares the field is unreliable on first paint).
 - **Carousel cache lives in memory** for the app session. New Plex content won't appear in the rotation until the carousel cache is rebuilt (toggle Carousel off and on, change a filter setting, or relaunch the app).
 
 ## Sideloading
@@ -174,8 +194,11 @@ This project's `package.sh` produces an **unsigned source bundle** for sideloadi
 
 ## Customization
 
-- **Border art** lives in `images/borders/`. Each PNG must be 1920×1080 RGBA with the poster area marked by `alpha = 0`. The app measures the transparent rectangle automatically and aligns the poster inside it.
+- **Theater frame art** lives in `images/borders/`. Each PNG must be 1920×1080 RGBA with the poster area marked by `alpha = 0`. At startup the app runs `BorderCutoutTask` against every portrait border PNG, scans the alpha channel to find the transparent rectangle, and recomputes the poster's fit/fill geometry from the measured cutout — so adding a new portrait frame is just dropping a PNG in `images/borders/portrait/` and registering it in the `m.portraitBorderStyles` array (id, display name, URI). Fallback fit/fill values in the same array are used if detection fails on a particular device.
+- **Progress bar colors.** The 12-color palette is the `m.progressColors` array in `PosterDisplayScene.brs` (name + ARGB hex per entry). Add or rename entries freely; the picker dialog rebuilds from this array. Existing saved indices that fall outside the new range reset to 0.
+- **Portrait matte thickness** defaults to 60px and is the `thickness` local in `applyPortraitPosterBorder()`. Increase for a bolder gallery look; decrease for a thinner frame.
 - **Fonts** live in `fonts/` and are referenced by path in `PosterDisplayScene.xml`. Drop in another `.ttf` and swap the `uri` to change the chrome typography or the marquee font.
+- **Rating icons.** Drop a new PNG into `images/ratings/` (square or 3:2 wide, depending on rating shape) and add the lookup branch in `getRatingIcon()` returning `{ uri, aspect }`. The chrome scales the icon by aspect ratio so it lines up with the title.
 - **Poll interval** for the live Plex session is set on the `pollTimer` node (`duration` in seconds). Default is 15 seconds.
 - **Carousel interval** is set on the `carouselTimer` node — default 30 seconds.
 - **Transition durations** are set on the `posterFadeOut` / `posterFadeIn` / `posterSlideOut` / `posterSlideIn` Animation nodes — defaults are 0.3s for fade and 0.4s for slide (per direction).
