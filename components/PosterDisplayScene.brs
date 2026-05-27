@@ -38,12 +38,10 @@ sub init()
     m.landscapeMetadata = m.top.findNode("landscapeMetadata")
     m.landscapeMetaTagline = m.top.findNode("landscapeMetaTagline")
     m.landscapeMetaStats = m.top.findNode("landscapeMetaStats")
-    m.landscapeMetaDirector = m.top.findNode("landscapeMetaDirector")
     m.landscapeMetaSummary = m.top.findNode("landscapeMetaSummary")
     m.portraitMetadata = m.top.findNode("portraitMetadata")
     m.portraitMetaTagline = m.top.findNode("portraitMetaTagline")
     m.portraitMetaStats = m.top.findNode("portraitMetaStats")
-    m.portraitMetaDirector = m.top.findNode("portraitMetaDirector")
     m.portraitMetaSummary = m.top.findNode("portraitMetaSummary")
     m.portraitPosterBorderGroup = m.top.findNode("portraitPosterBorderGroup")
     m.portraitPosterBorderTop = m.top.findNode("portraitPosterBorderTop")
@@ -791,19 +789,14 @@ sub setMetadataFromSession(sessionInfo as Object)
     taglineUpper = ""
     if sessionInfo.tagline <> "" then taglineUpper = UCase(sessionInfo.tagline)
 
-    director = sessionInfo.directors
-    if director <> "" then director = "Directed by " + director
-
     ' Landscape panel
     m.landscapeMetaTagline.text = taglineUpper
     m.landscapeMetaStats.text = stats
-    m.landscapeMetaDirector.text = director
     m.landscapeMetaSummary.text = sessionInfo.summary
 
     ' Portrait panel
     m.portraitMetaTagline.text = taglineUpper
     m.portraitMetaStats.text = stats
-    m.portraitMetaDirector.text = director
     m.portraitMetaSummary.text = sessionInfo.summary
 end sub
 
