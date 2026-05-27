@@ -366,6 +366,86 @@
                 numRows="10" />
         </Group>
 
+        <!-- Plex sign-in overlay (plex.tv/link PIN flow). Shown after the user
+             picks "Sign in with Plex" until they enter the code on plex.tv/link
+             or press Back to cancel. -->
+        <Group id="plexSignInOverlay" visible="false">
+            <Rectangle width="1920" height="1080" color="0x000000F2" />
+            <Rectangle width="1100" height="780" translation="[410, 150]" color="0x1A1A1AFF" />
+            <Label
+                translation="[440, 200]"
+                width="1040"
+                height="56"
+                text="SIGN IN WITH PLEX"
+                color="0xE0A030FF"
+                horizAlign="center"
+                vertAlign="center">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="42" />
+            </Label>
+            <Label
+                translation="[440, 280]"
+                width="1040"
+                height="44"
+                text="On a phone or computer, go to:"
+                color="0xCCCCCCFF"
+                horizAlign="center"
+                vertAlign="center">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="28" />
+            </Label>
+            <Label
+                translation="[440, 330]"
+                width="1040"
+                height="60"
+                text="plex.tv/link"
+                color="0xFFFFFFFF"
+                horizAlign="center"
+                vertAlign="center">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="50" />
+            </Label>
+            <Label
+                translation="[440, 420]"
+                width="1040"
+                height="44"
+                text="and enter this code:"
+                color="0xCCCCCCFF"
+                horizAlign="center"
+                vertAlign="center">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="28" />
+            </Label>
+            <Label
+                id="plexSignInCodeLabel"
+                translation="[440, 480]"
+                width="1040"
+                height="160"
+                text=""
+                color="0xFFD700FF"
+                horizAlign="center"
+                vertAlign="center">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="140" />
+            </Label>
+            <Label
+                id="plexSignInStatusLabel"
+                translation="[440, 680]"
+                width="1040"
+                height="44"
+                text="Waiting for authorization..."
+                color="0x9A9A9AFF"
+                horizAlign="center"
+                vertAlign="center">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="24" />
+            </Label>
+            <Label
+                translation="[440, 850]"
+                width="1040"
+                height="44"
+                text="Press BACK to cancel"
+                color="0x5A5A5AFF"
+                horizAlign="center"
+                vertAlign="center">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="20" />
+            </Label>
+        </Group>
+
         <Group id="modeIndicator" visible="false" translation="[60,60]">
             <Rectangle width="800" height="80" color="0x000000DD" />
             <Label
@@ -382,6 +462,7 @@
 
         <Timer id="pollTimer" duration="15" repeat="true" />
         <Timer id="hideIndicatorTimer" duration="3" repeat="false" />
+        <Timer id="plexSignInPollTimer" duration="3" repeat="true" />
         <Timer id="tickTimer" duration="1" repeat="true" />
         <Timer id="carouselTimer" duration="30" repeat="true" />
 

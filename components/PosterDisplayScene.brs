@@ -61,6 +61,18 @@ sub init()
     m.posterSlideInInterp = m.top.findNode("posterSlideInInterp")
     m.registry = createObject("roRegistrySection", "PosterDisplayForPlex")
 
+    ' Persistent client identifier for the Plex.tv sign-in flow. Generated once
+    ' per install; without a stable id, Plex.tv treats each request as a new
+    ' device and the PIN flow won't complete.
+    m.plexClientId = m.registry.Read("plexClientId")
+    if m.plexClientId = "" then
+        di = createObject("roDeviceInfo")
+        if di <> invalid then m.plexClientId = di.GetRandomUUID()
+        if m.plexClientId = "" then m.plexClientId = "pdfp-" + createObject("roDateTime").AsSeconds().ToStr()
+        m.registry.Write("plexClientId", m.plexClientId)
+        m.registry.Flush()
+    end if
+
     ' roAppManager cannot be created on the render thread, so the screensaver-suppression
     ' lives in KeepAliveTask which runs on its own thread.
     m.keepAliveTask = createObject("roSGNode", "KeepAliveTask")
@@ -74,6 +86,10 @@ sub init()
 
     ' Node refs for the blocked-ratings overlay
     m.blockedRatingsOverlay = m.top.findNode("blockedRatingsOverlay")
+    m.plexSignInOverlay = m.top.findNode("plexSignInOverlay")
+    m.plexSignInCodeLabel = m.top.findNode("plexSignInCodeLabel")
+    m.plexSignInStatusLabel = m.top.findNode("plexSignInStatusLabel")
+    m.plexSignInPollTimer = m.top.findNode("plexSignInPollTimer")
     m.blockedRatingsCheckList = m.top.findNode("blockedRatingsCheckList")
 
     ' Ratings users can toggle, in order shown in the dialog
@@ -151,6 +167,7 @@ sub init()
     m.tickTimer.observeField("fire", "onTick")
     m.tickTimer.control = "start"
     m.carouselTimer.observeField("fire", "onCarouselTick")
+    m.plexSignInPollTimer.observeField("fire", "onPlexSignInPollTick")
 
     applyProgressColor()
     applyViewMode()
@@ -184,6 +201,15 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
             return true
         end if
         return false
+    end if
+
+    ' Plex sign-in overlay: Back cancels the PIN flow and returns to Settings.
+    if m.plexSignInOverlay.visible then
+        if key = "back" then
+            cancelPlexSignIn("")
+            return true
+        end if
+        return true  ' swallow all other keys while the overlay is up
     end if
 
     ' In carousel mode, Play pauses/resumes auto-advance and Fwd manually advances.
@@ -438,7 +464,7 @@ sub openPlexSettings()
     dialog = createObject("roSGNode", "StandardMessageDialog")
     dialog.title = "Plex Connection"
     dialog.message = "Server: " + serverDisplay + chr(10) + "Token: " + tokenDisplay + chr(10) + "Carousel blocks ratings: " + ratingsDisplay
-    dialog.buttons = ["Change Plex server", "Change Plex token", "Edit carousel rating filter", "Back"]
+    dialog.buttons = ["Sign in with Plex", "Change Plex server", "Change Plex token", "Edit carousel rating filter", "Back"]
     dialog.observeField("buttonSelected", "onPlexMenuSelected")
     m.settingsContext = "plex"
     m.top.dialog = dialog
@@ -448,10 +474,12 @@ sub onPlexMenuSelected(event as Object)
     selectedIndex = event.getData()
     m.top.dialog = invalid
     if selectedIndex = 0 then
-        promptServer()
+        startPlexSignIn()
     else if selectedIndex = 1 then
-        promptToken()
+        promptServer()
     else if selectedIndex = 2 then
+        promptToken()
+    else if selectedIndex = 3 then
         showBlockedRatingsOverlay()
     else
         openSettingsMenu()
@@ -963,6 +991,143 @@ end sub
 ' Entry point for the Settings flow. Tries Plex GDM discovery first so the user
 ' can pick a server from a list rather than typing an IP. Falls back to manual
 ' URL entry if nothing's found or the user opts out.
+' ----- Plex.tv sign-in (PIN flow) -----
+' Replaces the manual token entry for users who'd rather log into Plex on
+' their phone/computer. Flow: request a 4-char PIN, display it with the
+' plex.tv/link URL, poll Plex.tv every few seconds for the user to enter the
+' code, then list the user's Plex servers and let them pick one.
+
+sub startPlexSignIn()
+    m.plexPinId = ""
+    m.plexPinCode = ""
+    m.plexAuthToken = ""
+    m.plexSignInCodeLabel.text = "----"
+    m.plexSignInStatusLabel.text = "Requesting code..."
+    m.plexSignInOverlay.visible = true
+
+    task = createObject("roSGNode", "PlexAuthTask")
+    if task = invalid then
+        cancelPlexSignIn("Plex sign-in unavailable on this device.")
+        return
+    end if
+    task.observeField("result", "onPlexPinRequested")
+    task.mode = "requestPin"
+    task.clientId = m.plexClientId
+    task.control = "RUN"
+end sub
+
+sub onPlexPinRequested(event as Object)
+    result = event.getData()
+    if result = invalid or not result.ok then
+        cancelPlexSignIn("Couldn't reach Plex.tv. Try again later.")
+        return
+    end if
+    m.plexPinId = result.pinId
+    m.plexPinCode = result.pinCode
+    m.plexSignInCodeLabel.text = UCase(result.pinCode)
+    m.plexSignInStatusLabel.text = "Waiting for authorization..."
+    m.plexSignInPollTimer.control = "start"
+end sub
+
+sub onPlexSignInPollTick()
+    if not m.plexSignInOverlay.visible then
+        m.plexSignInPollTimer.control = "stop"
+        return
+    end if
+    if m.plexPinId = "" then return
+
+    task = createObject("roSGNode", "PlexAuthTask")
+    if task = invalid then return
+    task.observeField("result", "onPlexPinPolled")
+    task.mode = "pollPin"
+    task.clientId = m.plexClientId
+    task.pinId = m.plexPinId
+    task.pinCode = m.plexPinCode
+    task.control = "RUN"
+end sub
+
+sub onPlexPinPolled(event as Object)
+    result = event.getData()
+    if result = invalid then return
+    if result.expired then
+        cancelPlexSignIn("Code expired. Please try again.")
+        return
+    end if
+    if not result.ok then return  ' transient — keep polling
+    if result.authToken = "" then return  ' user hasn't entered the code yet
+
+    ' Got a token! Fetch the user's server list.
+    m.plexSignInPollTimer.control = "stop"
+    m.plexAuthToken = result.authToken
+    m.plexSignInStatusLabel.text = "Signed in. Loading servers..."
+
+    task = createObject("roSGNode", "PlexAuthTask")
+    if task = invalid then
+        cancelPlexSignIn("Couldn't load servers.")
+        return
+    end if
+    task.observeField("result", "onPlexServersListed")
+    task.mode = "listServers"
+    task.clientId = m.plexClientId
+    task.plexToken = m.plexAuthToken
+    task.control = "RUN"
+end sub
+
+sub onPlexServersListed(event as Object)
+    result = event.getData()
+    if result = invalid or not result.ok then
+        cancelPlexSignIn("Couldn't load your Plex servers.")
+        return
+    end if
+    if result.servers.Count() = 0 then
+        cancelPlexSignIn("No Plex servers found on your account.")
+        return
+    end if
+
+    m.plexServerChoices = result.servers
+    m.plexSignInOverlay.visible = false
+
+    dialog = createObject("roSGNode", "StandardMessageDialog")
+    dialog.title = "Choose a Plex Server"
+    dialog.message = "Pick the server this display should use."
+    buttons = []
+    for each s in result.servers
+        label = s.name
+        if not s.owned then label = label + " (shared)"
+        buttons.push(label)
+    end for
+    buttons.push("Cancel")
+    dialog.buttons = buttons
+    dialog.observeField("buttonSelected", "onPlexServerChosen")
+    m.top.dialog = dialog
+end sub
+
+sub onPlexServerChosen(event as Object)
+    idx = event.getData()
+    m.top.dialog = invalid
+    if idx < 0 or idx >= m.plexServerChoices.Count() then
+        returnToSettingsContext()
+        return
+    end if
+    server = m.plexServerChoices[idx]
+    m.settings.plexServer = server.url
+    m.settings.plexToken = server.accessToken
+    m.registry.Write("plexServer", server.url)
+    m.registry.Write("plexToken", server.accessToken)
+    m.registry.Flush()
+    m.carouselPosters = []
+    returnToSettingsContext()
+end sub
+
+sub cancelPlexSignIn(msg as String)
+    m.plexSignInPollTimer.control = "stop"
+    m.plexSignInOverlay.visible = false
+    m.plexPinId = ""
+    m.plexPinCode = ""
+    if msg <> "" then setStatusMessage(msg)
+    returnToSettingsContext()
+end sub
+
 sub promptServer()
     setStatusMessage("Searching for Plex servers...")
     if m.discoveryTask = invalid then
