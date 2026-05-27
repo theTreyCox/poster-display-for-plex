@@ -23,7 +23,10 @@ sub fetchSession()
         studio: "",
         releaseDate: "",
         directors: "",
-        genres: ""
+        writers: "",
+        cast: "",
+        genres: "",
+        audienceRating: ""
     }
 
     server = m.top.plexServer
@@ -89,7 +92,10 @@ sub fetchSession()
     studio = stringOrEmpty(attrs["studio"])
     releaseDate = stringOrEmpty(attrs["originallyAvailableAt"])
     directors = collectTagAttribute(media, "Director")
+    writers = collectTagAttribute(media, "Writer")
+    cast = collectTagAttributeLimited(media, "Role", 5)
     genres = collectTagAttribute(media, "Genre")
+    audienceRating = stringOrEmpty(attrs["audienceRating"])
 
     ' Prefer the series poster (portrait) for shows; fall back to thumb for movies
     mainThumb = seriesThumb
@@ -122,7 +128,10 @@ sub fetchSession()
     result.studio = studio
     result.releaseDate = releaseDate
     result.directors = directors
+    result.writers = writers
+    result.cast = cast
     result.genres = genres
+    result.audienceRating = audienceRating
 
     m.top.result = result
 end sub
@@ -131,14 +140,26 @@ end sub
 ' media element. Collect each child of the given tag name and concatenate the
 ' `tag` attributes with " · " as a separator.
 function collectTagAttribute(media as Object, tagName as String) as String
+    return collectTagAttributeLimited(media, tagName, 0)
+end function
+
+' Same as collectTagAttribute, but caps the output to the first N matches.
+' Pass limit=0 for no cap (use everything). Useful for cast lists where Plex
+' returns the full cast and we only want the top few.
+function collectTagAttributeLimited(media as Object, tagName as String, limit as Integer) as String
     elements = media.GetNamedElements(tagName)
     if elements = invalid or elements.Count() = 0 then return ""
     parts = []
+    count = 0
     for each el in elements
+        if limit > 0 and count >= limit then exit for
         a = el.GetAttributes()
         if a <> invalid then
             t = stringOrEmpty(a["tag"])
-            if t <> "" then parts.push(t)
+            if t <> "" then
+                parts.push(t)
+                count = count + 1
+            end if
         end if
     end for
     if parts.Count() = 0 then return ""

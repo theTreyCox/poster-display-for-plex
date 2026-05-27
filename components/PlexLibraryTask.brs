@@ -81,7 +81,10 @@ sub fetchLibrary()
                                             releaseDate = stringOrEmpty(itemAttrs["originallyAvailableAt"])
                                             duration = intOrZero(itemAttrs["duration"])
                                             directors = collectTagAttribute(itemEl, "Director")
+                                            writers = collectTagAttribute(itemEl, "Writer")
+                                            cast = collectTagAttributeLimited(itemEl, "Role", 5)
                                             genres = collectTagAttribute(itemEl, "Genre")
+                                            audienceRating = stringOrEmpty(itemAttrs["audienceRating"])
                                             items.push({
                                                 title: title,
                                                 year: year,
@@ -94,7 +97,10 @@ sub fetchLibrary()
                                                 releaseDate: releaseDate,
                                                 duration: duration,
                                                 directors: directors,
-                                                genres: genres
+                                                writers: writers,
+                                                cast: cast,
+                                                genres: genres,
+                                                audienceRating: audienceRating
                                             })
                                         end if
                                     end if
@@ -145,14 +151,24 @@ end function
 
 ' Collect each <TagName tag="..."/> child and join the tag attributes with " · ".
 function collectTagAttribute(itemEl as Object, tagName as String) as String
+    return collectTagAttributeLimited(itemEl, tagName, 0)
+end function
+
+' Same as collectTagAttribute, but caps the output to the first N matches.
+function collectTagAttributeLimited(itemEl as Object, tagName as String, limit as Integer) as String
     elements = itemEl.GetNamedElements(tagName)
     if elements = invalid or elements.Count() = 0 then return ""
     parts = []
+    count = 0
     for each el in elements
+        if limit > 0 and count >= limit then exit for
         a = el.GetAttributes()
         if a <> invalid then
             t = stringOrEmpty(a["tag"])
-            if t <> "" then parts.push(t)
+            if t <> "" then
+                parts.push(t)
+                count = count + 1
+            end if
         end if
     end for
     if parts.Count() = 0 then return ""

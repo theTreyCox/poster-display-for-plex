@@ -49,6 +49,11 @@ sub init()
     m.expandedTitle = m.top.findNode("expandedTitle")
     m.expandedTagline = m.top.findNode("expandedTagline")
     m.expandedStats = m.top.findNode("expandedStats")
+    m.expandedDirector = m.top.findNode("expandedDirector")
+    m.expandedWriter = m.top.findNode("expandedWriter")
+    m.expandedCast = m.top.findNode("expandedCast")
+    m.expandedStudio = m.top.findNode("expandedStudio")
+    m.expandedReleased = m.top.findNode("expandedReleased")
     m.expandedSummary = m.top.findNode("expandedSummary")
     m.portraitPosterBorderGroup = m.top.findNode("portraitPosterBorderGroup")
     m.portraitPosterBorderTop = m.top.findNode("portraitPosterBorderTop")
@@ -809,18 +814,50 @@ sub openExpandedDescription()
         title = m.portraitNowPlayingTitle.text
     end if
 
-    stats = m.landscapeMetaStats.text  ' Already computed, matches what's on screen
-    tagline = m.landscapeMetaTagline.text
+    meta = m.currentSessionMetadata
 
     m.expandedTitle.text = title
-    m.expandedTagline.text = tagline
+    m.expandedTagline.text = m.landscapeMetaTagline.text  ' already uppercased
     m.expandedTagline.color = m.accentColors[m.accentColorIndex].hex
-    m.expandedStats.text = stats
-    m.expandedSummary.text = m.currentSessionMetadata.summary
+    m.expandedStats.text = m.landscapeMetaStats.text
+
+    m.expandedDirector.text = labeledLine("Directed by", meta.directors)
+    m.expandedWriter.text = labeledLine("Written by", meta.writers)
+    m.expandedCast.text = labeledLine("Starring", meta.cast)
+    m.expandedStudio.text = labeledLine("Studio", meta.studio)
+    m.expandedReleased.text = labeledLine("Released", formatReleaseDate(meta.releaseDate))
+
+    m.expandedDirector.visible = (meta.directors <> "")
+    m.expandedWriter.visible = (meta.writers <> "")
+    m.expandedCast.visible = (meta.cast <> "")
+    m.expandedStudio.visible = (meta.studio <> "")
+    m.expandedReleased.visible = (meta.releaseDate <> "")
+
+    m.expandedSummary.text = meta.summary
 
     if m.carouselEnabled then m.carouselTimer.control = "stop"
     m.expandedDescription.visible = true
 end sub
+
+' "Directed by " + "Steven Spielberg" -> "Directed by Steven Spielberg"; if the
+' value is empty, returns empty so the caller can hide the line.
+function labeledLine(label as String, value as String) as String
+    if value = "" then return ""
+    return label + " " + value
+end function
+
+' Convert Plex's ISO-style "YYYY-MM-DD" date into "Month DD, YYYY".
+function formatReleaseDate(d as String) as String
+    if d = "" then return ""
+    if Len(d) < 10 then return d
+    yearStr = d.Mid(0, 4)
+    monthStr = d.Mid(5, 2)
+    dayStr = d.Mid(8, 2)
+    months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    monthIdx = monthStr.ToInt() - 1
+    if monthIdx < 0 or monthIdx >= 12 then return d
+    return months[monthIdx] + " " + dayStr.ToInt().ToStr() + ", " + yearStr
+end function
 
 sub closeExpandedDescription()
     m.expandedDescription.visible = false
@@ -838,17 +875,21 @@ sub setMetadataFromSession(sessionInfo as Object)
         studio: sessionInfo.studio,
         releaseDate: sessionInfo.releaseDate,
         directors: sessionInfo.directors,
+        writers: sessionInfo.writers,
+        cast: sessionInfo.cast,
         genres: sessionInfo.genres,
         year: sessionInfo.year,
         duration: sessionInfo.duration,
-        contentRating: sessionInfo.contentRating
+        contentRating: sessionInfo.contentRating,
+        audienceRating: sessionInfo.audienceRating
     }
 
-    ' Combine year, runtime, and genres into a single condensed stats line.
-    ' Rating drops out — it's already shown as the rating icon in the info chrome.
+    ' Combine year, runtime, audience rating, and genres into a single condensed
+    ' stats line. Content rating drops out — already shown as the icon in info.
     statsParts = []
     if sessionInfo.year <> "" then statsParts.push(sessionInfo.year)
     if sessionInfo.duration > 0 then statsParts.push(formatRuntime(sessionInfo.duration))
+    if sessionInfo.audienceRating <> "" then statsParts.push("★ " + sessionInfo.audienceRating)
     if sessionInfo.genres <> "" then statsParts.push(sessionInfo.genres)
     stats = joinSeparator(statsParts, "  ·  ")
 
@@ -865,11 +906,11 @@ sub setMetadataFromSession(sessionInfo as Object)
     m.portraitMetaStats.text = stats
     m.portraitMetaSummary.text = sessionInfo.summary
 
-    ' Show the "Read more" hint only when the description is long enough to
-    ' actually be truncated in the metadata panel.
-    needsReadMore = (Len(sessionInfo.summary) > 250)
-    m.landscapeMetaReadMoreHint.visible = needsReadMore
-    m.portraitMetaReadMoreHint.visible = needsReadMore
+    ' Read More always available — there's always something extra to see in
+    ' the modal (full slogan, cast, writers, etc.) even when the panel summary
+    ' looks complete.
+    m.landscapeMetaReadMoreHint.visible = true
+    m.portraitMetaReadMoreHint.visible = true
 end sub
 
 ' Format a duration in ms as "Xh Ym" or "Ym" if under an hour.
@@ -1226,10 +1267,13 @@ function carouselItemAsMetadata(item as Object) as Object
         studio: stringOrEmptyAny(item.studio),
         releaseDate: stringOrEmptyAny(item.releaseDate),
         directors: stringOrEmptyAny(item.directors),
+        writers: stringOrEmptyAny(item.writers),
+        cast: stringOrEmptyAny(item.cast),
         genres: stringOrEmptyAny(item.genres),
         year: stringOrEmptyAny(item.year),
         duration: intOrZeroAny(item.duration),
-        contentRating: stringOrEmptyAny(item.contentRating)
+        contentRating: stringOrEmptyAny(item.contentRating),
+        audienceRating: stringOrEmptyAny(item.audienceRating)
     }
 end function
 

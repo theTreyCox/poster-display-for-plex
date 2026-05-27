@@ -342,7 +342,7 @@
                 id="landscapeMetaSummary"
                 translation="[20, 391]"
                 width="360"
-                height="620"
+                height="560"
                 text=""
                 color="0xE5E5E5FF"
                 horizAlign="left"
@@ -352,15 +352,15 @@
             <Label
                 id="landscapeMetaReadMoreHint"
                 visible="false"
-                translation="[20, 1030]"
+                translation="[20, 990]"
                 width="360"
-                height="28"
+                height="56"
                 text="▼ PRESS OK TO READ MORE"
                 color="0xFFA500FF"
                 horizAlign="center"
                 vertAlign="center"
                 wrap="false">
-                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="16" />
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="32" />
             </Label>
         </Group>
 
@@ -398,7 +398,7 @@
                 id="portraitMetaSummary"
                 translation="[90, 170]"
                 width="900"
-                height="170"
+                height="130"
                 text=""
                 color="0xE5E5E5FF"
                 horizAlign="left"
@@ -408,15 +408,15 @@
             <Label
                 id="portraitMetaReadMoreHint"
                 visible="false"
-                translation="[90, 332]"
+                translation="[90, 310]"
                 width="900"
-                height="22"
+                height="46"
                 text="▼ PRESS OK TO READ MORE"
                 color="0xFFA500FF"
                 horizAlign="center"
                 vertAlign="center"
                 wrap="false">
-                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="14" />
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="28" />
             </Label>
         </Group>
 
@@ -572,13 +572,14 @@
 
         <!-- Expanded description ("Read more"). Full-screen modal opened with OK
              while the metadata overlay is visible. Pauses the carousel while open;
-             Back closes it. -->
+             Back closes it. Has more room than the side panels so we show more
+             credits + the full slogan / summary. -->
         <Group id="expandedDescription" visible="false">
             <Rectangle width="1920" height="1080" color="0x000000FF" />
             <Label
                 id="expandedTitle"
-                translation="[260, 70]"
-                width="1400"
+                translation="[200, 50]"
+                width="1520"
                 height="80"
                 text=""
                 color="0xFFFFFFFF"
@@ -587,23 +588,24 @@
                 wrap="false">
                 <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="58" />
             </Label>
+            <!-- Tagline: full slogan, wraps if long -->
             <Label
                 id="expandedTagline"
-                translation="[260, 170]"
-                width="1400"
-                height="60"
+                translation="[200, 140]"
+                width="1520"
+                height="120"
                 text=""
                 color="0xFFA500FF"
                 horizAlign="center"
-                vertAlign="center"
-                wrap="false">
-                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="34" />
+                vertAlign="top"
+                wrap="true">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="32" />
             </Label>
             <Label
                 id="expandedStats"
-                translation="[260, 240]"
-                width="1400"
-                height="48"
+                translation="[200, 280]"
+                width="1520"
+                height="44"
                 text=""
                 color="0xFFFFFFCC"
                 horizAlign="center"
@@ -611,20 +613,81 @@
                 wrap="false">
                 <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="32" />
             </Label>
+
+            <!-- Credit lines (each shown only when the field has content) -->
+            <Label
+                id="expandedDirector"
+                translation="[300, 350]"
+                width="1320"
+                height="36"
+                text=""
+                color="0xE5E5E5FF"
+                horizAlign="left"
+                vertAlign="center"
+                wrap="false"
+                font="font:MediumSystemFont" />
+            <Label
+                id="expandedWriter"
+                translation="[300, 392]"
+                width="1320"
+                height="36"
+                text=""
+                color="0xE5E5E5FF"
+                horizAlign="left"
+                vertAlign="center"
+                wrap="false"
+                font="font:MediumSystemFont" />
+            <Label
+                id="expandedCast"
+                translation="[300, 434]"
+                width="1320"
+                height="36"
+                text=""
+                color="0xE5E5E5FF"
+                horizAlign="left"
+                vertAlign="center"
+                wrap="false"
+                font="font:MediumSystemFont" />
+            <Label
+                id="expandedStudio"
+                translation="[300, 476]"
+                width="1320"
+                height="36"
+                text=""
+                color="0xE5E5E5FF"
+                horizAlign="left"
+                vertAlign="center"
+                wrap="false"
+                font="font:MediumSystemFont" />
+            <Label
+                id="expandedReleased"
+                translation="[300, 518]"
+                width="1320"
+                height="36"
+                text=""
+                color="0xE5E5E5FF"
+                horizAlign="left"
+                vertAlign="center"
+                wrap="false"
+                font="font:MediumSystemFont" />
+
+            <!-- Summary -->
             <Label
                 id="expandedSummary"
-                translation="[260, 330]"
-                width="1400"
-                height="660"
+                translation="[300, 590]"
+                width="1320"
+                height="400"
                 text=""
                 color="0xE5E5E5FF"
                 horizAlign="left"
                 vertAlign="top"
                 font="font:MediumSystemFont"
                 wrap="true" />
+
+            <!-- Footer -->
             <Label
-                translation="[260, 1020]"
-                width="1400"
+                translation="[200, 1020]"
+                width="1520"
                 height="40"
                 text="PRESS BACK TO CLOSE"
                 color="0x808080FF"
