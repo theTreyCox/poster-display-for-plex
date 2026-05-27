@@ -48,7 +48,8 @@ sub init()
     m.expandedDescription = m.top.findNode("expandedDescription")
     m.expandedTitle = m.top.findNode("expandedTitle")
     m.expandedTagline = m.top.findNode("expandedTagline")
-    m.expandedStats = m.top.findNode("expandedStats")
+    m.expandedStatsGroup = m.top.findNode("expandedStatsGroup")
+    m.expandedStatsDots = []
     m.expandedDirectorLabel = m.top.findNode("expandedDirectorLabel")
     m.expandedDirectorValue = m.top.findNode("expandedDirectorValue")
     m.expandedWriterLabel = m.top.findNode("expandedWriterLabel")
@@ -699,6 +700,11 @@ sub applyAccentColor()
     m.ratingImdbUnderline.color = color
     m.ratingRtUnderline.color = color
     m.ratingMetaUnderline.color = color
+    if m.expandedStatsDots <> invalid then
+        for each dot in m.expandedStatsDots
+            dot.color = color
+        end for
+    end if
 end sub
 
 ' Spin up the BorderCutoutTask once at startup to measure each portrait
@@ -855,12 +861,14 @@ sub openExpandedDescription()
 
     ' Modal stats line: UPPERCASE and includes the content rating between year
     ' and runtime. The metadata strip stats (no rating, mixed case) stays as-is.
+    ' Build into a LayoutGroup with white text labels separated by accent-color
+    ' "·" dots so the brand color punctuates the row.
     modalParts = []
     if meta.year <> "" then modalParts.push(meta.year)
     if meta.contentRating <> "" then modalParts.push(meta.contentRating)
     if meta.duration > 0 then modalParts.push(formatRuntime(meta.duration))
     if meta.genres <> "" then modalParts.push(meta.genres)
-    m.expandedStats.text = UCase(joinSeparator(modalParts, "  ·  "))
+    buildExpandedStats(modalParts)
 
     setCreditPair(m.expandedDirectorLabel, m.expandedDirectorValue, meta.directors)
     setCreditPair(m.expandedWriterLabel, m.expandedWriterValue, meta.writers)
@@ -937,6 +945,54 @@ sub onOmdbResult(event as Object)
     if result.imdbRating <> "" then m.ratingImdbValue.text = result.imdbRating + "/10"
     if result.rottenTomatoes <> "" then m.ratingRtValue.text = result.rottenTomatoes
     if result.metacritic <> "" then m.ratingMetaValue.text = result.metacritic
+end sub
+
+' Build the modal stats row: white text segments separated by accent-color "·"
+' dot labels, all inside the expandedStatsGroup LayoutGroup. Clears prior
+' children, then horizontally centers the laid-out group within the 800px
+' white-outlined box (centered on x=960) using its boundingRect width.
+sub buildExpandedStats(parts as Object)
+    ' Tear down prior children
+    while m.expandedStatsGroup.getChildCount() > 0
+        m.expandedStatsGroup.removeChildIndex(0)
+    end while
+    m.expandedStatsDots = []
+
+    accent = m.accentColors[m.accentColorIndex].hex
+    for i = 0 to parts.Count() - 1
+        if i > 0 then
+            dot = createObject("roSGNode", "Label")
+            dot.color = accent
+            dot.text = "·"
+            dot.vertAlign = "center"
+            dot.horizAlign = "center"
+            ' Slightly bigger dot weight than the surrounding stats text.
+            dotFont = createObject("roSGNode", "Font")
+            dotFont.uri = "pkg:/fonts/Oswald-Bold.ttf"
+            dotFont.size = 36
+            dot.font = dotFont
+            m.expandedStatsGroup.appendChild(dot)
+            m.expandedStatsDots.push(dot)
+        end if
+        seg = createObject("roSGNode", "Label")
+        seg.color = "0xFFFFFFFF"
+        seg.text = UCase(parts[i])
+        seg.vertAlign = "center"
+        seg.horizAlign = "center"
+        segFont = createObject("roSGNode", "Font")
+        segFont.uri = "pkg:/fonts/Oswald-Medium.ttf"
+        segFont.size = 28
+        seg.font = segFont
+        m.expandedStatsGroup.appendChild(seg)
+    end for
+
+    ' Center the laid-out group horizontally within the stats box (box x=560,
+    ' width=800, so center x=960). Y stays at the box vertical center (315).
+    rect = m.expandedStatsGroup.boundingRect
+    if type(rect) = "Function" or type(rect) = "roFunction" then rect = rect()
+    width = 0
+    if type(rect) = "roAssociativeArray" and rect.width <> invalid then width = rect.width
+    m.expandedStatsGroup.translation = [960 - width / 2, 315]
 end sub
 
 ' Set a credit pair's value text + show/hide both label and value together.

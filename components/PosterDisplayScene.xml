@@ -583,7 +583,7 @@
                 width="1920"
                 height="1080"
                 translation="[0, 0]"
-                opacity="0.25"
+                opacity="0.12"
                 loadDisplayMode="zoomToFill" />
             <Label
                 id="expandedTitle"
@@ -611,81 +611,85 @@
                 <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="38" />
             </Label>
 
-            <!-- Stats box: Oswald-Medium inside a white-outlined rectangle. -->
+            <!-- Stats box: white-outlined rectangle. Children are built in BRS
+                 (openExpandedDescription) as alternating white text + accent dot
+                 labels via a LayoutGroup, then the group is centered horizontally
+                 by reading its boundingRect. -->
             <Rectangle translation="[560, 275]" width="800" height="2" color="0xFFFFFFFF" />
             <Rectangle translation="[560, 353]" width="800" height="2" color="0xFFFFFFFF" />
             <Rectangle translation="[560, 275]" width="2" height="80" color="0xFFFFFFFF" />
             <Rectangle translation="[1358, 275]" width="2" height="80" color="0xFFFFFFFF" />
-            <Label
-                id="expandedStats"
-                translation="[580, 275]"
-                width="760"
-                height="80"
-                text=""
-                color="0xFFFFFFFF"
-                horizAlign="center"
-                vertAlign="center"
-                wrap="false">
-                <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="28" />
-            </Label>
+            <LayoutGroup
+                id="expandedStatsGroup"
+                translation="[960, 315]"
+                layoutDirection="horiz"
+                horizAlignment="left"
+                vertAlignment="center"
+                itemSpacings="[14]" />
 
-            <!-- Credit lines: accent-bold label + white value side by side -->
+            <!-- Credit lines: BebasNeue accent label + smaller white value side by
+                 side. Row delta 46px for breathing room. -->
             <Label id="expandedDirectorLabel"
-                   translation="[200, 380]" width="200" height="32" text="Director:"
-                   color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false"
-                   font="font:SmallBoldSystemFont" />
+                   translation="[200, 388]" width="200" height="32" text="DIRECTOR"
+                   color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="24" />
+            </Label>
             <Label id="expandedDirectorValue"
-                   translation="[420, 380]" width="1300" height="32" text=""
+                   translation="[420, 388]" width="1300" height="32" text=""
                    color="0xE5E5E5FF" horizAlign="left" vertAlign="center" wrap="false"
-                   font="font:SmallSystemFont" />
+                   font="font:SmallestSystemFont" />
             <Label id="expandedWriterLabel"
-                   translation="[200, 418]" width="200" height="32" text="Writer:"
-                   color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false"
-                   font="font:SmallBoldSystemFont" />
+                   translation="[200, 434]" width="200" height="32" text="WRITER"
+                   color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="24" />
+            </Label>
             <Label id="expandedWriterValue"
-                   translation="[420, 418]" width="1300" height="32" text=""
+                   translation="[420, 434]" width="1300" height="32" text=""
                    color="0xE5E5E5FF" horizAlign="left" vertAlign="center" wrap="false"
-                   font="font:SmallSystemFont" />
+                   font="font:SmallestSystemFont" />
             <Label id="expandedCastLabel"
-                   translation="[200, 456]" width="200" height="32" text="Starring:"
-                   color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false"
-                   font="font:SmallBoldSystemFont" />
+                   translation="[200, 480]" width="200" height="32" text="STARRING"
+                   color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="24" />
+            </Label>
             <Label id="expandedCastValue"
-                   translation="[420, 456]" width="1300" height="32" text=""
+                   translation="[420, 480]" width="1300" height="32" text=""
                    color="0xE5E5E5FF" horizAlign="left" vertAlign="center" wrap="false"
-                   font="font:SmallSystemFont" />
+                   font="font:SmallestSystemFont" />
             <Label id="expandedStudioLabel"
-                   translation="[200, 494]" width="200" height="32" text="Studio:"
-                   color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false"
-                   font="font:SmallBoldSystemFont" />
+                   translation="[200, 526]" width="200" height="32" text="STUDIO"
+                   color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="24" />
+            </Label>
             <Label id="expandedStudioValue"
-                   translation="[420, 494]" width="1300" height="32" text=""
+                   translation="[420, 526]" width="1300" height="32" text=""
                    color="0xE5E5E5FF" horizAlign="left" vertAlign="center" wrap="false"
-                   font="font:SmallSystemFont" />
+                   font="font:SmallestSystemFont" />
             <Label id="expandedReleasedLabel"
-                   translation="[200, 532]" width="200" height="32" text="Released:"
-                   color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false"
-                   font="font:SmallBoldSystemFont" />
+                   translation="[200, 572]" width="200" height="32" text="RELEASED"
+                   color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="24" />
+            </Label>
             <Label id="expandedReleasedValue"
-                   translation="[420, 532]" width="1300" height="32" text=""
+                   translation="[420, 572]" width="1300" height="32" text=""
                    color="0xE5E5E5FF" horizAlign="left" vertAlign="center" wrap="false"
-                   font="font:SmallSystemFont" />
+                   font="font:SmallestSystemFont" />
 
             <!-- Horizontal separator between credits and description -->
-            <Rectangle translation="[200, 590]" width="1520" height="2" color="0x80808066" />
+            <Rectangle translation="[200, 630]" width="1520" height="2" color="0x80808066" />
 
-            <!-- Summary / description -->
+            <!-- Summary / description (smaller body font) -->
             <Label
                 id="expandedSummary"
-                translation="[200, 610]"
+                translation="[200, 650]"
                 width="1520"
-                height="150"
+                height="130"
                 text=""
                 color="0xE5E5E5FF"
                 horizAlign="left"
                 vertAlign="top"
-                lineSpacing="10"
-                font="font:SmallSystemFont"
+                lineSpacing="8"
+                font="font:SmallestSystemFont"
                 wrap="true" />
 
             <!-- ===== Ratings: 4 bordered boxes, each w=360 h=140, gap=20 ===== -->
