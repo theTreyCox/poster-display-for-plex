@@ -875,17 +875,23 @@ sub openExpandedDescription()
     m.ratingRtValue.text = "—"
     m.ratingMetaValue.text = "—"
 
-    fetchOmdbRatings(meta.imdbId)
+    ' Prefer the title (not the "Show — Episode" combo) for OMDB's by-title
+    ' fallback. For now-playing TV episodes, use the show name; OMDB's title
+    ' search expects the show or movie title rather than an episode label.
+    omdbTitle = meta.title
+    if meta.showName <> "" then omdbTitle = meta.showName
+    fetchOmdbRatings(meta.imdbId, omdbTitle, meta.year)
 
     if m.carouselEnabled then m.carouselTimer.control = "stop"
     m.expandedDescription.visible = true
 end sub
 
-' Spin up OMDBTask if we have an IMDB id to look up. Result is observed and
-' applied to the rating labels when it arrives.
-sub fetchOmdbRatings(imdbId as String)
-    if imdbId = "" then
-        print "[scene] no imdbId on current item; skipping OMDB lookup"
+' Spin up OMDBTask. Prefers the imdbId; falls back to title + year search so
+' the modal still gets ratings for items whose Plex agent didn't surface the
+' imdb:// Guid.
+sub fetchOmdbRatings(imdbId as String, title as String, year as String)
+    if imdbId = "" and title = "" then
+        print "[scene] no imdbId and no title for current item; skipping OMDB lookup"
         return
     end if
     task = createObject("roSGNode", "OMDBTask")
@@ -896,8 +902,14 @@ sub fetchOmdbRatings(imdbId as String)
     task.observeField("result", "onOmdbResult")
     task.apiKey = m.omdbApiKey
     task.imdbId = imdbId
+    task.title = title
+    task.year = year
     task.control = "RUN"
-    print "[scene] OMDBTask started for " + imdbId
+    if imdbId <> "" then
+        print "[scene] OMDBTask started for imdb=" + imdbId
+    else
+        print "[scene] OMDBTask started for title=" + title + " year=" + year
+    end if
 end sub
 
 sub onOmdbResult(event as Object)
@@ -949,6 +961,8 @@ end sub
 ' toggles the panel — even between Plex poll refreshes.
 sub setMetadataFromSession(sessionInfo as Object)
     m.currentSessionMetadata = {
+        title: stringOrEmptyAny(sessionInfo.title),
+        showName: stringOrEmptyAny(sessionInfo.showName),
         tagline: sessionInfo.tagline,
         summary: sessionInfo.summary,
         studio: sessionInfo.studio,
@@ -1341,6 +1355,8 @@ end sub
 ' with safe defaults.
 function carouselItemAsMetadata(item as Object) as Object
     return {
+        title: stringOrEmptyAny(item.title),
+        showName: "",
         tagline: stringOrEmptyAny(item.tagline),
         summary: stringOrEmptyAny(item.summary),
         studio: stringOrEmptyAny(item.studio),

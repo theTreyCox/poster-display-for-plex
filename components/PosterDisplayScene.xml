@@ -657,7 +657,7 @@
                    color="0xE5E5E5FF" horizAlign="left" vertAlign="center" wrap="false"
                    font="font:SmallSystemFont" />
             <Label id="expandedReleasedLabel"
-                   translation="[200, 530]" width="200" height="32" text="Release Date:"
+                   translation="[200, 530]" width="200" height="32" text="Released:"
                    color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false"
                    font="font:SmallBoldSystemFont" />
             <Label id="expandedReleasedValue"

@@ -7,9 +7,18 @@ sub fetch()
 
     apiKey = m.top.apiKey
     imdbId = m.top.imdbId
-    if apiKey = "" or imdbId = "" then
-        result.error = "missing apiKey or imdbId"
-        print "[omdb] skipping — missing apiKey=" + (apiKey <> "").ToStr() + " imdbId='" + imdbId + "'"
+    title = m.top.title
+    year = m.top.year
+
+    if apiKey = "" then
+        result.error = "missing apiKey"
+        print "[omdb] skipping — missing apiKey"
+        m.top.result = result
+        return
+    end if
+    if imdbId = "" and title = "" then
+        result.error = "missing imdbId and title"
+        print "[omdb] skipping — no imdbId and no title fallback"
         m.top.result = result
         return
     end if
@@ -24,7 +33,16 @@ sub fetch()
     transfer.SetCertificatesFile("common:/certs/ca-bundle.crt")
     transfer.InitClientCertificates()
     transfer.EnableEncodings(true)
-    url = "https://www.omdbapi.com/?apikey=" + transfer.Escape(apiKey) + "&i=" + transfer.Escape(imdbId)
+
+    ' Prefer the imdbId lookup; fall back to title + year search. OMDB's by-title
+    ' endpoint is fuzzy and matches the closest result.
+    if imdbId <> "" then
+        url = "https://www.omdbapi.com/?apikey=" + transfer.Escape(apiKey) + "&i=" + transfer.Escape(imdbId)
+    else
+        url = "https://www.omdbapi.com/?apikey=" + transfer.Escape(apiKey) + "&t=" + transfer.Escape(title)
+        if year <> "" then url = url + "&y=" + transfer.Escape(year)
+        url = url + "&type=movie"
+    end if
     transfer.SetUrl(url)
     transfer.AddHeader("Accept", "application/json")
     print "[omdb] GET " + url
