@@ -39,15 +39,11 @@ sub init()
     m.landscapeMetaTagline = m.top.findNode("landscapeMetaTagline")
     m.landscapeMetaStats = m.top.findNode("landscapeMetaStats")
     m.landscapeMetaDirector = m.top.findNode("landscapeMetaDirector")
-    m.landscapeMetaGenres = m.top.findNode("landscapeMetaGenres")
-    m.landscapeMetaStudio = m.top.findNode("landscapeMetaStudio")
-    m.landscapeMetaReleased = m.top.findNode("landscapeMetaReleased")
     m.landscapeMetaSummary = m.top.findNode("landscapeMetaSummary")
     m.portraitMetadata = m.top.findNode("portraitMetadata")
     m.portraitMetaTagline = m.top.findNode("portraitMetaTagline")
     m.portraitMetaStats = m.top.findNode("portraitMetaStats")
     m.portraitMetaDirector = m.top.findNode("portraitMetaDirector")
-    m.portraitMetaGenres = m.top.findNode("portraitMetaGenres")
     m.portraitMetaSummary = m.top.findNode("portraitMetaSummary")
     m.portraitPosterBorderGroup = m.top.findNode("portraitPosterBorderGroup")
     m.portraitPosterBorderTop = m.top.findNode("portraitPosterBorderTop")
@@ -117,9 +113,10 @@ sub init()
     if m.transitionStyle <> "fade" and m.transitionStyle <> "slide" then m.transitionStyle = "abrupt"
     m.portraitBorderEnabled = (m.registry.Read("portraitBorderEnabled") = "1")
 
-    ' Progress-bar color palette. Persisted as an index so the names can change
-    ' without invalidating existing saves. Index defaults to 0 (orange).
-    m.progressColors = [
+    ' Accent / theme colors. Applied to the progress bar fill AND the metadata
+    ' panel taglines so the brand identity carries through. Persisted as an
+    ' index so the palette can change without invalidating existing saves.
+    m.accentColors = [
         { name: "Orange", hex: "0xFFA500FF" },
         { name: "Red", hex: "0xFF3030FF" },
         { name: "Amber", hex: "0xFFBF00FF" },
@@ -133,8 +130,8 @@ sub init()
         { name: "Purple", hex: "0x9933CCFF" },
         { name: "Pink", hex: "0xFF3399FF" }
     ]
-    m.progressColorIndex = m.registry.Read("progressColorIndex").ToInt()
-    if m.progressColorIndex < 0 or m.progressColorIndex >= m.progressColors.Count() then m.progressColorIndex = 0
+    m.accentColorIndex = m.registry.Read("accentColorIndex").ToInt()
+    if m.accentColorIndex < 0 or m.accentColorIndex >= m.accentColors.Count() then m.accentColorIndex = 0
 
     ' Portrait theater-frame styles. Geometry below is a fallback used until the
     ' BorderCutoutTask returns a measured cutout for each PNG; once it does, the
@@ -186,7 +183,7 @@ sub init()
     m.carouselTimer.observeField("fire", "onCarouselTick")
     m.plexSignInPollTimer.observeField("fire", "onPlexSignInPollTick")
 
-    applyProgressColor()
+    applyAccentColor()
     applyViewMode()
     startPortraitBorderCutoutDetection()
 
@@ -552,15 +549,15 @@ sub openDisplaySettings()
     flipDisplay = "Top on right (CW mount)"
     if m.portraitFlip then flipDisplay = "Top on left (CCW mount)"
     transitionDisplay = transitionLabel(m.transitionStyle)
-    colorDisplay = m.progressColors[m.progressColorIndex].name
+    accentDisplay = m.accentColors[m.accentColorIndex].name
     matteDisplay = "Off"
     if m.portraitBorderEnabled then matteDisplay = "On"
     frameStyleDisplay = m.portraitBorderStyles[m.portraitBorderStyleIndex].name
 
     dialog = createObject("roSGNode", "StandardMessageDialog")
     dialog.title = "Display & Appearance"
-    dialog.message = ["Portrait orientation: " + flipDisplay, "Poster transition: " + transitionDisplay, "Progress bar color: " + colorDisplay, "Portrait poster matte: " + matteDisplay, "Portrait frame style: " + frameStyleDisplay]
-    dialog.buttons = ["Cycle poster transition", "Change progress bar color", "Flip portrait orientation", "Toggle portrait poster matte", "Change portrait frame style", "Back"]
+    dialog.message = ["Portrait orientation: " + flipDisplay, "Poster transition: " + transitionDisplay, "Accent color: " + accentDisplay, "Portrait poster matte: " + matteDisplay, "Portrait frame style: " + frameStyleDisplay]
+    dialog.buttons = ["Cycle poster transition", "Change accent color", "Flip portrait orientation", "Toggle portrait poster matte", "Change portrait frame style", "Back"]
     dialog.observeField("buttonSelected", "onDisplayMenuSelected")
     m.settingsContext = "display"
     m.top.dialog = dialog
@@ -573,7 +570,7 @@ sub onDisplayMenuSelected(event as Object)
         cycleTransitionStyle()
         openDisplaySettings()
     else if selectedIndex = 1 then
-        showProgressColorMenu()
+        showAccentColorMenu()
     else if selectedIndex = 2 then
         togglePortraitFlip()
         openDisplaySettings()
@@ -625,10 +622,14 @@ sub cycleTransitionStyle()
     m.registry.Flush()
 end sub
 
-sub applyProgressColor()
-    color = m.progressColors[m.progressColorIndex].hex
+' Apply the chosen accent (theme) color to every UI element that uses it:
+' progress bar fills + metadata taglines on both orientations.
+sub applyAccentColor()
+    color = m.accentColors[m.accentColorIndex].hex
     m.progressBarFill.color = color
     m.portraitProgressBarFill.color = color
+    m.landscapeMetaTagline.color = color
+    m.portraitMetaTagline.color = color
 end sub
 
 ' Spin up the BorderCutoutTask once at startup to measure each portrait
@@ -688,28 +689,28 @@ sub applyCutoutToStyle(style as Object, cutout as Object)
     style.fillT = [centerX - fillW / 2, centerY - fillH / 2]
 end sub
 
-sub showProgressColorMenu()
+sub showAccentColorMenu()
     dialog = createObject("roSGNode", "StandardMessageDialog")
-    dialog.title = "Progress Bar Color"
-    dialog.message = ["Current: " + m.progressColors[m.progressColorIndex].name]
+    dialog.title = "Accent Color"
+    dialog.message = ["Current: " + m.accentColors[m.accentColorIndex].name]
     buttons = []
-    for each c in m.progressColors
+    for each c in m.accentColors
         buttons.push(c.name)
     end for
     buttons.push("Cancel")
     dialog.buttons = buttons
-    dialog.observeField("buttonSelected", "onProgressColorSelected")
+    dialog.observeField("buttonSelected", "onAccentColorSelected")
     m.top.dialog = dialog
 end sub
 
-sub onProgressColorSelected(event as Object)
+sub onAccentColorSelected(event as Object)
     selectedIndex = event.getData()
     m.top.dialog = invalid
-    if selectedIndex >= 0 and selectedIndex < m.progressColors.Count() then
-        m.progressColorIndex = selectedIndex
-        m.registry.Write("progressColorIndex", m.progressColorIndex.ToStr())
+    if selectedIndex >= 0 and selectedIndex < m.accentColors.Count() then
+        m.accentColorIndex = selectedIndex
+        m.registry.Write("accentColorIndex", m.accentColorIndex.ToStr())
         m.registry.Flush()
-        applyProgressColor()
+        applyAccentColor()
     end if
     returnToSettingsContext()
 end sub
@@ -779,26 +780,30 @@ sub setMetadataFromSession(sessionInfo as Object)
         contentRating: sessionInfo.contentRating
     }
 
+    ' Combine year, runtime, and genres into a single condensed stats line.
+    ' Rating drops out — it's already shown as the rating icon in the info chrome.
     statsParts = []
     if sessionInfo.year <> "" then statsParts.push(sessionInfo.year)
     if sessionInfo.duration > 0 then statsParts.push(formatRuntime(sessionInfo.duration))
-    if sessionInfo.contentRating <> "" then statsParts.push(sessionInfo.contentRating)
+    if sessionInfo.genres <> "" then statsParts.push(sessionInfo.genres)
     stats = joinSeparator(statsParts, "  ·  ")
 
+    taglineUpper = ""
+    if sessionInfo.tagline <> "" then taglineUpper = UCase(sessionInfo.tagline)
+
+    director = sessionInfo.directors
+    if director <> "" then director = "Directed by " + director
+
     ' Landscape panel
-    m.landscapeMetaTagline.text = sessionInfo.tagline
+    m.landscapeMetaTagline.text = taglineUpper
     m.landscapeMetaStats.text = stats
-    m.landscapeMetaDirector.text = sessionInfo.directors
-    m.landscapeMetaGenres.text = sessionInfo.genres
-    m.landscapeMetaStudio.text = sessionInfo.studio
-    m.landscapeMetaReleased.text = sessionInfo.releaseDate
+    m.landscapeMetaDirector.text = director
     m.landscapeMetaSummary.text = sessionInfo.summary
 
-    ' Portrait panel — denser, fits the 280-tall strip
-    m.portraitMetaTagline.text = sessionInfo.tagline
+    ' Portrait panel
+    m.portraitMetaTagline.text = taglineUpper
     m.portraitMetaStats.text = stats
-    m.portraitMetaDirector.text = sessionInfo.directors
-    m.portraitMetaGenres.text = sessionInfo.genres
+    m.portraitMetaDirector.text = director
     m.portraitMetaSummary.text = sessionInfo.summary
 end sub
 
@@ -1739,7 +1744,8 @@ sub updateInfoVisibility()
     m.ratingIcon.visible = landscapeRatingShown and (m.ratingIcon.uri <> "")
     m.nowPlayingPrefix.visible = landscapeRatingShown and (m.ratingIcon.uri = "") and (m.nowPlayingPrefix.text <> "")
     m.nowPlayingTitle.visible = showLandscapeStatus and m.isPlaying
-    m.nowPlayingYear.visible = showLandscapeStatus and m.isPlaying and (m.nowPlayingYear.text <> "")
+    ' Year lives in the metadata panel now — keep it out of the info chrome.
+    m.nowPlayingYear.visible = false
     m.clockLabel.visible = showLandscapeStatus
 
     ' Portrait: same identical layout in both modes.
@@ -1748,7 +1754,8 @@ sub updateInfoVisibility()
     m.portraitRatingIcon.visible = portraitRatingShown and (m.portraitRatingIcon.uri <> "")
     m.portraitNowPlayingPrefix.visible = portraitRatingShown and (m.portraitRatingIcon.uri = "") and (m.portraitNowPlayingPrefix.text <> "")
     m.portraitNowPlayingTitle.visible = m.portraitChrome.visible and m.isPlaying
-    m.portraitNowPlayingYear.visible = m.portraitChrome.visible and m.isPlaying and (m.portraitNowPlayingYear.text <> "")
+    ' Year lives in the metadata panel now — keep it out of the info chrome.
+    m.portraitNowPlayingYear.visible = false
 
     ' Width of whatever fills the rating slot — the PNG icon if we have one
     ' (variable, depends on aspect), otherwise the fixed-width text badge.

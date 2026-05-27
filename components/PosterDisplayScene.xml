@@ -307,195 +307,114 @@
         </Group>
 
         <!-- =============== LANDSCAPE METADATA (right-side vertical strip) ===============
-             Shown when the user presses Left to toggle the metadata overlay. In Fit modes
-             the poster shifts to make room; in Fill modes this floats over the right
-             edge of the poster with a translucent background. -->
+             Cleaned up: just slogan, condensed stats, director, and a description
+             block with a generous gap above so it doesn't feel cluttered. -->
         <Group id="landscapeMetadata" visible="false" translation="[1520, 0]">
             <Rectangle width="400" height="1080" color="0x000000FF" />
+            <!-- Slogan / tagline (accent color, uppercase, Oswald Bold) -->
             <Label
                 id="landscapeMetaTagline"
-                translation="[30, 30]"
+                translation="[30, 40]"
                 width="340"
-                height="84"
+                height="120"
                 text=""
-                color="0xFFD700FF"
+                color="0xFFA500FF"
                 horizAlign="left"
                 vertAlign="top"
-                font="font:LargeBoldSystemFont"
-                wrap="true" />
+                wrap="true">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="30" />
+            </Label>
+            <!-- Year · Runtime · Genres in the time-label font + 80% opacity -->
             <Label
                 id="landscapeMetaStats"
-                translation="[30, 130]"
+                translation="[30, 200]"
                 width="340"
                 height="40"
                 text=""
-                color="0xFFFFFFFF"
+                color="0xFFFFFFCC"
                 horizAlign="left"
                 vertAlign="center"
-                font="font:MediumBoldSystemFont"
-                wrap="false" />
-            <Label
-                translation="[30, 200]"
-                width="340"
-                height="28"
-                text="DIRECTED BY"
-                color="0xE0A030FF"
-                horizAlign="left"
-                vertAlign="center"
-                font="font:SmallBoldSystemFont" />
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="30" />
+            </Label>
+            <!-- Director (same font / opacity as stats) -->
             <Label
                 id="landscapeMetaDirector"
-                translation="[30, 232]"
+                translation="[30, 244]"
                 width="340"
-                height="60"
+                height="40"
                 text=""
-                color="0xFFFFFFFF"
-                horizAlign="left"
-                vertAlign="top"
-                font="font:MediumSystemFont"
-                wrap="true" />
-            <Label
-                translation="[30, 310]"
-                width="340"
-                height="28"
-                text="GENRES"
-                color="0xE0A030FF"
+                color="0xFFFFFFCC"
                 horizAlign="left"
                 vertAlign="center"
-                font="font:SmallBoldSystemFont" />
-            <Label
-                id="landscapeMetaGenres"
-                translation="[30, 342]"
-                width="340"
-                height="60"
-                text=""
-                color="0xFFFFFFFF"
-                horizAlign="left"
-                vertAlign="top"
-                font="font:MediumSystemFont"
-                wrap="true" />
-            <Label
-                translation="[30, 420]"
-                width="340"
-                height="28"
-                text="STUDIO"
-                color="0xE0A030FF"
-                horizAlign="left"
-                vertAlign="center"
-                font="font:SmallBoldSystemFont" />
-            <Label
-                id="landscapeMetaStudio"
-                translation="[30, 452]"
-                width="340"
-                height="34"
-                text=""
-                color="0xFFFFFFFF"
-                horizAlign="left"
-                vertAlign="center"
-                font="font:MediumSystemFont"
-                wrap="false" />
-            <Label
-                translation="[30, 502]"
-                width="340"
-                height="28"
-                text="RELEASED"
-                color="0xE0A030FF"
-                horizAlign="left"
-                vertAlign="center"
-                font="font:SmallBoldSystemFont" />
-            <Label
-                id="landscapeMetaReleased"
-                translation="[30, 534]"
-                width="340"
-                height="34"
-                text=""
-                color="0xFFFFFFFF"
-                horizAlign="left"
-                vertAlign="center"
-                font="font:MediumSystemFont"
-                wrap="false" />
-            <Label
-                translation="[30, 584]"
-                width="340"
-                height="28"
-                text="SUMMARY"
-                color="0xE0A030FF"
-                horizAlign="left"
-                vertAlign="center"
-                font="font:SmallBoldSystemFont" />
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="30" />
+            </Label>
+            <!-- Description (smaller body font, generous top gap from director) -->
             <Label
                 id="landscapeMetaSummary"
-                translation="[30, 616]"
+                translation="[30, 350]"
                 width="340"
-                height="440"
+                height="700"
                 text=""
                 color="0xE5E5E5FF"
                 horizAlign="left"
                 vertAlign="top"
-                font="font:MediumSystemFont"
+                font="font:SmallSystemFont"
                 wrap="true" />
         </Group>
 
         <!-- =============== PORTRAIT METADATA (rotated, viewer-top strip) ===============
-             Mirrored placement of portraitChrome but at viewer-top. 360 tall pre-rotation
-             so the larger system-font body text has room to breathe. -->
+             Same simplified layout as landscape, condensed for the 360-tall strip. -->
         <Group id="portraitMetadata" visible="false" translation="[-360, 360]"
                rotation="1.5707963" scaleRotateCenter="[540, 180]">
             <Rectangle width="1080" height="360" color="0x000000FF" />
             <Label
                 id="portraitMetaTagline"
-                translation="[60, 30]"
+                translation="[60, 25]"
                 width="960"
-                height="44"
+                height="40"
                 text=""
-                color="0xFFD700FF"
+                color="0xFFA500FF"
                 horizAlign="center"
                 vertAlign="center"
-                font="font:LargeBoldSystemFont"
-                wrap="false" />
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="28" />
+            </Label>
             <Label
                 id="portraitMetaStats"
-                translation="[60, 84]"
-                width="960"
-                height="36"
-                text=""
-                color="0xFFFFFFFF"
-                horizAlign="center"
-                vertAlign="center"
-                font="font:MediumBoldSystemFont"
-                wrap="false" />
-            <Label
-                id="portraitMetaDirector"
-                translation="[60, 128]"
+                translation="[60, 78]"
                 width="960"
                 height="34"
                 text=""
-                color="0xFFFFFFFF"
+                color="0xFFFFFFCC"
                 horizAlign="center"
                 vertAlign="center"
-                font="font:MediumSystemFont"
-                wrap="false" />
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="28" />
+            </Label>
             <Label
-                id="portraitMetaGenres"
-                translation="[60, 168]"
+                id="portraitMetaDirector"
+                translation="[60, 118]"
                 width="960"
-                height="30"
+                height="34"
                 text=""
-                color="0xE0A030FF"
+                color="0xFFFFFFCC"
                 horizAlign="center"
                 vertAlign="center"
-                font="font:SmallBoldSystemFont"
-                wrap="false" />
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="28" />
+            </Label>
             <Label
                 id="portraitMetaSummary"
-                translation="[60, 210]"
+                translation="[60, 200]"
                 width="960"
-                height="135"
+                height="150"
                 text=""
                 color="0xE5E5E5FF"
                 horizAlign="center"
                 vertAlign="top"
-                font="font:MediumSystemFont"
+                font="font:SmallSystemFont"
                 wrap="true" />
         </Group>
 
