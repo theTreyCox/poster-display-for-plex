@@ -897,11 +897,11 @@ sub openExpandedDescription()
     if meta.audienceRating <> "" then
         m.ratingPlexValue.text = meta.audienceRating + "/10"
     else
-        m.ratingPlexValue.text = "—"
+        m.ratingPlexValue.text = "N/A"
     end if
-    m.ratingImdbValue.text = "—"
-    m.ratingRtValue.text = "—"
-    m.ratingMetaValue.text = "—"
+    m.ratingImdbValue.text = "N/A"
+    m.ratingRtValue.text = "N/A"
+    m.ratingMetaValue.text = "N/A"
 
     ' Prefer the title (not the "Show — Episode" combo) for OMDB's by-title
     ' fallback. For now-playing TV episodes, use the show name; OMDB's title
@@ -969,11 +969,11 @@ sub buildExpandedStats(parts as Object)
     accent = m.accentColors[m.accentColorIndex].hex
 
     ' Width estimates for Oswald-Medium 28pt segments and Oswald-Bold 36pt dots.
-    ' Generously oversized so horizAlign=center inside each cell leaves a tiny
-    ' breathing buffer on either side and the text never visually clips when
-    ' the actual rendered width exceeds the estimate.
-    segCharW = 16
-    dotW = 22
+    ' Slightly tighter than the worst-case render width so cell padding is
+    ' minimal — otherwise long segments (like the genre list) accumulate
+    ' enough centered padding to look like an extra gap before them.
+    segCharW = 13
+    dotW = 18
     spacing = 14
 
     items = []
@@ -1033,9 +1033,11 @@ sub buildCreditValue(group as Object, value as String)
             dot.color = accent
             dot.text = "·"
             dot.vertAlign = "center"
+            ' Match the Stat Box dot weight/size so the bullet motif reads as
+            ' a single design element across the modal.
             dotFont = createObject("roSGNode", "Font")
-            dotFont.uri = "pkg:/fonts/BebasNeue-Regular.ttf"
-            dotFont.size = 26
+            dotFont.uri = "pkg:/fonts/Oswald-Bold.ttf"
+            dotFont.size = 36
             dot.font = dotFont
             group.appendChild(dot)
             m.expandedCreditDots.push(dot)

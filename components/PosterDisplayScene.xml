@@ -698,10 +698,11 @@
                 <Rectangle translation="[0, 0]" width="2" height="180" color="0xFFFFFFFF" />
                 <Rectangle translation="[433, 0]" width="2" height="180" color="0xFFFFFFFF" />
                 <Label translation="[0, 40]" width="435" height="30" text="PLEX"
-                       color="0xCCCCCCFF" horizAlign="center" vertAlign="center"
-                       font="font:SmallBoldSystemFont" />
+                       color="0xFFFFFFFF" horizAlign="center" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="28" />
+                </Label>
                 <Rectangle id="ratingPlexUnderline" translation="[197, 78]" width="40" height="3" color="0xFFA500FF" />
-                <Label id="ratingPlexValue" translation="[0, 85]" width="435" height="58" text="—"
+                <Label id="ratingPlexValue" translation="[0, 85]" width="435" height="58" text="N/A"
                        color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
                     <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="43" />
                 </Label>
@@ -713,10 +714,11 @@
                 <Rectangle translation="[0, 0]" width="2" height="180" color="0xFFFFFFFF" />
                 <Rectangle translation="[433, 0]" width="2" height="180" color="0xFFFFFFFF" />
                 <Label translation="[0, 40]" width="435" height="30" text="IMDB"
-                       color="0xCCCCCCFF" horizAlign="center" vertAlign="center"
-                       font="font:SmallBoldSystemFont" />
+                       color="0xFFFFFFFF" horizAlign="center" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="28" />
+                </Label>
                 <Rectangle id="ratingImdbUnderline" translation="[197, 78]" width="40" height="3" color="0xFFA500FF" />
-                <Label id="ratingImdbValue" translation="[0, 85]" width="435" height="58" text="—"
+                <Label id="ratingImdbValue" translation="[0, 85]" width="435" height="58" text="N/A"
                        color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
                     <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="43" />
                 </Label>
@@ -728,10 +730,11 @@
                 <Rectangle translation="[0, 0]" width="2" height="180" color="0xFFFFFFFF" />
                 <Rectangle translation="[433, 0]" width="2" height="180" color="0xFFFFFFFF" />
                 <Label translation="[0, 40]" width="435" height="30" text="ROTTEN TOMATOES"
-                       color="0xCCCCCCFF" horizAlign="center" vertAlign="center"
-                       font="font:SmallBoldSystemFont" />
+                       color="0xFFFFFFFF" horizAlign="center" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="28" />
+                </Label>
                 <Rectangle id="ratingRtUnderline" translation="[197, 78]" width="40" height="3" color="0xFFA500FF" />
-                <Label id="ratingRtValue" translation="[0, 85]" width="435" height="58" text="—"
+                <Label id="ratingRtValue" translation="[0, 85]" width="435" height="58" text="N/A"
                        color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
                     <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="43" />
                 </Label>
@@ -743,10 +746,11 @@
                 <Rectangle translation="[0, 0]" width="2" height="180" color="0xFFFFFFFF" />
                 <Rectangle translation="[433, 0]" width="2" height="180" color="0xFFFFFFFF" />
                 <Label translation="[0, 40]" width="435" height="30" text="METACRITIC"
-                       color="0xCCCCCCFF" horizAlign="center" vertAlign="center"
-                       font="font:SmallBoldSystemFont" />
+                       color="0xFFFFFFFF" horizAlign="center" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="28" />
+                </Label>
                 <Rectangle id="ratingMetaUnderline" translation="[197, 78]" width="40" height="3" color="0xFFA500FF" />
-                <Label id="ratingMetaValue" translation="[0, 85]" width="435" height="58" text="—"
+                <Label id="ratingMetaValue" translation="[0, 85]" width="435" height="58" text="N/A"
                        color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
                     <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="43" />
                 </Label>
