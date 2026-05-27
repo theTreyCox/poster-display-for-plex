@@ -53,112 +53,122 @@
             visible="false"
             loadDisplayMode="scaleToFill" />
 
-        <!-- =============== LANDSCAPE CHROME =============== -->
+        <!-- =============== LANDSCAPE INFO STRIP (left side, vertical) ===============
+             400px-wide solid-black strip pinned to the left of the screen. Mirrors
+             the metadata strip on the right. Stacks (top to bottom): rating icon,
+             title, year, then later in the strip: clock, time row, progress bar. -->
         <Group id="landscapeChrome">
-            <!-- Progress bar (above status). Layout left to right:
-                 [current] [ bar ] [total] -->
-            <Group id="progressGroup" visible="false" translation="[110, 850]">
-                <Rectangle width="1700" height="80" color="0x000000DD" />
-                <Label
-                    id="currentTimeLabel"
-                    translation="[20, 16]"
-                    width="140"
-                    height="48"
-                    text="0:00"
-                    color="0xFFFFFFFF"
-                    horizAlign="left"
-                    vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="36" />
-                </Label>
-                <Rectangle translation="[180, 36]" width="1340" height="10" color="0x666666FF" />
-                <Rectangle id="progressBarFill" translation="[180, 36]" width="1" height="10" color="0xFFA500FF" />
-                <Label
-                    id="totalTimeLabel"
-                    translation="[1540, 16]"
-                    width="140"
-                    height="48"
-                    text="0:00"
-                    color="0xFFFFFFFF"
-                    horizAlign="right"
-                    vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="36" />
-                </Label>
-            </Group>
+            <Rectangle id="overlay" width="400" height="1080" color="0x000000FF" />
 
-            <!-- Status strip (NOW PLAYING + title OR single message) — clockLabel sits
-                 to the right and is always visible whenever the status row is shown. -->
-            <Rectangle id="overlay" width="1700" height="80" translation="[110, 940]" color="0x000000DD" />
-            <Label
-                id="messageLabel"
-                translation="[130, 952]"
-                width="1430"
-                height="56"
-                text="Waiting for Plex"
-                color="0xFFFFFFFF"
-                horizAlign="left"
-                vertAlign="center">
-                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="40" />
-            </Label>
-            <Label
-                id="nowPlayingPrefix"
-                visible="false"
-                translation="[130, 952]"
-                width="160"
-                height="56"
-                text=""
-                color="0xFFFFFFCC"
-                horizAlign="left"
-                vertAlign="center">
-                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="40" />
-            </Label>
+            <!-- Rating icon (top, centered horizontally) -->
             <Poster
                 id="ratingIcon"
                 visible="false"
-                translation="[130, 952]"
-                width="84"
-                height="56"
-                opacity="0.85"
+                translation="[170, 50]"
+                width="60"
+                height="60"
+                opacity="0.9"
                 loadDisplayMode="scaleToFit" />
+            <!-- Text rating prefix (used only when no PNG icon is available) -->
+            <Label
+                id="nowPlayingPrefix"
+                visible="false"
+                translation="[20, 50]"
+                width="360"
+                height="60"
+                text=""
+                color="0xFFFFFFCC"
+                horizAlign="center"
+                vertAlign="center"
+                font="font:LargeBoldSystemFont" />
+
+            <!-- Title (wraps; centered in strip) -->
             <Label
                 id="nowPlayingTitle"
                 visible="false"
-                translation="[310, 952]"
-                width="1250"
-                height="56"
+                translation="[20, 140]"
+                width="360"
+                height="180"
                 text=""
                 color="0xFFFFFFFF"
-                horizAlign="left"
-                vertAlign="center"
-                wrap="false">
-                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="40" />
+                horizAlign="center"
+                vertAlign="top"
+                wrap="true">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="36" />
             </Label>
+
+            <!-- Year (below title) -->
             <Label
                 id="nowPlayingYear"
                 visible="false"
-                translation="[310, 952]"
-                width="220"
-                height="56"
+                translation="[20, 340]"
+                width="360"
+                height="44"
                 text=""
                 color="0xFFFFFFCC"
-                horizAlign="left"
+                horizAlign="center"
                 vertAlign="center"
                 wrap="false">
                 <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="36" />
             </Label>
+
+            <!-- "Waiting for Plex" / setup prompt (replaces title row when not playing) -->
             <Label
-                id="clockLabel"
-                translation="[1590, 952]"
-                width="200"
-                height="56"
-                text=""
+                id="messageLabel"
+                translation="[20, 460]"
+                width="360"
+                height="160"
+                text="Waiting for Plex"
                 color="0xFFFFFFFF"
-                horizAlign="right"
+                horizAlign="center"
                 vertAlign="center"
-                wrap="false">
-                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="40" />
+                wrap="true">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="32" />
             </Label>
 
-            <!-- Settings icon (top-right) -->
+            <!-- Clock (large, centered, lower portion of strip) -->
+            <Label
+                id="clockLabel"
+                translation="[20, 700]"
+                width="360"
+                height="80"
+                text=""
+                color="0xFFFFFFFF"
+                horizAlign="center"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="72" />
+            </Label>
+
+            <!-- Progress: current time on left, total on right, bar below -->
+            <Group id="progressGroup" visible="false" translation="[20, 820]">
+                <Label
+                    id="currentTimeLabel"
+                    translation="[0, 0]"
+                    width="170"
+                    height="40"
+                    text="0:00:00"
+                    color="0xFFFFFFFF"
+                    horizAlign="left"
+                    vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="30" />
+                </Label>
+                <Label
+                    id="totalTimeLabel"
+                    translation="[190, 0]"
+                    width="170"
+                    height="40"
+                    text="0:00:00"
+                    color="0xFFFFFFFF"
+                    horizAlign="right"
+                    vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="30" />
+                </Label>
+                <Rectangle translation="[0, 50]" width="360" height="8" color="0x666666FF" />
+                <Rectangle id="progressBarFill" translation="[0, 50]" width="1" height="8" color="0xFFA500FF" />
+            </Group>
+
+            <!-- Settings icon (still pinned to the screen's top-right corner) -->
             <Rectangle width="60" height="60" translation="[1840, 20]" color="0x000000FF" />
             <Button
                 id="settingsButton"
@@ -177,7 +187,7 @@
         <Group id="portraitChrome" visible="false" translation="[1265, 425]"
                rotation="1.5707963" scaleRotateCenter="[540, 115]">
             <!-- 1080x230 pre-rotation; becomes 230x1080 buffer-edge strip; viewer sees as bottom 230 of vertical screen -->
-            <Rectangle width="1080" height="230" color="0x000000DD" />
+            <Rectangle width="1080" height="230" color="0x000000FF" />
 
             <!-- Progress bar (top of strip in viewer). Layout:
                  [current] [ bar ] [total]   plus a sibling clock label below. -->
@@ -301,7 +311,7 @@
              the poster shifts to make room; in Fill modes this floats over the right
              edge of the poster with a translucent background. -->
         <Group id="landscapeMetadata" visible="false" translation="[1520, 0]">
-            <Rectangle width="400" height="1080" color="0x000000DD" />
+            <Rectangle width="400" height="1080" color="0x000000FF" />
             <Label
                 id="landscapeMetaTagline"
                 translation="[30, 30]"
@@ -431,7 +441,7 @@
              so the larger system-font body text has room to breathe. -->
         <Group id="portraitMetadata" visible="false" translation="[-360, 360]"
                rotation="1.5707963" scaleRotateCenter="[540, 180]">
-            <Rectangle width="1080" height="360" color="0x000000DD" />
+            <Rectangle width="1080" height="360" color="0x000000FF" />
             <Label
                 id="portraitMetaTagline"
                 translation="[60, 30]"

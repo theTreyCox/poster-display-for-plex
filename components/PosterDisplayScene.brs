@@ -357,14 +357,13 @@ sub applyPlainViewMode()
     if m.viewMode = 0 then
         m.poster.width = 720
         m.poster.height = 1080
-        ' Metadata panel pins to the right 400px (x=1520..1920); center the
-        ' poster in the freed area 0..1520. Default centers it across the full
-        ' 1920 width.
-        if m.metadataEnabled and m.isPlaying then
-            m.poster.translation = [400, 0]
-        else
-            m.poster.translation = [600, 0]
-        end if
+        ' Info strip pins to x=0..400, metadata strip pins to x=1520..1920.
+        ' Center the poster in whatever's free between them based on what's on.
+        leftEdge = 0
+        rightEdge = 1920
+        if m.infoEnabled then leftEdge = 400
+        if m.metadataEnabled and m.isPlaying then rightEdge = 1520
+        m.poster.translation = [(leftEdge + rightEdge - 720) / 2, 0]
         m.poster.scaleRotateCenter = [360, 540]
         m.poster.rotation = 0
     else if m.viewMode = 1 then
@@ -1600,10 +1599,8 @@ end sub
 ' That keeps the year glued right after the title even before the first paint
 ' completes for a new title.
 sub positionYearLabel()
-    yearY = m.nowPlayingYear.translation[1]
-    titleX = m.nowPlayingTitle.translation[0]
-    width = measuredOrEstimatedTextWidth(m.nowPlayingTitle, 25)
-    m.nowPlayingYear.translation = [titleX + width + 20, yearY]
+    ' Landscape chrome is now a vertical left strip — the year sits at a fixed
+    ' position below the wrapped title, not horizontally next to it. No-op here.
 end sub
 
 sub positionPortraitYearLabel()
@@ -1707,7 +1704,7 @@ sub renderProgress(positionMs as Integer)
         ratio = positionMs / m.duration
         if ratio < 0 then ratio = 0
         if ratio > 1 then ratio = 1
-        landscapeW = Int(ratio * 1340)
+        landscapeW = Int(ratio * 360)
         if landscapeW < 1 then landscapeW = 1
         portraitW = Int(ratio * 690)
         if portraitW < 1 then portraitW = 1
@@ -1731,10 +1728,11 @@ sub updateInfoVisibility()
     m.settingsButton.visible = needsSetup
     m.portraitSettingsButton.visible = needsSetup
 
-    ' Landscape: swap status mode (message vs now-playing) and hide status when marquee shows.
-    ' Layout is identical in carousel and now-playing modes so the chrome reads
-    ' the same regardless of source.
-    showLandscapeStatus = m.landscapeChrome.visible and not marqueeVisible
+    ' Landscape: the vertical left strip hides when the theater marquee is on
+    ' (the marquee handles title + brand by itself). Otherwise it's always
+    ' visible when chrome is — backgrounds are now solid black.
+    m.landscapeChrome.visible = m.landscapeChrome.visible and not marqueeVisible
+    showLandscapeStatus = m.landscapeChrome.visible
     m.overlay.visible = showLandscapeStatus
     m.messageLabel.visible = showLandscapeStatus and not m.isPlaying
     landscapeRatingShown = showLandscapeStatus and m.isPlaying
@@ -1742,6 +1740,7 @@ sub updateInfoVisibility()
     m.nowPlayingPrefix.visible = landscapeRatingShown and (m.ratingIcon.uri = "") and (m.nowPlayingPrefix.text <> "")
     m.nowPlayingTitle.visible = showLandscapeStatus and m.isPlaying
     m.nowPlayingYear.visible = showLandscapeStatus and m.isPlaying and (m.nowPlayingYear.text <> "")
+    m.clockLabel.visible = showLandscapeStatus
 
     ' Portrait: same identical layout in both modes.
     portraitRatingShown = m.portraitChrome.visible and m.isPlaying
@@ -1758,17 +1757,17 @@ sub updateInfoVisibility()
     portraitRatingWidth = 120
     if m.portraitRatingIcon.uri <> "" then portraitRatingWidth = m.portraitRatingIcon.width
 
-    ' Identical layout in carousel and now-playing:
-    '   Landscape: icon at 20px from overlay left edge, title left-aligned after,
-    '              year right after title, clock at 20px from overlay right edge.
-    '   Portrait:  icon at 90px from strip left edge (matches clock's 90px from
-    '              right edge), title + year after, clock on right.
-    m.ratingIcon.translation = [130, 952]
-    m.nowPlayingPrefix.translation = [130, 952]
-    landscapeTitleX = 130 + landscapeRatingWidth + 20
-    m.nowPlayingTitle.translation = [landscapeTitleX, 952]
-    m.nowPlayingTitle.width = 1560 - landscapeTitleX
-    m.nowPlayingTitle.horizAlign = "left"
+    ' Landscape: vertical left strip. Rating icon centered above the title;
+    ' title wraps centered in the strip; year sits at fixed Y below title.
+    ' (Sizing for the icon comes from getRatingIcon — variable width because
+    ' some ratings use 3:2 wide PNGs and others are square.)
+    iconY = 50
+    landscapeRatingX = (400 - landscapeRatingWidth) / 2
+    m.ratingIcon.translation = [landscapeRatingX, iconY]
+    m.nowPlayingPrefix.translation = [20, iconY]  ' text prefix uses full strip width
+    m.nowPlayingTitle.translation = [20, 140]
+    m.nowPlayingTitle.width = 360
+    m.nowPlayingTitle.horizAlign = "center"
 
     ' Vertical layout inside the 230-tall strip:
     '   With progress: 50 top + 32 progress + 50 gap + 48 row + 50 bottom (progress y=50, row y=132)
