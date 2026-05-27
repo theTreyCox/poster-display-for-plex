@@ -434,7 +434,7 @@ sub openSettingsMenu()
 
     dialog = createObject("roSGNode", "StandardMessageDialog")
     dialog.title = "Settings"
-    dialog.message = "Server: " + serverDisplay + chr(10) + "Token: " + tokenDisplay
+    dialog.message = ["Server: " + serverDisplay, "Token: " + tokenDisplay]
     dialog.buttons = ["Plex Connection", "Display & Appearance", "Close"]
     dialog.observeField("buttonSelected", "onSettingsMenuSelected")
     m.settingsContext = "main"
@@ -463,7 +463,7 @@ sub openPlexSettings()
 
     dialog = createObject("roSGNode", "StandardMessageDialog")
     dialog.title = "Plex Connection"
-    dialog.message = "Server: " + serverDisplay + chr(10) + "Token: " + tokenDisplay + chr(10) + "Carousel blocks ratings: " + ratingsDisplay
+    dialog.message = ["Server: " + serverDisplay, "Token: " + tokenDisplay, "Carousel blocks ratings: " + ratingsDisplay]
     dialog.buttons = ["Sign in with Plex", "Change Plex server", "Change Plex token", "Edit carousel rating filter", "Back"]
     dialog.observeField("buttonSelected", "onPlexMenuSelected")
     m.settingsContext = "plex"
@@ -497,7 +497,7 @@ sub openDisplaySettings()
 
     dialog = createObject("roSGNode", "StandardMessageDialog")
     dialog.title = "Display & Appearance"
-    dialog.message = "Portrait orientation: " + flipDisplay + chr(10) + "Poster transition: " + transitionDisplay + chr(10) + "Progress bar color: " + colorDisplay + chr(10) + "Portrait poster matte: " + matteDisplay + chr(10) + "Portrait frame style: " + frameStyleDisplay
+    dialog.message = ["Portrait orientation: " + flipDisplay, "Poster transition: " + transitionDisplay, "Progress bar color: " + colorDisplay, "Portrait poster matte: " + matteDisplay, "Portrait frame style: " + frameStyleDisplay]
     dialog.buttons = ["Cycle poster transition", "Change progress bar color", "Flip portrait orientation", "Toggle portrait poster matte", "Change portrait frame style", "Back"]
     dialog.observeField("buttonSelected", "onDisplayMenuSelected")
     m.settingsContext = "display"
@@ -629,7 +629,7 @@ end sub
 sub showProgressColorMenu()
     dialog = createObject("roSGNode", "StandardMessageDialog")
     dialog.title = "Progress Bar Color"
-    dialog.message = "Current: " + m.progressColors[m.progressColorIndex].name
+    dialog.message = ["Current: " + m.progressColors[m.progressColorIndex].name]
     buttons = []
     for each c in m.progressColors
         buttons.push(c.name)
@@ -655,7 +655,7 @@ end sub
 sub showPortraitFrameStyleMenu()
     dialog = createObject("roSGNode", "StandardMessageDialog")
     dialog.title = "Portrait Frame Style"
-    dialog.message = "Current: " + m.portraitBorderStyles[m.portraitBorderStyleIndex].name
+    dialog.message = ["Current: " + m.portraitBorderStyles[m.portraitBorderStyleIndex].name]
     buttons = []
     for each s in m.portraitBorderStyles
         buttons.push(s.name)
@@ -1089,7 +1089,7 @@ sub onPlexServersListed(event as Object)
 
     dialog = createObject("roSGNode", "StandardMessageDialog")
     dialog.title = "Choose a Plex Server"
-    dialog.message = "Pick the server this display should use."
+    dialog.message = ["Pick the server this display should use."]
     buttons = []
     for each s in result.servers
         label = s.name
@@ -1150,7 +1150,7 @@ end sub
 sub showServerSelectionDialog()
     dialog = createObject("roSGNode", "StandardMessageDialog")
     dialog.title = "Choose a Plex Server"
-    dialog.message = "These servers responded on your network. Pick one or enter a URL manually."
+    dialog.message = ["These servers responded on your network. Pick one or enter a URL manually."]
 
     buttons = []
     for each server in m.discoveredServers

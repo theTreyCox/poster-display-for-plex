@@ -16,6 +16,9 @@ sub run()
 end sub
 
 ' POST https://plex.tv/api/v2/pins?strong=true
+' roUrlTransfer.PostFromString returns only the HTTP status code, not the
+' body. We need the XML body to extract the PIN, so we use AsyncPostFromString
+' against an roMessagePort and wait for the roUrlEvent.
 function requestPin(clientId as String) as Object
     result = { mode: "requestPin", ok: false, pinId: "", pinCode: "", expiresAt: "", error: "" }
     transfer = createPlexTransfer(clientId)
@@ -25,7 +28,26 @@ function requestPin(clientId as String) as Object
     end if
     transfer.SetUrl("https://plex.tv/api/v2/pins?strong=true")
     transfer.AddHeader("Accept", "application/xml")
-    body = transfer.PostFromString("")
+    transfer.AddHeader("Content-Length", "0")
+
+    port = createObject("roMessagePort")
+    transfer.SetMessagePort(port)
+    if not transfer.AsyncPostFromString("") then
+        result.error = "async post failed to start"
+        return result
+    end if
+
+    body = ""
+    httpCode = -1
+    msg = wait(20000, port)
+    if type(msg) = "roUrlEvent" then
+        body = msg.GetString()
+        httpCode = msg.GetResponseCode()
+    end if
+    if httpCode < 200 or httpCode > 299 then
+        result.error = "http " + httpCode.ToStr()
+        return result
+    end if
     if body = invalid or body = "" then
         result.error = "empty response"
         return result
