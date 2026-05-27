@@ -787,10 +787,25 @@ sub transitionPoster(newUri as String, newBackgroundUri as String)
         m.savedPosterTranslation = m.poster.translation
         offX = m.savedPosterTranslation[0]
         offY = m.savedPosterTranslation[1]
-        m.posterSlideOutInterp.keyValue = [[offX, offY], [offX - 2000, offY]]
+        delta = slideOutDelta()
+        m.posterSlideOutInterp.keyValue = [[offX, offY], [offX + delta[0], offY + delta[1]]]
         m.posterSlideOut.control = "start"
     end if
 end sub
+
+' Compute the slide-out translation delta in physical coordinates so the poster
+' always exits toward viewer-LEFT (regardless of the rotation applied for
+' portrait modes). For landscape the poster isn't rotated, so a screen-x shift
+' looks horizontal directly. For portrait non-flip (rotation +π/2 CCW), viewer-x
+' maps to (1080 - physical-y), so sliding viewer-left = increasing physical-y.
+' For portrait flip (rotation -π/2 CW), viewer-x = physical-y, so viewer-left =
+' decreasing physical-y.
+function slideOutDelta() as Object
+    isLandscape = (m.viewMode = 0 or m.viewMode = 1)
+    if isLandscape then return [-2000, 0]
+    if m.portraitFlip then return [0, -2000]
+    return [0, 2000]
+end function
 
 sub onPosterFadeOutState(event as Object)
     if event.getData() <> "stopped" then return
@@ -812,8 +827,12 @@ sub onPosterSlideOutState(event as Object)
     m.backgroundPoster.uri = m.pendingBackgroundUri
     offX = m.savedPosterTranslation[0]
     offY = m.savedPosterTranslation[1]
-    m.poster.translation = [offX + 2000, offY]
-    m.posterSlideInInterp.keyValue = [[offX + 2000, offY], [offX, offY]]
+    delta = slideOutDelta()
+    ' Slide-in enters from the OPPOSITE side, so its starting offset is -delta.
+    startX = offX - delta[0]
+    startY = offY - delta[1]
+    m.poster.translation = [startX, startY]
+    m.posterSlideInInterp.keyValue = [[startX, startY], [offX, offY]]
     m.posterSlideIn.control = "start"
 end sub
 
