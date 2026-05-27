@@ -627,63 +627,61 @@
                 vertAlignment="center"
                 itemSpacings="[14]" />
 
-            <!-- Credit lines: BebasNeue accent label + smaller white value side by
-                 side. Row delta 46px for breathing room. -->
+            <!-- Credit lines: BebasNeue accent label (right-aligned in a narrow
+                 cell so the value sits close) + LayoutGroup of white name
+                 segments separated by accent-color "·" dots (built in BRS so the
+                 dots can be colored independently). Row delta 46px. -->
             <Label id="expandedDirectorLabel"
-                   translation="[200, 388]" width="200" height="32" text="DIRECTOR"
-                   color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false">
+                   translation="[200, 388]" width="160" height="32" text="DIRECTOR"
+                   color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
                 <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="24" />
             </Label>
-            <Label id="expandedDirectorValue"
-                   translation="[420, 388]" width="1300" height="32" text=""
-                   color="0xE5E5E5FF" horizAlign="left" vertAlign="center" wrap="false"
-                   font="font:SmallestSystemFont" />
+            <LayoutGroup id="expandedDirectorValue"
+                         translation="[380, 388]" layoutDirection="horiz"
+                         horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
             <Label id="expandedWriterLabel"
-                   translation="[200, 434]" width="200" height="32" text="WRITER"
-                   color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false">
+                   translation="[200, 434]" width="160" height="32" text="WRITER"
+                   color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
                 <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="24" />
             </Label>
-            <Label id="expandedWriterValue"
-                   translation="[420, 434]" width="1300" height="32" text=""
-                   color="0xE5E5E5FF" horizAlign="left" vertAlign="center" wrap="false"
-                   font="font:SmallestSystemFont" />
+            <LayoutGroup id="expandedWriterValue"
+                         translation="[380, 434]" layoutDirection="horiz"
+                         horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
             <Label id="expandedCastLabel"
-                   translation="[200, 480]" width="200" height="32" text="STARRING"
-                   color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false">
+                   translation="[200, 480]" width="160" height="32" text="STARRING"
+                   color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
                 <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="24" />
             </Label>
-            <Label id="expandedCastValue"
-                   translation="[420, 480]" width="1300" height="32" text=""
-                   color="0xE5E5E5FF" horizAlign="left" vertAlign="center" wrap="false"
-                   font="font:SmallestSystemFont" />
+            <LayoutGroup id="expandedCastValue"
+                         translation="[380, 480]" layoutDirection="horiz"
+                         horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
             <Label id="expandedStudioLabel"
-                   translation="[200, 526]" width="200" height="32" text="STUDIO"
-                   color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false">
+                   translation="[200, 526]" width="160" height="32" text="STUDIO"
+                   color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
                 <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="24" />
             </Label>
-            <Label id="expandedStudioValue"
-                   translation="[420, 526]" width="1300" height="32" text=""
-                   color="0xE5E5E5FF" horizAlign="left" vertAlign="center" wrap="false"
-                   font="font:SmallestSystemFont" />
+            <LayoutGroup id="expandedStudioValue"
+                         translation="[380, 526]" layoutDirection="horiz"
+                         horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
             <Label id="expandedReleasedLabel"
-                   translation="[200, 572]" width="200" height="32" text="RELEASED"
-                   color="0xFFA500FF" horizAlign="left" vertAlign="center" wrap="false">
+                   translation="[200, 572]" width="160" height="32" text="RELEASED"
+                   color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
                 <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="24" />
             </Label>
-            <Label id="expandedReleasedValue"
-                   translation="[420, 572]" width="1300" height="32" text=""
-                   color="0xE5E5E5FF" horizAlign="left" vertAlign="center" wrap="false"
-                   font="font:SmallestSystemFont" />
+            <LayoutGroup id="expandedReleasedValue"
+                         translation="[380, 572]" layoutDirection="horiz"
+                         horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
 
             <!-- Horizontal separator between credits and description -->
-            <Rectangle translation="[200, 630]" width="1520" height="2" color="0x80808066" />
+            <Rectangle translation="[200, 640]" width="1520" height="2" color="0x80808066" />
 
-            <!-- Summary / description (smaller body font) -->
+            <!-- Summary / description (smaller body font). Equal breathing room
+                 above (credits→divider ≈ 36px) and below (divider→summary ≈ 38px). -->
             <Label
                 id="expandedSummary"
-                translation="[200, 650]"
+                translation="[200, 680]"
                 width="1520"
-                height="130"
+                height="120"
                 text=""
                 color="0xE5E5E5FF"
                 horizAlign="left"
@@ -692,13 +690,15 @@
                 font="font:SmallestSystemFont"
                 wrap="true" />
 
-            <!-- ===== Ratings: 4 bordered boxes, each w=360 h=140, gap=20 ===== -->
+            <!-- ===== Ratings: 4 bordered boxes, each w=360 h=140, gap=20.
+                 Outline alpha matches the top stats box (full white) for visual
+                 consistency. ===== -->
             <!-- PLEX -->
-            <Group translation="[210, 790]">
-                <Rectangle translation="[0, 0]" width="360" height="2" color="0xFFFFFF40" />
-                <Rectangle translation="[0, 138]" width="360" height="2" color="0xFFFFFF40" />
-                <Rectangle translation="[0, 0]" width="2" height="140" color="0xFFFFFF40" />
-                <Rectangle translation="[358, 0]" width="2" height="140" color="0xFFFFFF40" />
+            <Group translation="[210, 830]">
+                <Rectangle translation="[0, 0]" width="360" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 138]" width="360" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 0]" width="2" height="140" color="0xFFFFFFFF" />
+                <Rectangle translation="[358, 0]" width="2" height="140" color="0xFFFFFFFF" />
                 <Label translation="[0, 18]" width="360" height="30" text="PLEX"
                        color="0xCCCCCCFF" horizAlign="center" vertAlign="center"
                        font="font:SmallBoldSystemFont" />
@@ -709,11 +709,11 @@
                 </Label>
             </Group>
             <!-- IMDB -->
-            <Group translation="[590, 790]">
-                <Rectangle translation="[0, 0]" width="360" height="2" color="0xFFFFFF40" />
-                <Rectangle translation="[0, 138]" width="360" height="2" color="0xFFFFFF40" />
-                <Rectangle translation="[0, 0]" width="2" height="140" color="0xFFFFFF40" />
-                <Rectangle translation="[358, 0]" width="2" height="140" color="0xFFFFFF40" />
+            <Group translation="[590, 830]">
+                <Rectangle translation="[0, 0]" width="360" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 138]" width="360" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 0]" width="2" height="140" color="0xFFFFFFFF" />
+                <Rectangle translation="[358, 0]" width="2" height="140" color="0xFFFFFFFF" />
                 <Label translation="[0, 18]" width="360" height="30" text="IMDB"
                        color="0xCCCCCCFF" horizAlign="center" vertAlign="center"
                        font="font:SmallBoldSystemFont" />
@@ -724,11 +724,11 @@
                 </Label>
             </Group>
             <!-- ROTTEN TOMATOES -->
-            <Group translation="[970, 790]">
-                <Rectangle translation="[0, 0]" width="360" height="2" color="0xFFFFFF40" />
-                <Rectangle translation="[0, 138]" width="360" height="2" color="0xFFFFFF40" />
-                <Rectangle translation="[0, 0]" width="2" height="140" color="0xFFFFFF40" />
-                <Rectangle translation="[358, 0]" width="2" height="140" color="0xFFFFFF40" />
+            <Group translation="[970, 830]">
+                <Rectangle translation="[0, 0]" width="360" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 138]" width="360" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 0]" width="2" height="140" color="0xFFFFFFFF" />
+                <Rectangle translation="[358, 0]" width="2" height="140" color="0xFFFFFFFF" />
                 <Label translation="[0, 18]" width="360" height="30" text="ROTTEN TOMATOES"
                        color="0xCCCCCCFF" horizAlign="center" vertAlign="center"
                        font="font:SmallBoldSystemFont" />
@@ -739,11 +739,11 @@
                 </Label>
             </Group>
             <!-- METACRITIC -->
-            <Group translation="[1350, 790]">
-                <Rectangle translation="[0, 0]" width="360" height="2" color="0xFFFFFF40" />
-                <Rectangle translation="[0, 138]" width="360" height="2" color="0xFFFFFF40" />
-                <Rectangle translation="[0, 0]" width="2" height="140" color="0xFFFFFF40" />
-                <Rectangle translation="[358, 0]" width="2" height="140" color="0xFFFFFF40" />
+            <Group translation="[1350, 830]">
+                <Rectangle translation="[0, 0]" width="360" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 138]" width="360" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 0]" width="2" height="140" color="0xFFFFFFFF" />
+                <Rectangle translation="[358, 0]" width="2" height="140" color="0xFFFFFFFF" />
                 <Label translation="[0, 18]" width="360" height="30" text="METACRITIC"
                        color="0xCCCCCCFF" horizAlign="center" vertAlign="center"
                        font="font:SmallBoldSystemFont" />

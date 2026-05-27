@@ -50,6 +50,8 @@ sub init()
     m.expandedTagline = m.top.findNode("expandedTagline")
     m.expandedStatsGroup = m.top.findNode("expandedStatsGroup")
     m.expandedStatsDots = []
+    m.expandedCreditDots = []
+    m.lastStatsCenterWidth = invalid
     m.expandedDirectorLabel = m.top.findNode("expandedDirectorLabel")
     m.expandedDirectorValue = m.top.findNode("expandedDirectorValue")
     m.expandedWriterLabel = m.top.findNode("expandedWriterLabel")
@@ -199,6 +201,9 @@ sub init()
     ' When the title text re-renders, reposition the year label so it sits right after.
     m.nowPlayingTitle.observeField("boundingRect", "positionYearLabel")
     m.portraitNowPlayingTitle.observeField("boundingRect", "positionPortraitYearLabel")
+    ' Center the modal's stats LayoutGroup within its outlined box once Roku
+    ' lays out its dynamic children (LayoutGroup boundingRect is set async).
+    m.expandedStatsGroup.observeField("boundingRect", "centerExpandedStats")
 
     m.posterFadeOut.observeField("state", "onPosterFadeOutState")
     m.posterFadeIn.observeField("state", "onPosterFadeInState")
@@ -705,6 +710,11 @@ sub applyAccentColor()
             dot.color = color
         end for
     end if
+    if m.expandedCreditDots <> invalid then
+        for each dot in m.expandedCreditDots
+            dot.color = color
+        end for
+    end if
 end sub
 
 ' Spin up the BorderCutoutTask once at startup to measure each portrait
@@ -870,6 +880,9 @@ sub openExpandedDescription()
     if meta.genres <> "" then modalParts.push(meta.genres)
     buildExpandedStats(modalParts)
 
+    ' Fresh credit-dot tracking for the just-opened modal — every credit row
+    ' rebuilds its child labels below.
+    m.expandedCreditDots = []
     setCreditPair(m.expandedDirectorLabel, m.expandedDirectorValue, meta.directors)
     setCreditPair(m.expandedWriterLabel, m.expandedWriterValue, meta.writers)
     setCreditPair(m.expandedCastLabel, m.expandedCastValue, meta.cast)
@@ -949,14 +962,14 @@ end sub
 
 ' Build the modal stats row: white text segments separated by accent-color "·"
 ' dot labels, all inside the expandedStatsGroup LayoutGroup. Clears prior
-' children, then horizontally centers the laid-out group within the 800px
-' white-outlined box (centered on x=960) using its boundingRect width.
+' children; centering happens in centerExpandedStats once Roku finishes the
+' async layout pass and fires the boundingRect observer.
 sub buildExpandedStats(parts as Object)
-    ' Tear down prior children
     while m.expandedStatsGroup.getChildCount() > 0
         m.expandedStatsGroup.removeChildIndex(0)
     end while
     m.expandedStatsDots = []
+    m.lastStatsCenterWidth = invalid
 
     accent = m.accentColors[m.accentColorIndex].hex
     for i = 0 to parts.Count() - 1
@@ -966,7 +979,6 @@ sub buildExpandedStats(parts as Object)
             dot.text = "·"
             dot.vertAlign = "center"
             dot.horizAlign = "center"
-            ' Slightly bigger dot weight than the surrounding stats text.
             dotFont = createObject("roSGNode", "Font")
             dotFont.uri = "pkg:/fonts/Oswald-Bold.ttf"
             dotFont.size = 36
@@ -985,19 +997,78 @@ sub buildExpandedStats(parts as Object)
         seg.font = segFont
         m.expandedStatsGroup.appendChild(seg)
     end for
-
-    ' Center the laid-out group horizontally within the stats box (box x=560,
-    ' width=800, so center x=960). Y stays at the box vertical center (315).
-    rect = m.expandedStatsGroup.boundingRect
-    if type(rect) = "Function" or type(rect) = "roFunction" then rect = rect()
-    width = 0
-    if type(rect) = "roAssociativeArray" and rect.width <> invalid then width = rect.width
-    m.expandedStatsGroup.translation = [960 - width / 2, 315]
 end sub
 
-' Set a credit pair's value text + show/hide both label and value together.
+' Fired whenever the stats LayoutGroup's bounding rect changes (initial layout
+' or content change). Recenter horizontally inside the white-outlined box
+' (center x=960). Skip if width hasn't changed to avoid an observer loop —
+' our own translation set re-fires this observer.
+sub centerExpandedStats()
+    rect = m.expandedStatsGroup.boundingRect
+    if type(rect) = "Function" or type(rect) = "roFunction" then rect = rect()
+    if type(rect) <> "roAssociativeArray" then return
+    if rect.width = invalid or rect.width <= 0 then return
+    if m.lastStatsCenterWidth <> invalid and m.lastStatsCenterWidth = rect.width then return
+    m.lastStatsCenterWidth = rect.width
+    m.expandedStatsGroup.translation = [960 - rect.width / 2, 315]
+end sub
+
+' Build a credit value LayoutGroup: SmallestSystemFont white name segments
+' separated by accent-color "·" dot labels. Plex returns the value already
+' joined with " · " — split on that delimiter so each dot can be colored
+' independently of the names (single-color Labels can't mix).
+sub buildCreditValue(group as Object, value as String)
+    while group.getChildCount() > 0
+        group.removeChildIndex(0)
+    end while
+    if value = "" then return
+    parts = splitDotSeparator(value)
+    accent = m.accentColors[m.accentColorIndex].hex
+    for i = 0 to parts.Count() - 1
+        if i > 0 then
+            dot = createObject("roSGNode", "Label")
+            dot.color = accent
+            dot.text = "·"
+            dot.vertAlign = "center"
+            dotFont = createObject("roSGNode", "Font")
+            dotFont.uri = "pkg:/fonts/BebasNeue-Regular.ttf"
+            dotFont.size = 26
+            dot.font = dotFont
+            group.appendChild(dot)
+            m.expandedCreditDots.push(dot)
+        end if
+        seg = createObject("roSGNode", "Label")
+        seg.color = "0xE5E5E5FF"
+        seg.text = parts[i]
+        seg.vertAlign = "center"
+        seg.font = "font:SmallestSystemFont"
+        group.appendChild(seg)
+    end for
+end sub
+
+' Split a Plex-joined string ("a · b · c") into its parts. Tokenize() can't
+' be used because the middle-dot is multi-byte UTF-8; do an Instr-based scan
+' on the literal " · " delimiter instead.
+function splitDotSeparator(s as String) as Object
+    out = []
+    if s = "" then return out
+    sep = " · "
+    sepLen = Len(sep)
+    rest = s
+    p = Instr(1, rest, sep)
+    while p > 0
+        out.push(Left(rest, p - 1))
+        rest = Mid(rest, p + sepLen)
+        p = Instr(1, rest, sep)
+    end while
+    out.push(rest)
+    return out
+end function
+
+' Set a credit pair: build its value LayoutGroup and show/hide both label
+' and value together based on whether the value is non-empty.
 sub setCreditPair(labelNode as Object, valueNode as Object, value as String)
-    valueNode.text = value
+    buildCreditValue(valueNode, value)
     show = (value <> "")
     labelNode.visible = show
     valueNode.visible = show
