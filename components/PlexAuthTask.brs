@@ -130,38 +130,55 @@ function listServers(clientId as String, plexToken as String) as Object
         result.error = "transfer create failed"
         return result
     end if
-    transfer.SetUrl("https://plex.tv/api/v2/resources?includeHttps=1")
+    url = "https://plex.tv/api/v2/resources?includeHttps=1&includeRelay=1&X-Plex-Token=" + transfer.Escape(plexToken)
+    transfer.SetUrl(url)
     transfer.AddHeader("Accept", "application/xml")
     transfer.AddHeader("X-Plex-Token", plexToken)
+    print "[plex.listServers] GET " + url
     body = transfer.GetToString()
-    if body = invalid or body = "" then
-        result.error = "empty response"
+    if body = invalid then
+        result.error = "transfer invalid"
+        print "[plex.listServers] GetToString returned invalid (TLS/DNS failure?)"
         return result
     end if
+    if body = "" then
+        result.error = "empty response"
+        print "[plex.listServers] empty body"
+        return result
+    end if
+    print "[plex.listServers] body bytes=" + body.Len().ToStr()
+    print "[plex.listServers] body start=" + Left(body, 300)
     xml = createObject("roXMLElement")
     if not xml.Parse(body) then
         result.error = "parse failed"
+        print "[plex.listServers] xml parse failed"
         return result
     end if
     devices = xml.GetChildElements()
     servers = []
-    if devices <> invalid then
+    if devices = invalid then
+        print "[plex.listServers] no child elements at all"
+    else
+        print "[plex.listServers] child element count=" + devices.Count().ToStr()
         for each dev in devices
             attrs = dev.GetAttributes()
             provides = stringOrEmpty(attrs["provides"])
+            name = stringOrEmpty(attrs["name"])
+            accessToken = stringOrEmpty(attrs["accessToken"])
+            owned = stringOrEmpty(attrs["owned"])
+            print "[plex.listServers] device name='" + name + "' provides='" + provides + "' owned=" + owned + " tokenLen=" + Len(accessToken).ToStr()
             if Instr(1, provides, "server") > 0 then
-                name = stringOrEmpty(attrs["name"])
-                accessToken = stringOrEmpty(attrs["accessToken"])
-                owned = stringOrEmpty(attrs["owned"])
-                ' Pick the best connection: prefer local + http, fall back to remote
                 conns = dev.GetNamedElements("Connection")
                 bestUrl = ""
                 bestLocal = false
                 if conns <> invalid then
+                    print "[plex.listServers]   connections=" + conns.Count().ToStr()
                     for each conn in conns
                         connAttrs = conn.GetAttributes()
                         uri = stringOrEmpty(connAttrs["uri"])
                         local = (stringOrEmpty(connAttrs["local"]) = "1")
+                        relay = (stringOrEmpty(connAttrs["relay"]) = "1")
+                        print "[plex.listServers]     uri=" + uri + " local=" + local.ToStr() + " relay=" + relay.ToStr()
                         if uri <> "" then
                             if bestUrl = "" then
                                 bestUrl = uri
@@ -175,10 +192,14 @@ function listServers(clientId as String, plexToken as String) as Object
                 end if
                 if accessToken <> "" and bestUrl <> "" then
                     servers.push({ name: name, url: bestUrl, accessToken: accessToken, owned: (owned = "1") })
+                    print "[plex.listServers]   ADDED url=" + bestUrl
+                else
+                    print "[plex.listServers]   SKIPPED (no token or no url)"
                 end if
             end if
         end for
     end if
+    print "[plex.listServers] final server count=" + servers.Count().ToStr()
     result.ok = true
     result.servers = servers
     return result
