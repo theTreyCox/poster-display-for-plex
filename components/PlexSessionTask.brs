@@ -135,22 +135,43 @@ sub fetchSession()
     result.genres = genres
     result.audienceRating = audienceRating
     result.imdbId = imdbId
+    print "[plex.session] " + title + " — imdbId='" + imdbId + "'"
 
     m.top.result = result
 end sub
 
-' Plex returns external IDs in <Guid id="imdb://tt0073195"/> elements.
-' Pull out just the IMDB id (with the tt prefix) so we can look it up on OMDB.
+' Pull out the IMDB id (with tt prefix) from whichever Plex agent format the
+' server is using. New movie/TV scanners surface it via nested <Guid id="imdb://tt...">;
+' the legacy IMDB agent puts it on the Video's own guid attribute as
+' "com.plexapp.agents.imdb://tt0073195?lang=en".
 function extractImdbId(media as Object) as String
+    ' Newer multi-source format
     guids = media.GetNamedElements("Guid")
-    if guids = invalid or guids.Count() = 0 then return ""
-    for each g in guids
-        a = g.GetAttributes()
-        if a <> invalid then
-            id = stringOrEmpty(a["id"])
-            if Instr(1, id, "imdb://") = 1 then return id.Mid(7)
+    if guids <> invalid and guids.Count() > 0 then
+        for each g in guids
+            a = g.GetAttributes()
+            if a <> invalid then
+                id = stringOrEmpty(a["id"])
+                if Instr(1, id, "imdb://") = 1 then return id.Mid(7)
+            end if
+        end for
+    end if
+
+    ' Legacy agent format on Video's own guid attribute
+    attrs = media.GetAttributes()
+    if attrs <> invalid then
+        guidAttr = stringOrEmpty(attrs["guid"])
+        if guidAttr <> "" then
+            pos = Instr(1, guidAttr, "imdb://")
+            if pos > 0 then
+                after = guidAttr.Mid(pos + 6)
+                qPos = Instr(1, after, "?")
+                if qPos > 0 then after = after.Mid(0, qPos - 1)
+                if Instr(1, after, "tt") = 1 then return after
+            end if
         end if
-    end for
+    end if
+
     return ""
 end function
 

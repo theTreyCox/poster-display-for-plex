@@ -86,6 +86,7 @@ sub fetchLibrary()
                                             genres = collectTagAttribute(itemEl, "Genre")
                                             audienceRating = stringOrEmpty(itemAttrs["audienceRating"])
                                             imdbId = extractImdbId(itemEl)
+                                            if imdbId = "" then print "[plex.library] no imdbId for " + title
                                             items.push({
                                                 title: title,
                                                 year: year,
@@ -146,17 +147,33 @@ function stringOrEmpty(value as Dynamic) as String
     return value
 end function
 
-' Plex returns external IDs in <Guid id="imdb://tt0073195"/> elements.
+' See PlexSessionTask.extractImdbId — same dual-format logic for library items.
 function extractImdbId(itemEl as Object) as String
     guids = itemEl.GetNamedElements("Guid")
-    if guids = invalid or guids.Count() = 0 then return ""
-    for each g in guids
-        a = g.GetAttributes()
-        if a <> invalid then
-            id = stringOrEmpty(a["id"])
-            if Instr(1, id, "imdb://") = 1 then return id.Mid(7)
+    if guids <> invalid and guids.Count() > 0 then
+        for each g in guids
+            a = g.GetAttributes()
+            if a <> invalid then
+                id = stringOrEmpty(a["id"])
+                if Instr(1, id, "imdb://") = 1 then return id.Mid(7)
+            end if
+        end for
+    end if
+
+    attrs = itemEl.GetAttributes()
+    if attrs <> invalid then
+        guidAttr = stringOrEmpty(attrs["guid"])
+        if guidAttr <> "" then
+            pos = Instr(1, guidAttr, "imdb://")
+            if pos > 0 then
+                after = guidAttr.Mid(pos + 6)
+                qPos = Instr(1, after, "?")
+                if qPos > 0 then after = after.Mid(0, qPos - 1)
+                if Instr(1, after, "tt") = 1 then return after
+            end if
         end if
-    end for
+    end if
+
     return ""
 end function
 

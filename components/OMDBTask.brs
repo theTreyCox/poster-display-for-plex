@@ -9,6 +9,7 @@ sub fetch()
     imdbId = m.top.imdbId
     if apiKey = "" or imdbId = "" then
         result.error = "missing apiKey or imdbId"
+        print "[omdb] skipping — missing apiKey=" + (apiKey <> "").ToStr() + " imdbId='" + imdbId + "'"
         m.top.result = result
         return
     end if
@@ -16,25 +17,37 @@ sub fetch()
     transfer = createObject("roUrlTransfer")
     if transfer = invalid then
         result.error = "transfer create failed"
+        print "[omdb] roUrlTransfer create failed"
         m.top.result = result
         return
     end if
     transfer.SetCertificatesFile("common:/certs/ca-bundle.crt")
     transfer.InitClientCertificates()
     transfer.EnableEncodings(true)
-    transfer.SetUrl("https://www.omdbapi.com/?apikey=" + transfer.Escape(apiKey) + "&i=" + transfer.Escape(imdbId))
+    url = "https://www.omdbapi.com/?apikey=" + transfer.Escape(apiKey) + "&i=" + transfer.Escape(imdbId)
+    transfer.SetUrl(url)
     transfer.AddHeader("Accept", "application/json")
+    print "[omdb] GET " + url
 
     body = transfer.GetToString()
-    if body = invalid or body = "" then
-        result.error = "empty response"
+    if body = invalid then
+        result.error = "transfer returned invalid"
+        print "[omdb] GetToString returned invalid (TLS or DNS failure?)"
         m.top.result = result
         return
     end if
+    if body = "" then
+        result.error = "empty response"
+        print "[omdb] empty body"
+        m.top.result = result
+        return
+    end if
+    print "[omdb] body bytes=" + body.Len().ToStr()
 
     json = parseJson(body)
     if json = invalid then
         result.error = "json parse failed"
+        print "[omdb] parseJson failed; raw start=" + Left(body, 120)
         m.top.result = result
         return
     end if
@@ -52,8 +65,10 @@ sub fetch()
                 if source = "Metacritic" then result.metacritic = value
             end for
         end if
+        print "[omdb] ok imdb=" + result.imdbRating + " rt=" + result.rottenTomatoes + " meta=" + result.metacritic
     else
         result.error = stringOrEmpty(json.Error)
+        print "[omdb] response=False error=" + result.error
     end if
 
     m.top.result = result

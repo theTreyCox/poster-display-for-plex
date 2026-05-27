@@ -884,18 +884,32 @@ end sub
 ' Spin up OMDBTask if we have an IMDB id to look up. Result is observed and
 ' applied to the rating labels when it arrives.
 sub fetchOmdbRatings(imdbId as String)
-    if imdbId = "" then return
+    if imdbId = "" then
+        print "[scene] no imdbId on current item; skipping OMDB lookup"
+        return
+    end if
     task = createObject("roSGNode", "OMDBTask")
-    if task = invalid then return
+    if task = invalid then
+        print "[scene] OMDBTask create failed"
+        return
+    end if
     task.observeField("result", "onOmdbResult")
     task.apiKey = m.omdbApiKey
     task.imdbId = imdbId
     task.control = "RUN"
+    print "[scene] OMDBTask started for " + imdbId
 end sub
 
 sub onOmdbResult(event as Object)
     result = event.getData()
-    if result = invalid or not result.ok then return
+    if result = invalid then
+        print "[scene] OMDB result was invalid"
+        return
+    end if
+    if not result.ok then
+        print "[scene] OMDB error: " + result.error
+        return
+    end if
     if not m.expandedDescription.visible then return  ' user closed before we returned
 
     if result.imdbRating <> "" then m.ratingImdbValue.text = result.imdbRating + "/10"

@@ -671,7 +671,7 @@
                 id="expandedSummary"
                 translation="[200, 630]"
                 width="1520"
-                height="270"
+                height="240"
                 text=""
                 color="0xE5E5E5FF"
                 horizAlign="left"
@@ -680,42 +680,44 @@
                 font="font:SmallSystemFont"
                 wrap="true" />
 
-            <!-- Ratings row (no header — section is identified by the column titles) -->
-            <Label translation="[200, 910]" width="380" height="28" text="PLEX"
+            <!-- Ratings row (no header — section is identified by the column titles).
+                 Lifted ~30px so there's more breathing room between the values row
+                 and the "PRESS BACK TO CLOSE" footer below. -->
+            <Label translation="[200, 880]" width="380" height="28" text="PLEX"
                    color="0xFFFFFFCC" horizAlign="center" vertAlign="center"
                    font="font:SmallBoldSystemFont" />
             <Label id="ratingPlexValue"
-                   translation="[200, 948]" width="380" height="40" text="—"
+                   translation="[200, 918]" width="380" height="40" text="—"
                    color="0xFFA500FF" horizAlign="center" vertAlign="center"
                    wrap="false">
                 <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="30" />
             </Label>
 
-            <Label translation="[580, 910]" width="380" height="28" text="IMDB"
+            <Label translation="[580, 880]" width="380" height="28" text="IMDB"
                    color="0xFFFFFFCC" horizAlign="center" vertAlign="center"
                    font="font:SmallBoldSystemFont" />
             <Label id="ratingImdbValue"
-                   translation="[580, 948]" width="380" height="40" text="—"
+                   translation="[580, 918]" width="380" height="40" text="—"
                    color="0xFFA500FF" horizAlign="center" vertAlign="center"
                    wrap="false">
                 <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="30" />
             </Label>
 
-            <Label translation="[960, 910]" width="380" height="28" text="ROTTEN TOMATOES"
+            <Label translation="[960, 880]" width="380" height="28" text="ROTTEN TOMATOES"
                    color="0xFFFFFFCC" horizAlign="center" vertAlign="center"
                    font="font:SmallBoldSystemFont" />
             <Label id="ratingRtValue"
-                   translation="[960, 948]" width="380" height="40" text="—"
+                   translation="[960, 918]" width="380" height="40" text="—"
                    color="0xFFA500FF" horizAlign="center" vertAlign="center"
                    wrap="false">
                 <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="30" />
             </Label>
 
-            <Label translation="[1340, 910]" width="380" height="28" text="METACRITIC"
+            <Label translation="[1340, 880]" width="380" height="28" text="METACRITIC"
                    color="0xFFFFFFCC" horizAlign="center" vertAlign="center"
                    font="font:SmallBoldSystemFont" />
             <Label id="ratingMetaValue"
-                   translation="[1340, 948]" width="380" height="40" text="—"
+                   translation="[1340, 918]" width="380" height="40" text="—"
                    color="0xFFA500FF" horizAlign="center" vertAlign="center"
                    wrap="false">
                 <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="30" />
