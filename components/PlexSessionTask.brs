@@ -16,7 +16,14 @@ sub fetchSession()
         mediaType: "",
         duration: 0,
         viewOffset: 0,
-        state: ""
+        state: "",
+        ' Extended metadata for the Left-button metadata overlay
+        tagline: "",
+        summary: "",
+        studio: "",
+        releaseDate: "",
+        directors: "",
+        genres: ""
     }
 
     server = m.top.plexServer
@@ -76,6 +83,14 @@ sub fetchSession()
         state = stringOrEmpty(playerAttrs["state"])
     end if
 
+    ' Extended metadata fields
+    tagline = stringOrEmpty(attrs["tagline"])
+    summary = stringOrEmpty(attrs["summary"])
+    studio = stringOrEmpty(attrs["studio"])
+    releaseDate = stringOrEmpty(attrs["originallyAvailableAt"])
+    directors = collectTagAttribute(media, "Director")
+    genres = collectTagAttribute(media, "Genre")
+
     ' Prefer the series poster (portrait) for shows; fall back to thumb for movies
     mainThumb = seriesThumb
     if mainThumb = "" then mainThumb = thumb
@@ -102,9 +117,37 @@ sub fetchSession()
     result.duration = duration
     result.viewOffset = viewOffset
     result.state = state
+    result.tagline = tagline
+    result.summary = summary
+    result.studio = studio
+    result.releaseDate = releaseDate
+    result.directors = directors
+    result.genres = genres
 
     m.top.result = result
 end sub
+
+' Plex returns tags like <Director tag="Steven Spielberg"/> nested inside the
+' media element. Collect each child of the given tag name and concatenate the
+' `tag` attributes with " · " as a separator.
+function collectTagAttribute(media as Object, tagName as String) as String
+    elements = media.GetNamedElements(tagName)
+    if elements = invalid or elements.Count() = 0 then return ""
+    parts = []
+    for each el in elements
+        a = el.GetAttributes()
+        if a <> invalid then
+            t = stringOrEmpty(a["tag"])
+            if t <> "" then parts.push(t)
+        end if
+    end for
+    if parts.Count() = 0 then return ""
+    out = parts[0]
+    for i = 1 to parts.Count() - 1
+        out = out + " · " + parts[i]
+    end for
+    return out
+end function
 
 function intOrZero(value as Dynamic) as Integer
     if value = invalid then return 0

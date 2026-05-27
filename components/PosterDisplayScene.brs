@@ -35,6 +35,20 @@ sub init()
     m.portraitTotalTimeLabel = m.top.findNode("portraitTotalTimeLabel")
     m.portraitProgressBarFill = m.top.findNode("portraitProgressBarFill")
     m.portraitClockLabel = m.top.findNode("portraitClockLabel")
+    m.landscapeMetadata = m.top.findNode("landscapeMetadata")
+    m.landscapeMetaTagline = m.top.findNode("landscapeMetaTagline")
+    m.landscapeMetaStats = m.top.findNode("landscapeMetaStats")
+    m.landscapeMetaDirector = m.top.findNode("landscapeMetaDirector")
+    m.landscapeMetaGenres = m.top.findNode("landscapeMetaGenres")
+    m.landscapeMetaStudio = m.top.findNode("landscapeMetaStudio")
+    m.landscapeMetaReleased = m.top.findNode("landscapeMetaReleased")
+    m.landscapeMetaSummary = m.top.findNode("landscapeMetaSummary")
+    m.portraitMetadata = m.top.findNode("portraitMetadata")
+    m.portraitMetaTagline = m.top.findNode("portraitMetaTagline")
+    m.portraitMetaStats = m.top.findNode("portraitMetaStats")
+    m.portraitMetaDirector = m.top.findNode("portraitMetaDirector")
+    m.portraitMetaGenres = m.top.findNode("portraitMetaGenres")
+    m.portraitMetaSummary = m.top.findNode("portraitMetaSummary")
     m.portraitPosterBorderGroup = m.top.findNode("portraitPosterBorderGroup")
     m.portraitPosterBorderTop = m.top.findNode("portraitPosterBorderTop")
     m.portraitPosterBorderBottom = m.top.findNode("portraitPosterBorderBottom")
@@ -138,6 +152,9 @@ sub init()
     ]
     m.portraitBorderStyleIndex = m.registry.Read("portraitBorderStyleIndex").ToInt()
     if m.portraitBorderStyleIndex < 0 or m.portraitBorderStyleIndex >= m.portraitBorderStyles.Count() then m.portraitBorderStyleIndex = 0
+
+    m.metadataEnabled = (m.registry.Read("metadataEnabled") = "1")
+    m.currentSessionMetadata = invalid
     m.transitionInProgress = false
     m.pendingPosterUri = ""
     m.pendingBackgroundUri = ""
@@ -233,7 +250,10 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
     else if key = "right" then
         toggleInfo()
         return true
-    else if key = "left" or key = "options" then
+    else if key = "left" then
+        toggleMetadata()
+        return true
+    else if key = "options" then
         openSettingsMenu()
         return true
     else if key = "rev" or key = "rewind" then
@@ -316,13 +336,35 @@ function portraitRotation() as Float
     return 1.5707963
 end function
 
+' Place a centered portrait-fit poster at a target viewer-Y center, accounting
+' for the rotation direction (flip mirrors physical-x across screen-center).
+sub setPortraitFitPoster(W as Integer, H as Integer, centerYViewer as Integer)
+    m.poster.width = W
+    m.poster.height = H
+    m.poster.scaleRotateCenter = [W / 2, H / 2]
+    m.poster.rotation = portraitRotation()
+    if m.portraitFlip then
+        physX = 1920 - centerYViewer
+    else
+        physX = centerYViewer
+    end if
+    m.poster.translation = [physX - W / 2, 540 - H / 2]
+end sub
+
 sub applyPlainViewMode()
     m.borderLandscape.visible = false
     m.borderPortrait.visible = false
     if m.viewMode = 0 then
         m.poster.width = 720
         m.poster.height = 1080
-        m.poster.translation = [600, 0]
+        ' With the metadata panel pinned to the right 300px, center the poster
+        ' in the freed area on the left. Default centers it across the full
+        ' 1920 width.
+        if m.metadataEnabled and m.isPlaying then
+            m.poster.translation = [450, 0]
+        else
+            m.poster.translation = [600, 0]
+        end if
         m.poster.scaleRotateCenter = [360, 540]
         m.poster.rotation = 0
     else if m.viewMode = 1 then
@@ -332,22 +374,21 @@ sub applyPlainViewMode()
         m.poster.scaleRotateCenter = [960, 1440]
         m.poster.rotation = 0
     else if m.viewMode = 2 then
-        ' Portrait Fit — info on shifts poster toward viewer-top so the chrome
-        ' strip can occupy viewer-bottom without overlap. The translation for
-        ' the flipped mount mirrors across buffer-center because the viewer-y
-        ' axis is inverted for the opposite mount direction.
-        m.poster.width = 1080
-        m.poster.height = 1620
-        m.poster.scaleRotateCenter = [540, 810]
-        m.poster.rotation = portraitRotation()
-        if m.infoEnabled then
-            if m.portraitFlip then
-                m.poster.translation = [550, -270]
-            else
-                m.poster.translation = [290, -270]
-            end if
+        ' Portrait Fit. The poster needs to fit between whichever panels are
+        ' visible: metadata at viewer-top (280px), info at viewer-bottom (230px).
+        ' Pick width/height + viewer center based on which panels are active so
+        ' the poster always sits cleanly in the available area.
+        metaActive = m.metadataEnabled and m.isPlaying
+        infoActive = m.infoEnabled
+        if metaActive and infoActive then
+            ' Sandwiched: shrink the poster to fit between both panels.
+            setPortraitFitPoster(940, 1410, 985)
+        else if metaActive then
+            setPortraitFitPoster(1080, 1620, 1100)
+        else if infoActive then
+            setPortraitFitPoster(1080, 1620, 830)
         else
-            m.poster.translation = [420, -270]
+            setPortraitFitPoster(1080, 1620, 960)
         end if
     else if m.viewMode = 3 then
         ' Portrait Fill — info on shrinks the fill area to above the chrome.
@@ -686,6 +727,78 @@ sub togglePortraitPosterBorder()
     m.registry.Flush()
     applyViewMode()
 end sub
+
+' Left-button metadata overlay. In Fit modes the poster shifts to make room
+' for the metadata panel; in Fill modes the panel floats translucently over
+' the poster (so the artwork keeps its bleed).
+sub toggleMetadata()
+    m.metadataEnabled = not m.metadataEnabled
+    state = "0"
+    if m.metadataEnabled then state = "1"
+    m.registry.Write("metadataEnabled", state)
+    m.registry.Flush()
+    applyViewMode()
+    label = "Metadata: Off"
+    if m.metadataEnabled then label = "Metadata: On"
+    showModeIndicator(label)
+end sub
+
+' Snapshot the current session's metadata so we can show it whenever the user
+' toggles the panel — even between Plex poll refreshes.
+sub setMetadataFromSession(sessionInfo as Object)
+    m.currentSessionMetadata = {
+        tagline: sessionInfo.tagline,
+        summary: sessionInfo.summary,
+        studio: sessionInfo.studio,
+        releaseDate: sessionInfo.releaseDate,
+        directors: sessionInfo.directors,
+        genres: sessionInfo.genres,
+        year: sessionInfo.year,
+        duration: sessionInfo.duration,
+        contentRating: sessionInfo.contentRating
+    }
+
+    statsParts = []
+    if sessionInfo.year <> "" then statsParts.push(sessionInfo.year)
+    if sessionInfo.duration > 0 then statsParts.push(formatRuntime(sessionInfo.duration))
+    if sessionInfo.contentRating <> "" then statsParts.push(sessionInfo.contentRating)
+    stats = joinSeparator(statsParts, "  ·  ")
+
+    ' Landscape panel
+    m.landscapeMetaTagline.text = sessionInfo.tagline
+    m.landscapeMetaStats.text = stats
+    m.landscapeMetaDirector.text = sessionInfo.directors
+    m.landscapeMetaGenres.text = sessionInfo.genres
+    m.landscapeMetaStudio.text = sessionInfo.studio
+    m.landscapeMetaReleased.text = sessionInfo.releaseDate
+    m.landscapeMetaSummary.text = sessionInfo.summary
+
+    ' Portrait panel — denser, fits the 280-tall strip
+    m.portraitMetaTagline.text = sessionInfo.tagline
+    m.portraitMetaStats.text = stats
+    m.portraitMetaDirector.text = sessionInfo.directors
+    m.portraitMetaGenres.text = sessionInfo.genres
+    m.portraitMetaSummary.text = sessionInfo.summary
+end sub
+
+' Format a duration in ms as "Xh Ym" or "Ym" if under an hour.
+function formatRuntime(ms as Integer) as String
+    totalMins = Int(ms / 60000)
+    if totalMins < 60 then return totalMins.ToStr() + "m"
+    h = Int(totalMins / 60)
+    m_ = totalMins mod 60
+    if m_ = 0 then return h.ToStr() + "h"
+    return h.ToStr() + "h " + m_.ToStr() + "m"
+end function
+
+function joinSeparator(parts as Object, sep as String) as String
+    if parts = invalid or parts.Count() = 0 then return ""
+    out = parts[0]
+    for i = 1 to parts.Count() - 1
+        out = out + sep + parts[i]
+    end for
+    return out
+end function
 
 ' Render a thick black matte around the portrait poster when enabled. The matte
 ' is four separate strips (top/bottom/left/right) inside a Group that shares
@@ -1375,6 +1488,7 @@ sub onSessionResult(event as Object)
     m.playerState = sessionInfo.state
     m.lastUpdate = createObject("roDateTime").AsSeconds()
     m.isPlaying = true
+    setMetadataFromSession(sessionInfo)
     updateInfoVisibility()
     if m.duration > 0 then renderProgress(m.viewOffset)
 end sub
@@ -1638,6 +1752,12 @@ sub updateInfoVisibility()
 
     ' Episode thumbnail (TV episodes in landscape mode when info is on)
     m.episodePosterGroup.visible = m.infoEnabled and isLandscape and m.hasEpisodePoster
+
+    ' Metadata panel (Left key toggle). Only meaningful when something's actually
+    ' playing — otherwise there's nothing to describe.
+    metadataActive = m.metadataEnabled and m.isPlaying
+    m.landscapeMetadata.visible = metadataActive and isLandscape
+    m.portraitMetadata.visible = metadataActive and not isLandscape
 
     ' App logo — only when info is showing in landscape, hidden when border or Settings would overlap
     m.appLogo.visible = chromeVisible and isLandscape and not m.borderEnabled and not needsSetup
