@@ -572,8 +572,7 @@
 
         <!-- Expanded description ("Read more"). Full-screen modal opened with OK
              while the metadata overlay is visible. Pauses the carousel while open;
-             Back closes it. Has more room than the side panels so we show more
-             credits + the full slogan / summary. -->
+             Back closes it. -->
         <Group id="expandedDescription" visible="false">
             <Rectangle width="1920" height="1080" color="0x000000FF" />
             <Label
@@ -588,101 +587,163 @@
                 wrap="false">
                 <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="58" />
             </Label>
-            <!-- Tagline: full slogan, wraps if long -->
+            <!-- Tagline / slogan — BebasNeue, accent color, wraps if long -->
             <Label
                 id="expandedTagline"
                 translation="[200, 140]"
                 width="1520"
-                height="120"
+                height="100"
                 text=""
                 color="0xFFA500FF"
                 horizAlign="center"
                 vertAlign="top"
                 wrap="true">
-                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="32" />
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="38" />
             </Label>
+
+            <!-- Stats box: Oswald-Medium inside a white-outlined rectangle. The
+                 outline is four thin Rectangles since SceneGraph has no native
+                 outline-only Rectangle. -->
+            <Rectangle translation="[560, 260]" width="800" height="2" color="0xFFFFFFFF" />
+            <Rectangle translation="[560, 338]" width="800" height="2" color="0xFFFFFFFF" />
+            <Rectangle translation="[560, 260]" width="2" height="80" color="0xFFFFFFFF" />
+            <Rectangle translation="[1358, 260]" width="2" height="80" color="0xFFFFFFFF" />
             <Label
                 id="expandedStats"
-                translation="[200, 280]"
-                width="1520"
-                height="44"
+                translation="[580, 260]"
+                width="760"
+                height="80"
                 text=""
-                color="0xFFFFFFCC"
+                color="0xFFFFFFFF"
                 horizAlign="center"
                 vertAlign="center"
                 wrap="false">
-                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="32" />
+                <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="28" />
             </Label>
 
             <!-- Credit lines (each shown only when the field has content) -->
             <Label
                 id="expandedDirector"
-                translation="[300, 350]"
+                translation="[300, 380]"
                 width="1320"
-                height="36"
+                height="32"
                 text=""
                 color="0xE5E5E5FF"
                 horizAlign="left"
                 vertAlign="center"
                 wrap="false"
-                font="font:MediumSystemFont" />
+                font="font:SmallSystemFont" />
             <Label
                 id="expandedWriter"
-                translation="[300, 392]"
+                translation="[300, 418]"
                 width="1320"
-                height="36"
+                height="32"
                 text=""
                 color="0xE5E5E5FF"
                 horizAlign="left"
                 vertAlign="center"
                 wrap="false"
-                font="font:MediumSystemFont" />
+                font="font:SmallSystemFont" />
             <Label
                 id="expandedCast"
-                translation="[300, 434]"
+                translation="[300, 456]"
                 width="1320"
-                height="36"
+                height="32"
                 text=""
                 color="0xE5E5E5FF"
                 horizAlign="left"
                 vertAlign="center"
                 wrap="false"
-                font="font:MediumSystemFont" />
+                font="font:SmallSystemFont" />
             <Label
                 id="expandedStudio"
-                translation="[300, 476]"
+                translation="[300, 494]"
                 width="1320"
-                height="36"
+                height="32"
                 text=""
                 color="0xE5E5E5FF"
                 horizAlign="left"
                 vertAlign="center"
                 wrap="false"
-                font="font:MediumSystemFont" />
+                font="font:SmallSystemFont" />
             <Label
                 id="expandedReleased"
-                translation="[300, 518]"
+                translation="[300, 532]"
                 width="1320"
-                height="36"
+                height="32"
                 text=""
                 color="0xE5E5E5FF"
                 horizAlign="left"
                 vertAlign="center"
                 wrap="false"
-                font="font:MediumSystemFont" />
+                font="font:SmallSystemFont" />
 
-            <!-- Summary -->
+            <!-- Summary — smaller font, generous line spacing for readability -->
             <Label
                 id="expandedSummary"
-                translation="[300, 590]"
+                translation="[300, 595]"
                 width="1320"
-                height="400"
+                height="240"
                 text=""
                 color="0xE5E5E5FF"
                 horizAlign="left"
                 vertAlign="top"
-                font="font:MediumSystemFont"
+                lineSpacing="6"
+                font="font:SmallSystemFont"
                 wrap="true" />
+
+            <!-- Ratings section, bottom center -->
+            <Label
+                translation="[200, 870]"
+                width="1520"
+                height="28"
+                text="RATINGS"
+                color="0xFFA500FF"
+                horizAlign="center"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="20" />
+            </Label>
+
+            <Label translation="[200, 910]" width="380" height="28" text="PLEX"
+                   color="0xFFFFFFCC" horizAlign="center" vertAlign="center"
+                   font="font:SmallBoldSystemFont" />
+            <Label id="ratingPlexValue"
+                   translation="[200, 942]" width="380" height="40" text="—"
+                   color="0xFFA500FF" horizAlign="center" vertAlign="center"
+                   wrap="false">
+                <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="30" />
+            </Label>
+
+            <Label translation="[580, 910]" width="380" height="28" text="IMDB"
+                   color="0xFFFFFFCC" horizAlign="center" vertAlign="center"
+                   font="font:SmallBoldSystemFont" />
+            <Label id="ratingImdbValue"
+                   translation="[580, 942]" width="380" height="40" text="—"
+                   color="0xFFA500FF" horizAlign="center" vertAlign="center"
+                   wrap="false">
+                <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="30" />
+            </Label>
+
+            <Label translation="[960, 910]" width="380" height="28" text="ROTTEN TOMATOES"
+                   color="0xFFFFFFCC" horizAlign="center" vertAlign="center"
+                   font="font:SmallBoldSystemFont" />
+            <Label id="ratingRtValue"
+                   translation="[960, 942]" width="380" height="40" text="—"
+                   color="0xFFA500FF" horizAlign="center" vertAlign="center"
+                   wrap="false">
+                <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="30" />
+            </Label>
+
+            <Label translation="[1340, 910]" width="380" height="28" text="METACRITIC"
+                   color="0xFFFFFFCC" horizAlign="center" vertAlign="center"
+                   font="font:SmallBoldSystemFont" />
+            <Label id="ratingMetaValue"
+                   translation="[1340, 942]" width="380" height="40" text="—"
+                   color="0xFFA500FF" horizAlign="center" vertAlign="center"
+                   wrap="false">
+                <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="30" />
+            </Label>
 
             <!-- Footer -->
             <Label

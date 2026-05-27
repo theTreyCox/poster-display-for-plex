@@ -55,6 +55,13 @@ sub init()
     m.expandedStudio = m.top.findNode("expandedStudio")
     m.expandedReleased = m.top.findNode("expandedReleased")
     m.expandedSummary = m.top.findNode("expandedSummary")
+    m.ratingPlexValue = m.top.findNode("ratingPlexValue")
+    m.ratingImdbValue = m.top.findNode("ratingImdbValue")
+    m.ratingRtValue = m.top.findNode("ratingRtValue")
+    m.ratingMetaValue = m.top.findNode("ratingMetaValue")
+
+    ' OMDB integration. Hardcoded key for now; could move to Settings later.
+    m.omdbApiKey = "89ae9603"
     m.portraitPosterBorderGroup = m.top.findNode("portraitPosterBorderGroup")
     m.portraitPosterBorderTop = m.top.findNode("portraitPosterBorderTop")
     m.portraitPosterBorderBottom = m.top.findNode("portraitPosterBorderBottom")
@@ -835,8 +842,49 @@ sub openExpandedDescription()
 
     m.expandedSummary.text = meta.summary
 
+    ' Ratings section: Plex is populated immediately from the session
+    ' metadata; IMDb / Rotten Tomatoes / Metacritic come from OMDB and arrive
+    ' asynchronously. Show "—" placeholders until the OMDB task returns.
+    accent = m.accentColors[m.accentColorIndex].hex
+    m.ratingPlexValue.color = accent
+    m.ratingImdbValue.color = accent
+    m.ratingRtValue.color = accent
+    m.ratingMetaValue.color = accent
+    if meta.audienceRating <> "" then
+        m.ratingPlexValue.text = "★ " + meta.audienceRating
+    else
+        m.ratingPlexValue.text = "—"
+    end if
+    m.ratingImdbValue.text = "—"
+    m.ratingRtValue.text = "—"
+    m.ratingMetaValue.text = "—"
+
+    fetchOmdbRatings(meta.imdbId)
+
     if m.carouselEnabled then m.carouselTimer.control = "stop"
     m.expandedDescription.visible = true
+end sub
+
+' Spin up OMDBTask if we have an IMDB id to look up. Result is observed and
+' applied to the rating labels when it arrives.
+sub fetchOmdbRatings(imdbId as String)
+    if imdbId = "" then return
+    task = createObject("roSGNode", "OMDBTask")
+    if task = invalid then return
+    task.observeField("result", "onOmdbResult")
+    task.apiKey = m.omdbApiKey
+    task.imdbId = imdbId
+    task.control = "RUN"
+end sub
+
+sub onOmdbResult(event as Object)
+    result = event.getData()
+    if result = invalid or not result.ok then return
+    if not m.expandedDescription.visible then return  ' user closed before we returned
+
+    if result.imdbRating <> "" then m.ratingImdbValue.text = "★ " + result.imdbRating
+    if result.rottenTomatoes <> "" then m.ratingRtValue.text = result.rottenTomatoes
+    if result.metacritic <> "" then m.ratingMetaValue.text = result.metacritic
 end sub
 
 ' "Directed by " + "Steven Spielberg" -> "Directed by Steven Spielberg"; if the
@@ -881,15 +929,15 @@ sub setMetadataFromSession(sessionInfo as Object)
         year: sessionInfo.year,
         duration: sessionInfo.duration,
         contentRating: sessionInfo.contentRating,
-        audienceRating: sessionInfo.audienceRating
+        audienceRating: sessionInfo.audienceRating,
+        imdbId: stringOrEmptyAny(sessionInfo.imdbId)
     }
 
-    ' Combine year, runtime, audience rating, and genres into a single condensed
-    ' stats line. Content rating drops out — already shown as the icon in info.
+    ' Stats line: year · runtime · genres. The Plex audience rating moves to
+    ' the dedicated Ratings section in the expanded modal instead.
     statsParts = []
     if sessionInfo.year <> "" then statsParts.push(sessionInfo.year)
     if sessionInfo.duration > 0 then statsParts.push(formatRuntime(sessionInfo.duration))
-    if sessionInfo.audienceRating <> "" then statsParts.push("★ " + sessionInfo.audienceRating)
     if sessionInfo.genres <> "" then statsParts.push(sessionInfo.genres)
     stats = joinSeparator(statsParts, "  ·  ")
 
@@ -1273,7 +1321,8 @@ function carouselItemAsMetadata(item as Object) as Object
         year: stringOrEmptyAny(item.year),
         duration: intOrZeroAny(item.duration),
         contentRating: stringOrEmptyAny(item.contentRating),
-        audienceRating: stringOrEmptyAny(item.audienceRating)
+        audienceRating: stringOrEmptyAny(item.audienceRating),
+        imdbId: stringOrEmptyAny(item.imdbId)
     }
 end function
 

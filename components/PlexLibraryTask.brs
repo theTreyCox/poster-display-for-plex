@@ -85,6 +85,7 @@ sub fetchLibrary()
                                             cast = collectTagAttributeLimited(itemEl, "Role", 5)
                                             genres = collectTagAttribute(itemEl, "Genre")
                                             audienceRating = stringOrEmpty(itemAttrs["audienceRating"])
+                                            imdbId = extractImdbId(itemEl)
                                             items.push({
                                                 title: title,
                                                 year: year,
@@ -100,7 +101,8 @@ sub fetchLibrary()
                                                 writers: writers,
                                                 cast: cast,
                                                 genres: genres,
-                                                audienceRating: audienceRating
+                                                audienceRating: audienceRating,
+                                                imdbId: imdbId
                                             })
                                         end if
                                     end if
@@ -142,6 +144,20 @@ end function
 function stringOrEmpty(value as Dynamic) as String
     if value = invalid then return ""
     return value
+end function
+
+' Plex returns external IDs in <Guid id="imdb://tt0073195"/> elements.
+function extractImdbId(itemEl as Object) as String
+    guids = itemEl.GetNamedElements("Guid")
+    if guids = invalid or guids.Count() = 0 then return ""
+    for each g in guids
+        a = g.GetAttributes()
+        if a <> invalid then
+            id = stringOrEmpty(a["id"])
+            if Instr(1, id, "imdb://") = 1 then return id.Mid(7)
+        end if
+    end for
+    return ""
 end function
 
 function intOrZero(value as Dynamic) as Integer

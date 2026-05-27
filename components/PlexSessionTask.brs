@@ -26,7 +26,8 @@ sub fetchSession()
         writers: "",
         cast: "",
         genres: "",
-        audienceRating: ""
+        audienceRating: "",
+        imdbId: ""
     }
 
     server = m.top.plexServer
@@ -96,6 +97,7 @@ sub fetchSession()
     cast = collectTagAttributeLimited(media, "Role", 5)
     genres = collectTagAttribute(media, "Genre")
     audienceRating = stringOrEmpty(attrs["audienceRating"])
+    imdbId = extractImdbId(media)
 
     ' Prefer the series poster (portrait) for shows; fall back to thumb for movies
     mainThumb = seriesThumb
@@ -132,9 +134,25 @@ sub fetchSession()
     result.cast = cast
     result.genres = genres
     result.audienceRating = audienceRating
+    result.imdbId = imdbId
 
     m.top.result = result
 end sub
+
+' Plex returns external IDs in <Guid id="imdb://tt0073195"/> elements.
+' Pull out just the IMDB id (with the tt prefix) so we can look it up on OMDB.
+function extractImdbId(media as Object) as String
+    guids = media.GetNamedElements("Guid")
+    if guids = invalid or guids.Count() = 0 then return ""
+    for each g in guids
+        a = g.GetAttributes()
+        if a <> invalid then
+            id = stringOrEmpty(a["id"])
+            if Instr(1, id, "imdb://") = 1 then return id.Mid(7)
+        end if
+    end for
+    return ""
+end function
 
 ' Plex returns tags like <Director tag="Steven Spielberg"/> nested inside the
 ' media element. Collect each child of the given tag name and concatenate the
