@@ -958,9 +958,11 @@ sub onOmdbResult(event as Object)
 end sub
 
 ' Build the modal stats row inside expandedStatsGroup (a plain Group anchored
-' at the box's center, [960, 315]). Children are positioned manually using
-' estimated text widths so the row is reliably centered — LayoutGroup's
-' boundingRect is set async and was leaving the row hanging off the right.
+' at the Stat Box center, [960, 295]). Each child Label is auto-sized
+' (no explicit width) so text never truncates regardless of estimate error.
+' Cursor advance uses a per-character weighted estimator so the visual gap
+' between segments stays roughly even — digits are slightly wider than
+' caps in Oswald-Medium, and spaces/punctuation are narrower.
 sub buildExpandedStats(parts as Object)
     while m.expandedStatsGroup.getChildCount() > 0
         m.expandedStatsGroup.removeChildIndex(0)
@@ -968,19 +970,17 @@ sub buildExpandedStats(parts as Object)
     m.expandedStatsDots = []
     accent = m.accentColors[m.accentColorIndex].hex
 
-    ' Width estimates for Oswald-Medium 28pt segments and Oswald-Bold 36pt dots.
-    ' Slightly tighter than the worst-case render width so cell padding is
-    ' minimal — otherwise long segments (like the genre list) accumulate
-    ' enough centered padding to look like an extra gap before them.
-    segCharW = 13
-    dotW = 18
+    ' Oswald-Bold 36pt "·" glyph rendered width, hand-tuned to match.
+    dotW = 14
     spacing = 14
 
     items = []
     for i = 0 to parts.Count() - 1
-        if i > 0 then items.push({ kind: "dot", text: "·", w: dotW })
+        if i > 0 then
+            items.push({ kind: "dot", text: "·", w: dotW })
+        end if
         text = UCase(parts[i])
-        items.push({ kind: "seg", text: text, w: text.Len() * segCharW })
+        items.push({ kind: "seg", text: text, w: estimateStatTextWidth(text) })
     end for
 
     total = 0
@@ -994,8 +994,8 @@ sub buildExpandedStats(parts as Object)
         node = createObject("roSGNode", "Label")
         node.text = it.text
         node.vertAlign = "center"
-        node.horizAlign = "center"
-        node.width = it.w
+        ' width omitted -> Roku auto-sizes the Label to its text. Prevents
+        ' the truncation we'd otherwise hit when an estimate is too small.
         node.height = 80
         node.translation = [cursor, -40]
         nFont = createObject("roSGNode", "Font")
@@ -1015,6 +1015,45 @@ sub buildExpandedStats(parts as Object)
         cursor = cursor + it.w + spacing
     end for
 end sub
+
+' Estimate the rendered width of an UPPERCASE Oswald-Medium 28pt string.
+' Walks bytes (UTF-8) and weights digits, caps, spaces, punctuation, and
+' multi-byte glyphs separately. Used to choose the cursor advance between
+' auto-sized Labels in the Stat Box — accurate enough that gaps stay
+' visually consistent across short numeric strings and long uppercase phrases.
+function estimateStatTextWidth(text as String) as Integer
+    if text = invalid or text = "" then return 0
+    w = 0
+    n = Len(text)
+    i = 1
+    while i <= n
+        b = Asc(Mid(text, i, 1))
+        if b >= 192 then
+            ' Multi-byte UTF-8 lead — count as one narrow glyph and skip
+            ' the continuation bytes (0x80-0xBF).
+            w = w + 8
+            if b >= 240 then
+                i = i + 3
+            else if b >= 224 then
+                i = i + 2
+            else
+                i = i + 1
+            end if
+        else if b = 32 then
+            w = w + 7   ' space
+        else if b = 44 or b = 46 then
+            w = w + 5   ' , .
+        else if b = 45 or b = 47 then
+            w = w + 8   ' - /
+        else if b >= 48 and b <= 57 then
+            w = w + 15  ' digits — Oswald-Medium digits a touch wider than caps
+        else
+            w = w + 13  ' caps and everything else
+        end if
+        i = i + 1
+    end while
+    return w
+end function
 
 ' Build a credit value LayoutGroup: SmallestSystemFont white name segments
 ' separated by accent-color "·" dot labels. Plex returns the value already
