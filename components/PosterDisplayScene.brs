@@ -35,16 +35,8 @@ sub init()
     m.portraitTotalTimeLabel = m.top.findNode("portraitTotalTimeLabel")
     m.portraitProgressBarFill = m.top.findNode("portraitProgressBarFill")
     m.portraitClockLabel = m.top.findNode("portraitClockLabel")
-    m.landscapeMetadata = m.top.findNode("landscapeMetadata")
-    m.landscapeMetaTagline = m.top.findNode("landscapeMetaTagline")
-    m.landscapeMetaStats = m.top.findNode("landscapeMetaStats")
-    m.landscapeMetaSummary = m.top.findNode("landscapeMetaSummary")
-    m.landscapeMetaReadMoreHint = m.top.findNode("landscapeMetaReadMoreHint")
-    m.portraitMetadata = m.top.findNode("portraitMetadata")
-    m.portraitMetaTagline = m.top.findNode("portraitMetaTagline")
-    m.portraitMetaStats = m.top.findNode("portraitMetaStats")
-    m.portraitMetaSummary = m.top.findNode("portraitMetaSummary")
-    m.portraitMetaReadMoreHint = m.top.findNode("portraitMetaReadMoreHint")
+    m.controlsGuide = m.top.findNode("controlsGuide")
+    m.controlsGuidePanel = m.top.findNode("controlsGuidePanel")
     m.expandedDescription = m.top.findNode("expandedDescription")
     m.expandedTitle = m.top.findNode("expandedTitle")
     m.expandedTagline = m.top.findNode("expandedTagline")
@@ -207,7 +199,6 @@ sub init()
     m.portraitBorderStyleIndex = m.registry.Read("portraitBorderStyleIndex").ToInt()
     if m.portraitBorderStyleIndex < 0 or m.portraitBorderStyleIndex >= m.portraitBorderStyles.Count() then m.portraitBorderStyleIndex = 0
 
-    m.metadataEnabled = (m.registry.Read("metadataEnabled") = "1")
     m.currentSessionMetadata = invalid
     m.transitionInProgress = false
     m.pendingPosterUri = ""
@@ -294,7 +285,7 @@ sub init()
         setStatusMessage("Press OK to enter your Plex server and token.")
     end if
 
-    showModeIndicator(viewModeLabel(m.viewMode) + "  —  Up view • Down border • Right info • * or Left settings • Rwd carousel")
+    showModeIndicator(viewModeLabel(m.viewMode) + "  —  OK details • Up view • Down frame • Right info • Left guide • * settings")
 end sub
 
 function onKeyEvent(key as String, press as Boolean) as Boolean
@@ -330,14 +321,28 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
         return true
     end if
 
-    ' OK opens the expanded description when metadata is visible AND the
-    ' read-more hint is showing (so we don't open an "expanded" modal for
-    ' a 30-word summary that's already fully visible).
-    if key = "OK" and m.metadataEnabled and m.isPlaying then
-        if m.landscapeMetaReadMoreHint.visible or m.portraitMetaReadMoreHint.visible then
-            openExpandedDescription()
+    ' Controls guide overlay: Back or Left closes it; everything else is
+    ' swallowed so the underlying display doesn't react while it's up.
+    if m.controlsGuide.visible then
+        if key = "back" or key = "left" then
+            hideControlsGuide()
             return true
         end if
+        return true
+    end if
+
+    ' OK opens the expanded details modal whenever a poster is showing. When
+    ' nothing is playing yet, OK jumps into settings so a fresh install has an
+    ' obvious entry point (matching the "Press OK to enter..." status prompt).
+    if key = "OK" then
+        if m.isPlaying then
+            openExpandedDescription()
+            return true
+        else if m.settings.plexServer = "" or m.settings.plexToken = "" then
+            openSettingsMenu()
+            return true
+        end if
+        return true
     end if
 
     ' In carousel mode, Play pauses/resumes auto-advance and Fwd manually advances.
@@ -362,7 +367,7 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
         toggleInfo()
         return true
     else if key = "left" then
-        toggleMetadata()
+        showControlsGuide()
         return true
     else if key = "options" then
         openSettingsMenu()
@@ -436,9 +441,6 @@ sub applyPortraitFlip()
     if m.portraitFlip then
         m.portraitChrome.rotation = -1.5707963
         m.portraitChrome.translation = [-425, 425]
-        ' Metadata sits at viewer-TOP — mirrored translation from the chrome strip.
-        m.portraitMetadata.rotation = -1.5707963
-        m.portraitMetadata.translation = [1200, 360]
         ' The 1080×1920 portrait modal: same translation works for both
         ' rotations (the rotated bounding box is symmetric); only the content
         ' orientation flips so pre-rotation top lands on the viewer's top.
@@ -446,8 +448,6 @@ sub applyPortraitFlip()
     else
         m.portraitChrome.rotation = 1.5707963
         m.portraitChrome.translation = [1265, 425]
-        m.portraitMetadata.rotation = 1.5707963
-        m.portraitMetadata.translation = [-360, 360]
         m.portraitExpandedDescription.rotation = 1.5707963
     end if
 end sub
@@ -478,12 +478,11 @@ sub applyPlainViewMode()
     if m.viewMode = 0 then
         m.poster.width = 720
         m.poster.height = 1080
-        ' Info strip pins to x=0..400, metadata strip pins to x=1520..1920.
-        ' Center the poster in whatever's free between them based on what's on.
+        ' Info strip pins to x=0..400. Center the poster in whatever's free to
+        ' the right of it.
         leftEdge = 0
         rightEdge = 1920
         if m.infoEnabled then leftEdge = 400
-        if m.metadataEnabled and m.isPlaying then rightEdge = 1520
         m.poster.translation = [(leftEdge + rightEdge - 720) / 2, 0]
         m.poster.scaleRotateCenter = [360, 540]
         m.poster.rotation = 0
@@ -494,20 +493,9 @@ sub applyPlainViewMode()
         m.poster.scaleRotateCenter = [960, 1440]
         m.poster.rotation = 0
     else if m.viewMode = 2 then
-        ' Portrait Fit. The poster needs to fit between whichever panels are
-        ' visible: metadata at viewer-top (280px), info at viewer-bottom (230px).
-        ' Pick width/height + viewer center based on which panels are active so
-        ' the poster always sits cleanly in the available area.
-        metaActive = m.metadataEnabled and m.isPlaying
-        infoActive = m.infoEnabled
-        if metaActive and infoActive then
-            ' Sandwiched between meta (top 360) and info (bottom 230). 1330 tall.
-            ' 2:3 aspect: width = 886.
-            setPortraitFitPoster(886, 1330, 1025)
-        else if metaActive then
-            ' Meta only: 1560 tall available (360..1920). 2:3 width = 1040.
-            setPortraitFitPoster(1040, 1560, 1140)
-        else if infoActive then
+        ' Portrait Fit. The poster fits above the info strip (bottom 230px in
+        ' viewer space) when info is on, else uses the full height.
+        if m.infoEnabled then
             setPortraitFitPoster(1080, 1620, 830)
         else
             setPortraitFitPoster(1080, 1620, 960)
@@ -521,14 +509,7 @@ sub applyPlainViewMode()
         m.poster.rotation = portraitRotation()
         contentAspect = 2.0 / 3.0  ' W:H for Plex movie posters
         viewerW = 1080
-        metaActive = m.metadataEnabled and m.isPlaying
-        if metaActive and m.infoEnabled then
-            availTop = 360
-            availBottom = 1690
-        else if metaActive then
-            availTop = 360
-            availBottom = 1920
-        else if m.infoEnabled then
+        if m.infoEnabled then
             availTop = 0
             availBottom = 1690
         else
@@ -747,16 +728,12 @@ sub cycleTransitionStyle()
 end sub
 
 ' Apply the chosen accent (theme) color to every UI element that uses it:
-' progress bar fills, metadata taglines, Read More hints, modal tagline, and
-' the modal's credit labels (Director:, Writer:, etc).
+' progress bar fills, the modal tagline, and the modal's credit labels
+' (Director:, Writer:, etc) plus rating values/underlines.
 sub applyAccentColor()
     color = m.accentColors[m.accentColorIndex].hex
     m.progressBarFill.color = color
     m.portraitProgressBarFill.color = color
-    m.landscapeMetaTagline.color = color
-    m.portraitMetaTagline.color = color
-    m.landscapeMetaReadMoreHint.color = color
-    m.portraitMetaReadMoreHint.color = color
     m.expandedTagline.color = color
     m.expandedDirectorLabel.color = color
     m.expandedWriterLabel.color = color
@@ -916,19 +893,20 @@ sub togglePortraitPosterBorder()
     applyViewMode()
 end sub
 
-' Left-button metadata overlay. In Fit modes the poster shifts to make room
-' for the metadata panel; in Fill modes the panel floats translucently over
-' the poster (so the artwork keeps its bleed).
-sub toggleMetadata()
-    m.metadataEnabled = not m.metadataEnabled
-    state = "0"
-    if m.metadataEnabled then state = "1"
-    m.registry.Write("metadataEnabled", state)
-    m.registry.Flush()
-    applyViewMode()
-    label = "Metadata: Off"
-    if m.metadataEnabled then label = "Metadata: On"
-    showModeIndicator(label)
+' Left-button controls guide. A static button reference overlay. The inner
+' panel rotates ±90° in portrait so it reads upright for the TV mount.
+sub showControlsGuide()
+    isLandscape = (m.viewMode = 0 or m.viewMode = 1)
+    if isLandscape then
+        m.controlsGuidePanel.rotation = 0
+    else
+        m.controlsGuidePanel.rotation = portraitRotation()
+    end if
+    m.controlsGuide.visible = true
+end sub
+
+sub hideControlsGuide()
+    m.controlsGuide.visible = false
 end sub
 
 ' Open the full-screen "Read more" modal with the current session's full
@@ -942,18 +920,16 @@ sub openExpandedDescription()
     if isLandscape then
         refs = m.landscapeModalRefs
         title = m.nowPlayingTitle.text
-        taglineSource = m.landscapeMetaTagline.text
     else
         refs = m.portraitModalRefs
         title = m.portraitNowPlayingTitle.text
-        taglineSource = m.portraitMetaTagline.text
     end if
     m.activeModalRefs = refs
 
     meta = m.currentSessionMetadata
 
     refs.title.text = UCase(title)
-    refs.tagline.text = taglineSource  ' already uppercased by chrome populator
+    refs.tagline.text = UCase(meta.tagline)
 
     ' Stat Box: UPPERCASE, includes content rating between year and runtime.
     modalParts = []
@@ -1315,8 +1291,8 @@ sub closeExpandedDescription()
     end if
 end sub
 
-' Snapshot the current session's metadata so we can show it whenever the user
-' toggles the panel — even between Plex poll refreshes.
+' Snapshot the current session's metadata so the expanded details modal can
+' show it on demand — even between Plex poll refreshes.
 sub setMetadataFromSession(sessionInfo as Object)
     m.currentSessionMetadata = {
         title: stringOrEmptyAny(sessionInfo.title),
@@ -1336,33 +1312,6 @@ sub setMetadataFromSession(sessionInfo as Object)
         imdbId: stringOrEmptyAny(sessionInfo.imdbId),
         artUri: stringOrEmptyAny(sessionInfo.artUri)
     }
-
-    ' Stats line: year · runtime · genres. The Plex audience rating moves to
-    ' the dedicated Ratings section in the expanded modal instead.
-    statsParts = []
-    if sessionInfo.year <> "" then statsParts.push(sessionInfo.year)
-    if sessionInfo.duration > 0 then statsParts.push(formatRuntime(sessionInfo.duration))
-    if sessionInfo.genres <> "" then statsParts.push(sessionInfo.genres)
-    stats = joinSeparator(statsParts, "  ·  ")
-
-    taglineUpper = ""
-    if sessionInfo.tagline <> "" then taglineUpper = UCase(sessionInfo.tagline)
-
-    ' Landscape panel
-    m.landscapeMetaTagline.text = taglineUpper
-    m.landscapeMetaStats.text = stats
-    m.landscapeMetaSummary.text = sessionInfo.summary
-
-    ' Portrait panel
-    m.portraitMetaTagline.text = taglineUpper
-    m.portraitMetaStats.text = stats
-    m.portraitMetaSummary.text = sessionInfo.summary
-
-    ' Read More always available — there's always something extra to see in
-    ' the modal (full slogan, cast, writers, etc.) even when the panel summary
-    ' looks complete.
-    m.landscapeMetaReadMoreHint.visible = true
-    m.portraitMetaReadMoreHint.visible = true
 end sub
 
 ' Format a duration in ms as "Xh Ym" or "Ym" if under an hour.
@@ -1373,15 +1322,6 @@ function formatRuntime(ms as Integer) as String
     m_ = totalMins mod 60
     if m_ = 0 then return h.ToStr() + "h"
     return h.ToStr() + "h " + m_.ToStr() + "m"
-end function
-
-function joinSeparator(parts as Object, sep as String) as String
-    if parts = invalid or parts.Count() = 0 then return ""
-    out = parts[0]
-    for i = 1 to parts.Count() - 1
-        out = out + sep + parts[i]
-    end for
-    return out
 end function
 
 ' Render a thick black matte around the portrait poster when enabled. The matte
@@ -2401,12 +2341,6 @@ sub updateInfoVisibility()
 
     ' Episode thumbnail (TV episodes in landscape mode when info is on)
     m.episodePosterGroup.visible = m.infoEnabled and isLandscape and m.hasEpisodePoster
-
-    ' Metadata panel (Left key toggle). Only meaningful when something's actually
-    ' playing — otherwise there's nothing to describe.
-    metadataActive = m.metadataEnabled and m.isPlaying
-    m.landscapeMetadata.visible = metadataActive and isLandscape
-    m.portraitMetadata.visible = metadataActive and not isLandscape
 
     ' App logo — only when info is showing in landscape, hidden when border or Settings would overlap
     m.appLogo.visible = chromeVisible and isLandscape and not m.borderEnabled and not needsSetup
