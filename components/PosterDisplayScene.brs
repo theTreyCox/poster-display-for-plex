@@ -255,7 +255,10 @@ sub init()
         ratingPlexValue: m.ratingPlexValue, ratingImdbValue: m.ratingImdbValue,
         ratingRtValue: m.ratingRtValue, ratingMetaValue: m.ratingMetaValue,
         ratingPlexUnderline: m.ratingPlexUnderline, ratingImdbUnderline: m.ratingImdbUnderline,
-        ratingRtUnderline: m.ratingRtUnderline, ratingMetaUnderline: m.ratingMetaUnderline
+        ratingRtUnderline: m.ratingRtUnderline, ratingMetaUnderline: m.ratingMetaUnderline,
+        ' Max width a credit value LayoutGroup may occupy (value start x → modal
+        ' content edge). Used by buildCreditValue to truncate long cast lists.
+        maxValueWidth: 1620
     }
     m.portraitModalRefs = {
         root: m.portraitExpandedDescription, backdrop: m.portraitExpandedBackdrop,
@@ -269,7 +272,8 @@ sub init()
         ratingPlexValue: m.portraitRatingPlexValue, ratingImdbValue: m.portraitRatingImdbValue,
         ratingRtValue: m.portraitRatingRtValue, ratingMetaValue: m.portraitRatingMetaValue,
         ratingPlexUnderline: m.portraitRatingPlexUnderline, ratingImdbUnderline: m.portraitRatingImdbUnderline,
-        ratingRtUnderline: m.portraitRatingRtUnderline, ratingMetaUnderline: m.portraitRatingMetaUnderline
+        ratingRtUnderline: m.portraitRatingRtUnderline, ratingMetaUnderline: m.portraitRatingMetaUnderline,
+        maxValueWidth: 780
     }
     m.activeModalRefs = invalid
 
@@ -435,11 +439,16 @@ sub applyPortraitFlip()
         ' Metadata sits at viewer-TOP — mirrored translation from the chrome strip.
         m.portraitMetadata.rotation = -1.5707963
         m.portraitMetadata.translation = [1200, 360]
+        ' The 1080×1920 portrait modal: same translation works for both
+        ' rotations (the rotated bounding box is symmetric); only the content
+        ' orientation flips so pre-rotation top lands on the viewer's top.
+        m.portraitExpandedDescription.rotation = -1.5707963
     else
         m.portraitChrome.rotation = 1.5707963
         m.portraitChrome.translation = [1265, 425]
         m.portraitMetadata.rotation = 1.5707963
         m.portraitMetadata.translation = [-360, 360]
+        m.portraitExpandedDescription.rotation = 1.5707963
     end if
 end sub
 
@@ -958,11 +967,11 @@ sub openExpandedDescription()
     ' Fresh credit-dot tracking for the just-opened modal — every credit row
     ' rebuilds its child labels below.
     m.expandedCreditDots = []
-    setCreditPair(refs.directorLabel, refs.directorValue, meta.directors)
-    setCreditPair(refs.writerLabel, refs.writerValue, meta.writers)
-    setCreditPair(refs.castLabel, refs.castValue, meta.cast)
-    setCreditPair(refs.studioLabel, refs.studioValue, meta.studio)
-    setCreditPair(refs.releasedLabel, refs.releasedValue, formatReleaseDate(meta.releaseDate))
+    setCreditPair(refs.directorLabel, refs.directorValue, meta.directors, refs.maxValueWidth)
+    setCreditPair(refs.writerLabel, refs.writerValue, meta.writers, refs.maxValueWidth)
+    setCreditPair(refs.castLabel, refs.castValue, meta.cast, refs.maxValueWidth)
+    setCreditPair(refs.studioLabel, refs.studioValue, meta.studio, refs.maxValueWidth)
+    setCreditPair(refs.releasedLabel, refs.releasedValue, formatReleaseDate(meta.releaseDate), refs.maxValueWidth)
 
     refs.summary.text = meta.summary
 
@@ -1143,15 +1152,41 @@ end function
 ' Build a credit value LayoutGroup: SmallestSystemFont white name segments
 ' separated by accent-color "·" dot labels. Plex returns the value already
 ' joined with " · " — split on that delimiter so each dot can be colored
-' independently of the names (single-color Labels can't mix).
-sub buildCreditValue(group as Object, value as String)
+' independently of the names (single-color Labels can't mix). Drops parts
+' from the tail and appends an ellipsis when the row would exceed maxWidth
+' (so a long cast list doesn't run past the 60px outer gutter in portrait).
+sub buildCreditValue(group as Object, value as String, maxWidth as Integer)
     while group.getChildCount() > 0
         group.removeChildIndex(0)
     end while
     if value = "" then return
     parts = splitDotSeparator(value)
     accent = m.accentColors[m.accentColorIndex].hex
+
+    ' Width estimates for SmallestSystemFont names and Oswald-Bold 36 "·" dots.
+    ' Conservative (slightly oversized) so we truncate before overflowing
+    ' rather than after.
+    dotW = 18
+    spacing = 12
+    ellipsisW = 22
+    runningW = 0
+    truncated = false
+
     for i = 0 to parts.Count() - 1
+        nameW = estimateCreditNameWidth(parts[i])
+        if i > 0 then
+            addW = spacing + dotW + spacing + nameW
+        else
+            addW = nameW
+        end if
+        ' Reserve ellipsis space when this isn't the last part we'd render.
+        reserve = 0
+        if i < parts.Count() - 1 then reserve = spacing + ellipsisW
+        if maxWidth > 0 and runningW + addW + reserve > maxWidth then
+            truncated = true
+            exit for
+        end if
+
         if i > 0 then
             dot = createObject("roSGNode", "Label")
             dot.color = accent
@@ -1172,8 +1207,55 @@ sub buildCreditValue(group as Object, value as String)
         seg.vertAlign = "center"
         seg.font = "font:SmallestSystemFont"
         group.appendChild(seg)
+        runningW = runningW + addW
     end for
+
+    if truncated then
+        ell = createObject("roSGNode", "Label")
+        ell.color = "0xE5E5E5FF"
+        ell.text = "…"
+        ell.vertAlign = "center"
+        ell.font = "font:SmallestSystemFont"
+        group.appendChild(ell)
+    end if
 end sub
+
+' Rough width estimator for a SmallestSystemFont credit name. Walks bytes
+' (UTF-8) and weights uppercase/lowercase/digits/spaces/punctuation. Used
+' only for truncation decisions, so a slight over-estimate is the safe bias.
+function estimateCreditNameWidth(text as String) as Integer
+    if text = invalid or text = "" then return 0
+    w = 0
+    n = Len(text)
+    i = 1
+    while i <= n
+        b = Asc(Mid(text, i, 1))
+        if b >= 192 then
+            w = w + 8
+            if b >= 240 then
+                i = i + 3
+            else if b >= 224 then
+                i = i + 2
+            else
+                i = i + 1
+            end if
+        else if b = 32 then
+            w = w + 5
+        else if b = 44 or b = 46 then
+            w = w + 4
+        else if b = 45 or b = 47 or b = 39 then
+            w = w + 5
+        else if b >= 48 and b <= 57 then
+            w = w + 10
+        else if b >= 65 and b <= 90 then
+            w = w + 11
+        else
+            w = w + 9
+        end if
+        i = i + 1
+    end while
+    return w
+end function
 
 ' Split a Plex-joined string ("a · b · c") into its parts. Tokenize() can't
 ' be used because the middle-dot is multi-byte UTF-8; do an Instr-based scan
@@ -1195,9 +1277,11 @@ function splitDotSeparator(s as String) as Object
 end function
 
 ' Set a credit pair: build its value LayoutGroup and show/hide both label
-' and value together based on whether the value is non-empty.
-sub setCreditPair(labelNode as Object, valueNode as Object, value as String)
-    buildCreditValue(valueNode, value)
+' and value together based on whether the value is non-empty. maxWidth caps
+' the rendered value width so long lists truncate with an ellipsis instead
+' of running off the modal's 60px outer gutter.
+sub setCreditPair(labelNode as Object, valueNode as Object, value as String, maxWidth as Integer)
+    buildCreditValue(valueNode, value, maxWidth)
     show = (value <> "")
     labelNode.visible = show
     valueNode.visible = show
