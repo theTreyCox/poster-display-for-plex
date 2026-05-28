@@ -507,23 +507,21 @@ sub applyPlainViewMode()
         ' Landscape - Art: fill the screen with the wide landscape art. The image
         ' is the landscape art (activePosterUri) when the item has it; an art-less
         ' item shows the centre band of the portrait poster (the "fill" tradeoff).
-        ' When the info strip (left 400px) is on, shrink + shift the art into the
-        ' area to its right so the strip pushes the art over instead of overlaying
-        ' it — mirroring how the portrait poster behaves. zoomToFill keeps aspect
-        ' and crops to whatever box it lands in.
-        if m.infoEnabled then
-            m.poster.width = 1520
-            m.poster.height = 1080
-            m.poster.translation = [400, 0]
-            m.poster.scaleRotateCenter = [760, 540]
-        else
-            m.poster.width = 1920
-            m.poster.height = 1080
-            m.poster.translation = [0, 0]
-            m.poster.scaleRotateCenter = [960, 540]
-        end if
+        ' The poster keeps a constant 1920×1080 size (zoomToFill keeps aspect and
+        ' crops). When the info strip (left 400px) is on, the art is shifted right
+        ' so its centre lines up with the area to the strip's right (x=400..1920,
+        ' centre 1160 → offset 200). The strip + screen edge crop the overflow.
+        ' Only the offset changes — never the size — so the image never squeezes.
+        m.poster.width = 1920
+        m.poster.height = 1080
+        m.poster.scaleRotateCenter = [960, 540]
         m.poster.rotation = 0
         m.poster.loadDisplayMode = "zoomToFill"
+        if m.infoEnabled then
+            m.poster.translation = [200, 0]
+        else
+            m.poster.translation = [0, 0]
+        end if
     else if m.viewMode = 2 then
         ' Portrait Fit. The poster fits above the info strip (bottom 230px in
         ' viewer space) when info is on, else uses the full height.
