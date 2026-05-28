@@ -504,15 +504,24 @@ sub applyPlainViewMode()
         m.poster.scaleRotateCenter = [360, 540]
         m.poster.rotation = 0
     else if m.viewMode = 1 then
-        ' Landscape - Art: fill the 16:9 screen. The image is the wide landscape
-        ' art (activePosterUri) when the item has it; geometry stays constant so
-        ' carousel items with/without art don't leave stale sizing. zoomToFill
-        ' preserves aspect and crops — for an art-less item it shows the centre
-        ' band of the portrait poster, the same "fill" tradeoff as before.
-        m.poster.width = 1920
-        m.poster.height = 1080
-        m.poster.translation = [0, 0]
-        m.poster.scaleRotateCenter = [960, 540]
+        ' Landscape - Art: fill the screen with the wide landscape art. The image
+        ' is the landscape art (activePosterUri) when the item has it; an art-less
+        ' item shows the centre band of the portrait poster (the "fill" tradeoff).
+        ' When the info strip (left 400px) is on, shrink + shift the art into the
+        ' area to its right so the strip pushes the art over instead of overlaying
+        ' it — mirroring how the portrait poster behaves. zoomToFill keeps aspect
+        ' and crops to whatever box it lands in.
+        if m.infoEnabled then
+            m.poster.width = 1520
+            m.poster.height = 1080
+            m.poster.translation = [400, 0]
+            m.poster.scaleRotateCenter = [760, 540]
+        else
+            m.poster.width = 1920
+            m.poster.height = 1080
+            m.poster.translation = [0, 0]
+            m.poster.scaleRotateCenter = [960, 540]
+        end if
         m.poster.rotation = 0
         m.poster.loadDisplayMode = "zoomToFill"
     else if m.viewMode = 2 then
