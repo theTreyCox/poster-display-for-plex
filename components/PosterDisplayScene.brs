@@ -200,6 +200,10 @@ sub init()
     if m.portraitBorderStyleIndex < 0 or m.portraitBorderStyleIndex >= m.portraitBorderStyles.Count() then m.portraitBorderStyleIndex = 0
 
     m.currentSessionMetadata = invalid
+    ' Current item's two source images. Landscape-Fill (viewMode 1, no border)
+    ' shows the wide art; every other mode shows the portrait poster.
+    m.currentPosterUri = ""
+    m.currentArtUri = ""
     m.transitionInProgress = false
     m.pendingPosterUri = ""
     m.pendingBackgroundUri = ""
@@ -426,12 +430,25 @@ sub applyViewMode()
     isLandscape = (m.viewMode = 0 or m.viewMode = 1)
     ' Blurred ambient backdrop only in landscape modes
     m.backgroundPoster.visible = isLandscape and (m.backgroundPoster.uri <> "")
+    ' Snap the poster to the image the current mode wants (portrait poster vs
+    ' landscape art) without animating — a mode switch is an instant change.
+    desiredUri = activePosterUri()
+    if desiredUri <> "" and m.poster.uri <> desiredUri then m.poster.uri = desiredUri
     if isLandscape then
         m.settingsButton.setFocus(true)
     else
         m.portraitSettingsButton.setFocus(true)
     end if
 end sub
+
+' The image the active view mode should display. Landscape-Fill (viewMode 1)
+' shows the wide landscape art when available; bordered modes and every other
+' view mode show the portrait poster. Falls back to the portrait poster when
+' the item has no landscape art.
+function activePosterUri() as String
+    if m.viewMode = 1 and not m.borderEnabled and m.currentArtUri <> "" then return m.currentArtUri
+    return m.currentPosterUri
+end function
 
 ' Position and rotate the portrait chrome strip so it lands at viewer-bottom
 ' for the user's TV mount direction. m.portraitFlip = false (default) targets
@@ -487,11 +504,17 @@ sub applyPlainViewMode()
         m.poster.scaleRotateCenter = [360, 540]
         m.poster.rotation = 0
     else if m.viewMode = 1 then
+        ' Landscape - Art: fill the 16:9 screen. The image is the wide landscape
+        ' art (activePosterUri) when the item has it; geometry stays constant so
+        ' carousel items with/without art don't leave stale sizing. zoomToFill
+        ' preserves aspect and crops — for an art-less item it shows the centre
+        ' band of the portrait poster, the same "fill" tradeoff as before.
         m.poster.width = 1920
-        m.poster.height = 2880
-        m.poster.translation = [0, -900]
-        m.poster.scaleRotateCenter = [960, 1440]
+        m.poster.height = 1080
+        m.poster.translation = [0, 0]
+        m.poster.scaleRotateCenter = [960, 540]
         m.poster.rotation = 0
+        m.poster.loadDisplayMode = "zoomToFill"
     else if m.viewMode = 2 then
         ' Portrait Fit. The poster fits above the info strip (bottom 230px in
         ' viewer space) when info is on, else uses the full height.
@@ -569,8 +592,8 @@ sub applyBorderedViewMode()
 end sub
 
 function viewModeLabel(mode as Integer) as String
-    if mode = 0 then return "Landscape - Fit"
-    if mode = 1 then return "Landscape - Fill"
+    if mode = 0 then return "Landscape - Poster"
+    if mode = 1 then return "Landscape - Art"
     if mode = 2 then return "Portrait - Fit"
     if mode = 3 then return "Portrait - Fill"
     return ""
@@ -1630,7 +1653,9 @@ sub showNextCarouselPoster()
     idx = rnd(m.carouselPosters.Count()) - 1
     item = m.carouselPosters[idx]
     if item = invalid then return
-    transitionPoster(item.posterUri, item.backgroundUri)
+    m.currentPosterUri = item.posterUri
+    m.currentArtUri = stringOrEmptyAny(item.artUri)
+    transitionPoster(activePosterUri(), item.backgroundUri)
     isLandscape = (m.viewMode = 0 or m.viewMode = 1)
     m.backgroundPoster.visible = isLandscape and (item.backgroundUri <> "")
     itemYear = ""
@@ -2056,7 +2081,9 @@ sub onSessionResult(event as Object)
         return
     end if
 
-    transitionPoster(sessionInfo.posterUri, sessionInfo.backgroundUri)
+    m.currentPosterUri = sessionInfo.posterUri
+    m.currentArtUri = stringOrEmptyAny(sessionInfo.artUri)
+    transitionPoster(activePosterUri(), sessionInfo.backgroundUri)
     isLandscape = (m.viewMode = 0 or m.viewMode = 1)
     m.backgroundPoster.visible = isLandscape and (sessionInfo.backgroundUri <> "")
     setNowPlayingTitle(sessionInfo.title, sessionInfo.showName, sessionInfo.year, sessionInfo.contentRating)
