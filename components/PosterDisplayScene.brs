@@ -975,15 +975,21 @@ sub openExpandedDescription()
 
     refs.summary.text = meta.summary
 
-    ' Modal backdrop: prefer Plex's landscape art (already 16:9-ish, so
-    ' zoomToFill crops minimally while preserving aspect). Fall back to the
-    ' portrait poster when no art is available — that path letterboxes via
-    ' scaleToFit so it never stretches.
-    if meta.artUri <> "" then
-        refs.backdrop.loadDisplayMode = "zoomToFill"
-        refs.backdrop.uri = meta.artUri
+    ' Modal backdrop. The landscape modal prefers Plex's landscape art
+    ' (16:9-ish, so zoomToFill crops minimally), falling back to the portrait
+    ' poster letterboxed via scaleToFit. The portrait modal uses the portrait
+    ' poster itself (~2:3, close to the 9:16 backdrop) so zoomToFill crops only
+    ' slightly — the landscape art would stretch here.
+    if isLandscape then
+        if meta.artUri <> "" then
+            refs.backdrop.loadDisplayMode = "zoomToFill"
+            refs.backdrop.uri = meta.artUri
+        else
+            refs.backdrop.loadDisplayMode = "scaleToFit"
+            refs.backdrop.uri = m.poster.uri
+        end if
     else
-        refs.backdrop.loadDisplayMode = "scaleToFit"
+        refs.backdrop.loadDisplayMode = "zoomToFill"
         refs.backdrop.uri = m.poster.uri
     end if
 
