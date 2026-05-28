@@ -888,8 +888,9 @@ sub openExpandedDescription()
 
     m.expandedSummary.text = meta.summary
 
-    ' Subtle blurred poster behind the modal — same URI the chrome backdrop uses.
-    m.expandedBackdrop.uri = m.backgroundPoster.uri
+    ' Modal backdrop uses the unblurred main poster URI (m.backgroundPoster
+    ' carries Plex's blurred variant; m.poster has the sharp original).
+    m.expandedBackdrop.uri = m.poster.uri
 
     ' Ratings section: Plex is populated immediately from the session
     ' metadata; IMDb / Rotten Tomatoes / Metacritic come from OMDB and arrive

@@ -583,7 +583,7 @@
                 width="1920"
                 height="1080"
                 translation="[0, 0]"
-                opacity="0.12"
+                opacity="0.11"
                 loadDisplayMode="zoomToFill" />
             <Label
                 id="expandedTitle"
