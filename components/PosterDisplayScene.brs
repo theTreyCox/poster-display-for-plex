@@ -72,6 +72,34 @@ sub init()
     m.ratingRtUnderline = m.top.findNode("ratingRtUnderline")
     m.ratingMetaUnderline = m.top.findNode("ratingMetaUnderline")
 
+    ' Portrait modal — mirror of the landscape modal, rotated 90° CW. Same
+    ' field IDs but with a "portrait" prefix; openExpandedDescription picks
+    ' the right ref set based on viewMode.
+    m.portraitExpandedDescription = m.top.findNode("portraitExpandedDescription")
+    m.portraitExpandedTitle = m.top.findNode("portraitExpandedTitle")
+    m.portraitExpandedTagline = m.top.findNode("portraitExpandedTagline")
+    m.portraitExpandedStatsGroup = m.top.findNode("portraitExpandedStatsGroup")
+    m.portraitExpandedDirectorLabel = m.top.findNode("portraitExpandedDirectorLabel")
+    m.portraitExpandedDirectorValue = m.top.findNode("portraitExpandedDirectorValue")
+    m.portraitExpandedWriterLabel = m.top.findNode("portraitExpandedWriterLabel")
+    m.portraitExpandedWriterValue = m.top.findNode("portraitExpandedWriterValue")
+    m.portraitExpandedCastLabel = m.top.findNode("portraitExpandedCastLabel")
+    m.portraitExpandedCastValue = m.top.findNode("portraitExpandedCastValue")
+    m.portraitExpandedStudioLabel = m.top.findNode("portraitExpandedStudioLabel")
+    m.portraitExpandedStudioValue = m.top.findNode("portraitExpandedStudioValue")
+    m.portraitExpandedReleasedLabel = m.top.findNode("portraitExpandedReleasedLabel")
+    m.portraitExpandedReleasedValue = m.top.findNode("portraitExpandedReleasedValue")
+    m.portraitExpandedSummary = m.top.findNode("portraitExpandedSummary")
+    m.portraitExpandedBackdrop = m.top.findNode("portraitExpandedBackdrop")
+    m.portraitRatingPlexValue = m.top.findNode("portraitRatingPlexValue")
+    m.portraitRatingImdbValue = m.top.findNode("portraitRatingImdbValue")
+    m.portraitRatingRtValue = m.top.findNode("portraitRatingRtValue")
+    m.portraitRatingMetaValue = m.top.findNode("portraitRatingMetaValue")
+    m.portraitRatingPlexUnderline = m.top.findNode("portraitRatingPlexUnderline")
+    m.portraitRatingImdbUnderline = m.top.findNode("portraitRatingImdbUnderline")
+    m.portraitRatingRtUnderline = m.top.findNode("portraitRatingRtUnderline")
+    m.portraitRatingMetaUnderline = m.top.findNode("portraitRatingMetaUnderline")
+
     ' OMDB integration. Hardcoded key for now; could move to Settings later.
     m.omdbApiKey = "89ae9603"
     m.portraitPosterBorderGroup = m.top.findNode("portraitPosterBorderGroup")
@@ -212,6 +240,39 @@ sub init()
     m.carouselTimer.observeField("fire", "onCarouselTick")
     m.plexSignInPollTimer.observeField("fire", "onPlexSignInPollTick")
 
+    ' Bundle each modal's node refs into an AA so openExpandedDescription
+    ' can populate whichever set matches the current orientation via a
+    ' single populateModal() function instead of two near-duplicate paths.
+    m.landscapeModalRefs = {
+        root: m.expandedDescription, backdrop: m.expandedBackdrop,
+        title: m.expandedTitle, tagline: m.expandedTagline,
+        statsGroup: m.expandedStatsGroup, summary: m.expandedSummary,
+        directorLabel: m.expandedDirectorLabel, directorValue: m.expandedDirectorValue,
+        writerLabel: m.expandedWriterLabel, writerValue: m.expandedWriterValue,
+        castLabel: m.expandedCastLabel, castValue: m.expandedCastValue,
+        studioLabel: m.expandedStudioLabel, studioValue: m.expandedStudioValue,
+        releasedLabel: m.expandedReleasedLabel, releasedValue: m.expandedReleasedValue,
+        ratingPlexValue: m.ratingPlexValue, ratingImdbValue: m.ratingImdbValue,
+        ratingRtValue: m.ratingRtValue, ratingMetaValue: m.ratingMetaValue,
+        ratingPlexUnderline: m.ratingPlexUnderline, ratingImdbUnderline: m.ratingImdbUnderline,
+        ratingRtUnderline: m.ratingRtUnderline, ratingMetaUnderline: m.ratingMetaUnderline
+    }
+    m.portraitModalRefs = {
+        root: m.portraitExpandedDescription, backdrop: m.portraitExpandedBackdrop,
+        title: m.portraitExpandedTitle, tagline: m.portraitExpandedTagline,
+        statsGroup: m.portraitExpandedStatsGroup, summary: m.portraitExpandedSummary,
+        directorLabel: m.portraitExpandedDirectorLabel, directorValue: m.portraitExpandedDirectorValue,
+        writerLabel: m.portraitExpandedWriterLabel, writerValue: m.portraitExpandedWriterValue,
+        castLabel: m.portraitExpandedCastLabel, castValue: m.portraitExpandedCastValue,
+        studioLabel: m.portraitExpandedStudioLabel, studioValue: m.portraitExpandedStudioValue,
+        releasedLabel: m.portraitExpandedReleasedLabel, releasedValue: m.portraitExpandedReleasedValue,
+        ratingPlexValue: m.portraitRatingPlexValue, ratingImdbValue: m.portraitRatingImdbValue,
+        ratingRtValue: m.portraitRatingRtValue, ratingMetaValue: m.portraitRatingMetaValue,
+        ratingPlexUnderline: m.portraitRatingPlexUnderline, ratingImdbUnderline: m.portraitRatingImdbUnderline,
+        ratingRtUnderline: m.portraitRatingRtUnderline, ratingMetaUnderline: m.portraitRatingMetaUnderline
+    }
+    m.activeModalRefs = invalid
+
     applyAccentColor()
     applyViewMode()
     startPortraitBorderCutoutDetection()
@@ -257,7 +318,7 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
 
     ' Expanded "Read more" description modal: Back closes; all other keys
     ' are swallowed so they don't drive the underlying display while reading.
-    if m.expandedDescription.visible then
+    if m.expandedDescription.visible or m.portraitExpandedDescription.visible then
         if key = "back" then
             closeExpandedDescription()
             return true
@@ -701,6 +762,21 @@ sub applyAccentColor()
     m.ratingImdbUnderline.color = color
     m.ratingRtUnderline.color = color
     m.ratingMetaUnderline.color = color
+    ' Portrait modal mirror
+    m.portraitExpandedTagline.color = color
+    m.portraitExpandedDirectorLabel.color = color
+    m.portraitExpandedWriterLabel.color = color
+    m.portraitExpandedCastLabel.color = color
+    m.portraitExpandedStudioLabel.color = color
+    m.portraitExpandedReleasedLabel.color = color
+    m.portraitRatingPlexValue.color = color
+    m.portraitRatingImdbValue.color = color
+    m.portraitRatingRtValue.color = color
+    m.portraitRatingMetaValue.color = color
+    m.portraitRatingPlexUnderline.color = color
+    m.portraitRatingImdbUnderline.color = color
+    m.portraitRatingRtUnderline.color = color
+    m.portraitRatingMetaUnderline.color = color
     if m.expandedStatsDots <> invalid then
         for each dot in m.expandedStatsDots
             dot.color = color
@@ -847,80 +923,78 @@ sub toggleMetadata()
 end sub
 
 ' Open the full-screen "Read more" modal with the current session's full
-' description + a recap of the chrome (title, tagline, stats). Pauses the
-' carousel timer so it doesn't advance behind the modal.
+' description + a recap of the chrome (title, tagline, stats). Picks the
+' landscape or portrait modal based on viewMode and populates it via the
+' refs map. Pauses the carousel timer so it doesn't advance behind the modal.
 sub openExpandedDescription()
     if m.currentSessionMetadata = invalid then return
 
-    ' Recover the current title from whichever chrome label is on screen.
     isLandscape = (m.viewMode = 0 or m.viewMode = 1)
     if isLandscape then
+        refs = m.landscapeModalRefs
         title = m.nowPlayingTitle.text
+        taglineSource = m.landscapeMetaTagline.text
     else
+        refs = m.portraitModalRefs
         title = m.portraitNowPlayingTitle.text
+        taglineSource = m.portraitMetaTagline.text
     end if
+    m.activeModalRefs = refs
 
     meta = m.currentSessionMetadata
 
-    m.expandedTitle.text = UCase(title)
-    m.expandedTagline.text = m.landscapeMetaTagline.text  ' already uppercased
+    refs.title.text = UCase(title)
+    refs.tagline.text = taglineSource  ' already uppercased by chrome populator
 
-    ' Modal stats line: UPPERCASE and includes the content rating between year
-    ' and runtime. The metadata strip stats (no rating, mixed case) stays as-is.
-    ' Build into a LayoutGroup with white text labels separated by accent-color
-    ' "·" dots so the brand color punctuates the row.
+    ' Stat Box: UPPERCASE, includes content rating between year and runtime.
     modalParts = []
     if meta.year <> "" then modalParts.push(meta.year)
     if meta.contentRating <> "" then modalParts.push(meta.contentRating)
     if meta.duration > 0 then modalParts.push(formatRuntime(meta.duration))
     if meta.genres <> "" then modalParts.push(meta.genres)
     print "[scene.modal] stat box year='" + meta.year + "' contentRating='" + meta.contentRating + "' duration=" + meta.duration.ToStr() + " genres='" + meta.genres + "'"
-    buildExpandedStats(modalParts)
+    buildExpandedStats(refs.statsGroup, modalParts)
 
     ' Fresh credit-dot tracking for the just-opened modal — every credit row
     ' rebuilds its child labels below.
     m.expandedCreditDots = []
-    setCreditPair(m.expandedDirectorLabel, m.expandedDirectorValue, meta.directors)
-    setCreditPair(m.expandedWriterLabel, m.expandedWriterValue, meta.writers)
-    setCreditPair(m.expandedCastLabel, m.expandedCastValue, meta.cast)
-    setCreditPair(m.expandedStudioLabel, m.expandedStudioValue, meta.studio)
-    setCreditPair(m.expandedReleasedLabel, m.expandedReleasedValue, formatReleaseDate(meta.releaseDate))
+    setCreditPair(refs.directorLabel, refs.directorValue, meta.directors)
+    setCreditPair(refs.writerLabel, refs.writerValue, meta.writers)
+    setCreditPair(refs.castLabel, refs.castValue, meta.cast)
+    setCreditPair(refs.studioLabel, refs.studioValue, meta.studio)
+    setCreditPair(refs.releasedLabel, refs.releasedValue, formatReleaseDate(meta.releaseDate))
 
-    m.expandedSummary.text = meta.summary
+    refs.summary.text = meta.summary
 
     ' Modal backdrop: prefer Plex's landscape art (already 16:9-ish, so
     ' zoomToFill crops minimally while preserving aspect). Fall back to the
     ' portrait poster when no art is available — that path letterboxes via
     ' scaleToFit so it never stretches.
-    if m.currentSessionMetadata.artUri <> "" then
-        m.expandedBackdrop.loadDisplayMode = "zoomToFill"
-        m.expandedBackdrop.uri = m.currentSessionMetadata.artUri
+    if meta.artUri <> "" then
+        refs.backdrop.loadDisplayMode = "zoomToFill"
+        refs.backdrop.uri = meta.artUri
     else
-        m.expandedBackdrop.loadDisplayMode = "scaleToFit"
-        m.expandedBackdrop.uri = m.poster.uri
+        refs.backdrop.loadDisplayMode = "scaleToFit"
+        refs.backdrop.uri = m.poster.uri
     end if
 
-    ' Ratings section: Plex is populated immediately from the session
-    ' metadata; IMDb / Rotten Tomatoes / Metacritic come from OMDB and arrive
-    ' asynchronously. Show "—" placeholders until the OMDB task returns.
+    ' Ratings: Plex from session metadata; IMDb/RT/Metacritic via OMDB async.
     if meta.audienceRating <> "" then
-        m.ratingPlexValue.text = meta.audienceRating + "/10"
+        refs.ratingPlexValue.text = meta.audienceRating + "/10"
     else
-        m.ratingPlexValue.text = "N/A"
+        refs.ratingPlexValue.text = "N/A"
     end if
-    m.ratingImdbValue.text = "N/A"
-    m.ratingRtValue.text = "N/A"
-    m.ratingMetaValue.text = "N/A"
+    refs.ratingImdbValue.text = "N/A"
+    refs.ratingRtValue.text = "N/A"
+    refs.ratingMetaValue.text = "N/A"
 
-    ' Prefer the title (not the "Show — Episode" combo) for OMDB's by-title
-    ' fallback. For now-playing TV episodes, use the show name; OMDB's title
-    ' search expects the show or movie title rather than an episode label.
+    ' For TV episodes, use the show name (not "Show — Episode") for OMDB title search.
     omdbTitle = meta.title
     if meta.showName <> "" then omdbTitle = meta.showName
     fetchOmdbRatings(meta.imdbId, omdbTitle, meta.year)
 
     if m.carouselEnabled then m.carouselTimer.control = "stop"
-    m.expandedDescription.visible = true
+    refs.root.visible = true
 end sub
 
 ' Spin up OMDBTask. Prefers the imdbId; falls back to title + year search so
@@ -959,22 +1033,24 @@ sub onOmdbResult(event as Object)
         print "[scene] OMDB error: " + result.error
         return
     end if
-    if not m.expandedDescription.visible then return  ' user closed before we returned
+    refs = m.activeModalRefs
+    if refs = invalid then return
+    if not refs.root.visible then return  ' user closed before we returned
 
-    if result.imdbRating <> "" then m.ratingImdbValue.text = result.imdbRating + "/10"
-    if result.rottenTomatoes <> "" then m.ratingRtValue.text = result.rottenTomatoes
-    if result.metacritic <> "" then m.ratingMetaValue.text = result.metacritic
+    if result.imdbRating <> "" then refs.ratingImdbValue.text = result.imdbRating + "/10"
+    if result.rottenTomatoes <> "" then refs.ratingRtValue.text = result.rottenTomatoes
+    if result.metacritic <> "" then refs.ratingMetaValue.text = result.metacritic
 end sub
 
-' Build the modal stats row inside expandedStatsGroup (a plain Group anchored
-' at the Stat Box center, [960, 295]). Each child Label is auto-sized
-' (no explicit width) so text never truncates regardless of estimate error.
-' Cursor advance uses a per-character weighted estimator so the visual gap
-' between segments stays roughly even — digits are slightly wider than
-' caps in Oswald-Medium, and spaces/punctuation are narrower.
-sub buildExpandedStats(parts as Object)
-    while m.expandedStatsGroup.getChildCount() > 0
-        m.expandedStatsGroup.removeChildIndex(0)
+' Build the Stat Box row inside the given Group (a plain Group anchored at
+' the Stat Box center in its respective modal). Each child Label is
+' auto-sized (no explicit width) so text never truncates regardless of
+' estimate error. Cursor advance uses a per-character weighted estimator so
+' the visual gap between segments stays roughly even — digits are slightly
+' wider than caps in Oswald-Medium, and spaces/punctuation are narrower.
+sub buildExpandedStats(group as Object, parts as Object)
+    while group.getChildCount() > 0
+        group.removeChildIndex(0)
     end while
     m.expandedStatsDots = []
     accent = m.accentColors[m.accentColorIndex].hex
@@ -1020,7 +1096,7 @@ sub buildExpandedStats(parts as Object)
             nFont.size = 28
             node.font = nFont
         end if
-        m.expandedStatsGroup.appendChild(node)
+        group.appendChild(node)
         cursor = cursor + it.w + spacing
     end for
 end sub
@@ -1142,6 +1218,8 @@ end function
 
 sub closeExpandedDescription()
     m.expandedDescription.visible = false
+    m.portraitExpandedDescription.visible = false
+    m.activeModalRefs = invalid
     if m.carouselEnabled and not m.carouselPaused then
         m.carouselTimer.control = "start"
     end if

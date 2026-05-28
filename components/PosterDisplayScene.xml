@@ -770,6 +770,193 @@
             </Label>
         </Group>
 
+        <!-- =============== PORTRAIT EXPANDED DESCRIPTION MODAL ===============
+             Mirror of the landscape modal but laid out in 1080-wide × 1920-tall
+             pre-rotation coords, then rotated 90° CW so it fills the buffer
+             with the correct orientation when the TV is mounted portrait.
+             Ratings reflow to a 2x2 grid since the narrower content area can't
+             fit 4 boxes in a single row. 60px gutter matches landscape. -->
+        <Group id="portraitExpandedDescription" visible="false"
+               translation="[420, -420]"
+               rotation="1.5707963"
+               scaleRotateCenter="[540, 960]">
+            <Rectangle width="1080" height="1920" color="0x000000FF" />
+            <Poster
+                id="portraitExpandedBackdrop"
+                width="1080"
+                height="1920"
+                translation="[0, 0]"
+                opacity="0.035"
+                loadDisplayMode="zoomToFill" />
+            <Label
+                id="portraitExpandedTitle"
+                translation="[60, 80]"
+                width="960"
+                height="120"
+                text=""
+                color="0xFFFFFFFF"
+                horizAlign="center"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="64" />
+            </Label>
+            <Label
+                id="portraitExpandedTagline"
+                translation="[60, 220]"
+                width="960"
+                height="80"
+                text=""
+                color="0xFFA500FF"
+                horizAlign="center"
+                vertAlign="top"
+                wrap="true">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="36" />
+            </Label>
+
+            <!-- Stat Box -->
+            <Rectangle translation="[60, 320]" width="960" height="2" color="0xFFFFFFFF" />
+            <Rectangle translation="[60, 398]" width="960" height="2" color="0xFFFFFFFF" />
+            <Rectangle translation="[60, 320]" width="2" height="80" color="0xFFFFFFFF" />
+            <Rectangle translation="[1018, 320]" width="2" height="80" color="0xFFFFFFFF" />
+            <Group
+                id="portraitExpandedStatsGroup"
+                translation="[540, 360]" />
+
+            <!-- Credits: 5 rows, delta 46. Value Y offset +15 to align with
+                 BebasNeue cap-center (matches landscape modal). -->
+            <Label id="portraitExpandedDirectorLabel"
+                   translation="[60, 460]" width="160" height="32" text="DIRECTOR"
+                   color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
+            </Label>
+            <LayoutGroup id="portraitExpandedDirectorValue"
+                         translation="[240, 475]" layoutDirection="horiz"
+                         horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
+            <Label id="portraitExpandedWriterLabel"
+                   translation="[60, 506]" width="160" height="32" text="WRITER"
+                   color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
+            </Label>
+            <LayoutGroup id="portraitExpandedWriterValue"
+                         translation="[240, 521]" layoutDirection="horiz"
+                         horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
+            <Label id="portraitExpandedCastLabel"
+                   translation="[60, 552]" width="160" height="32" text="STARRING"
+                   color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
+            </Label>
+            <LayoutGroup id="portraitExpandedCastValue"
+                         translation="[240, 567]" layoutDirection="horiz"
+                         horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
+            <Label id="portraitExpandedStudioLabel"
+                   translation="[60, 598]" width="160" height="32" text="STUDIO"
+                   color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
+            </Label>
+            <LayoutGroup id="portraitExpandedStudioValue"
+                         translation="[240, 613]" layoutDirection="horiz"
+                         horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
+            <Label id="portraitExpandedReleasedLabel"
+                   translation="[60, 644]" width="160" height="32" text="RELEASED"
+                   color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
+            </Label>
+            <LayoutGroup id="portraitExpandedReleasedValue"
+                         translation="[240, 659]" layoutDirection="horiz"
+                         horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
+
+            <Rectangle translation="[60, 730]" width="960" height="2" color="0x80808066" />
+
+            <Label
+                id="portraitExpandedSummary"
+                translation="[60, 770]"
+                width="960"
+                height="380"
+                text=""
+                color="0xE5E5E5FF"
+                horizAlign="left"
+                vertAlign="top"
+                lineSpacing="8"
+                font="font:SmallestSystemFont"
+                wrap="true" />
+
+            <!-- Ratings: 2×2 grid. Box w=470 h=180, gap=20, outer=60. -->
+            <!-- Row 1: PLEX | IMDB -->
+            <Group translation="[60, 1200]">
+                <Rectangle translation="[0, 0]" width="470" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 178]" width="470" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Rectangle translation="[468, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Label translation="[0, 40]" width="470" height="30" text="PLEX"
+                       color="0xFFFFFFFF" horizAlign="center" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="28" />
+                </Label>
+                <Rectangle id="portraitRatingPlexUnderline" translation="[215, 78]" width="40" height="3" color="0xFFA500FF" />
+                <Label id="portraitRatingPlexValue" translation="[0, 85]" width="470" height="58" text="N/A"
+                       color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="43" />
+                </Label>
+            </Group>
+            <Group translation="[550, 1200]">
+                <Rectangle translation="[0, 0]" width="470" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 178]" width="470" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Rectangle translation="[468, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Label translation="[0, 40]" width="470" height="30" text="IMDB"
+                       color="0xFFFFFFFF" horizAlign="center" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="28" />
+                </Label>
+                <Rectangle id="portraitRatingImdbUnderline" translation="[215, 78]" width="40" height="3" color="0xFFA500FF" />
+                <Label id="portraitRatingImdbValue" translation="[0, 85]" width="470" height="58" text="N/A"
+                       color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="43" />
+                </Label>
+            </Group>
+            <!-- Row 2: ROTTEN TOMATOES | METACRITIC -->
+            <Group translation="[60, 1400]">
+                <Rectangle translation="[0, 0]" width="470" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 178]" width="470" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Rectangle translation="[468, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Label translation="[0, 40]" width="470" height="30" text="ROTTEN TOMATOES"
+                       color="0xFFFFFFFF" horizAlign="center" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="28" />
+                </Label>
+                <Rectangle id="portraitRatingRtUnderline" translation="[215, 78]" width="40" height="3" color="0xFFA500FF" />
+                <Label id="portraitRatingRtValue" translation="[0, 85]" width="470" height="58" text="N/A"
+                       color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="43" />
+                </Label>
+            </Group>
+            <Group translation="[550, 1400]">
+                <Rectangle translation="[0, 0]" width="470" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 178]" width="470" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Rectangle translation="[468, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Label translation="[0, 40]" width="470" height="30" text="METACRITIC"
+                       color="0xFFFFFFFF" horizAlign="center" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="28" />
+                </Label>
+                <Rectangle id="portraitRatingMetaUnderline" translation="[215, 78]" width="40" height="3" color="0xFFA500FF" />
+                <Label id="portraitRatingMetaValue" translation="[0, 85]" width="470" height="58" text="N/A"
+                       color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="43" />
+                </Label>
+            </Group>
+
+            <Label
+                translation="[60, 1850]"
+                width="960"
+                height="40"
+                text="PRESS BACK TO CLOSE"
+                color="0x808080FF"
+                horizAlign="center"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="18" />
+            </Label>
+        </Group>
+
         <Group id="modeIndicator" visible="false" translation="[60,60]">
             <Rectangle width="800" height="80" color="0x000000DD" />
             <Label
