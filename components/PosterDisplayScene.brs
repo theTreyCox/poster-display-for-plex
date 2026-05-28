@@ -890,6 +890,9 @@ sub openExpandedDescription()
 
     ' Modal backdrop uses the unblurred main poster URI (m.backgroundPoster
     ' carries Plex's blurred variant; m.poster has the sharp original).
+    ' scaleToFit guarantees aspect preservation — letterboxes any unfilled
+    ' axis with transparency, revealing the underlying black modal background.
+    m.expandedBackdrop.loadDisplayMode = "scaleToFit"
     m.expandedBackdrop.uri = m.poster.uri
 
     ' Ratings section: Plex is populated immediately from the session
