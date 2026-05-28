@@ -75,6 +75,10 @@ sub fetchLibrary()
                                         if thumb <> "" then
                                             posterUri = buildPlexUri(server, thumb, token, libraryTransfer)
                                             backgroundUri = buildBlurredPlexUri(server, thumb, token, libraryTransfer)
+                                            ' Landscape art for the modal backdrop. Falls back to the
+                                            ' thumb when an item has no dedicated art.
+                                            artPath = stringOrEmpty(itemAttrs["art"])
+                                            artUri = buildPlexUri(server, artPath, token, libraryTransfer)
                                             tagline = stringOrEmpty(itemAttrs["tagline"])
                                             summary = stringOrEmpty(itemAttrs["summary"])
                                             studio = stringOrEmpty(itemAttrs["studio"])
@@ -93,6 +97,7 @@ sub fetchLibrary()
                                                 contentRating: rawRating,
                                                 posterUri: posterUri,
                                                 backgroundUri: backgroundUri,
+                                                artUri: artUri,
                                                 tagline: tagline,
                                                 summary: summary,
                                                 studio: studio,

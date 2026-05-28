@@ -888,12 +888,17 @@ sub openExpandedDescription()
 
     m.expandedSummary.text = meta.summary
 
-    ' Modal backdrop uses the unblurred main poster URI (m.backgroundPoster
-    ' carries Plex's blurred variant; m.poster has the sharp original).
-    ' scaleToFit guarantees aspect preservation — letterboxes any unfilled
-    ' axis with transparency, revealing the underlying black modal background.
-    m.expandedBackdrop.loadDisplayMode = "scaleToFit"
-    m.expandedBackdrop.uri = m.poster.uri
+    ' Modal backdrop: prefer Plex's landscape art (already 16:9-ish, so
+    ' zoomToFill crops minimally while preserving aspect). Fall back to the
+    ' portrait poster when no art is available — that path letterboxes via
+    ' scaleToFit so it never stretches.
+    if m.currentSessionMetadata.artUri <> "" then
+        m.expandedBackdrop.loadDisplayMode = "zoomToFill"
+        m.expandedBackdrop.uri = m.currentSessionMetadata.artUri
+    else
+        m.expandedBackdrop.loadDisplayMode = "scaleToFit"
+        m.expandedBackdrop.uri = m.poster.uri
+    end if
 
     ' Ratings section: Plex is populated immediately from the session
     ' metadata; IMDb / Rotten Tomatoes / Metacritic come from OMDB and arrive
@@ -1160,7 +1165,8 @@ sub setMetadataFromSession(sessionInfo as Object)
         duration: sessionInfo.duration,
         contentRating: sessionInfo.contentRating,
         audienceRating: sessionInfo.audienceRating,
-        imdbId: stringOrEmptyAny(sessionInfo.imdbId)
+        imdbId: stringOrEmptyAny(sessionInfo.imdbId),
+        artUri: stringOrEmptyAny(sessionInfo.artUri)
     }
 
     ' Stats line: year · runtime · genres. The Plex audience rating moves to
@@ -1554,7 +1560,8 @@ function carouselItemAsMetadata(item as Object) as Object
         duration: intOrZeroAny(item.duration),
         contentRating: stringOrEmptyAny(item.contentRating),
         audienceRating: stringOrEmptyAny(item.audienceRating),
-        imdbId: stringOrEmptyAny(item.imdbId)
+        imdbId: stringOrEmptyAny(item.imdbId),
+        artUri: stringOrEmptyAny(item.artUri)
     }
 end function
 

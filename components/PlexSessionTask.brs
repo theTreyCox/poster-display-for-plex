@@ -12,6 +12,7 @@ sub fetchSession()
         contentRating: "",
         posterUri: "",
         backgroundUri: "",
+        artUri: "",
         episodePosterUri: "",
         mediaType: "",
         duration: 0,
@@ -79,6 +80,11 @@ sub fetchSession()
     thumb = stringOrEmpty(attrs["thumb"])
     seriesThumb = stringOrEmpty(attrs["grandparentThumb"])
     if thumb = "" then thumb = stringOrEmpty(attrs["art"])
+    ' Landscape background art — used as the modal backdrop. TV episodes carry
+    ' it on the show element (grandparentArt) rather than the episode itself.
+    artPath = stringOrEmpty(attrs["art"])
+    if artPath = "" then artPath = stringOrEmpty(attrs["grandparentArt"])
+    if artPath = "" then artPath = stringOrEmpty(attrs["parentArt"])
     mediaType = stringOrEmpty(attrs["type"])
     duration = intOrZero(attrs["duration"])
     viewOffset = intOrZero(attrs["viewOffset"])
@@ -108,6 +114,7 @@ sub fetchSession()
 
     posterUri = buildPlexUri(server, mainThumb, token, transfer)
     backgroundUri = buildBlurredPlexUri(server, mainThumb, token, transfer)
+    artUri = buildPlexUri(server, artPath, token, transfer)
     episodePosterUri = ""
     ' Only expose a separate episode poster when this is a TV episode (show name present)
     ' AND it's a distinct image from the main poster
@@ -123,6 +130,7 @@ sub fetchSession()
     result.contentRating = contentRating
     result.posterUri = posterUri
     result.backgroundUri = backgroundUri
+    result.artUri = artUri
     result.episodePosterUri = episodePosterUri
     result.mediaType = mediaType
     result.duration = duration
