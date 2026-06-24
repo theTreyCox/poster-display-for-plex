@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="PlexAuthTask" extends="Task">
+    <script type="text/brightscript" uri="pkg:/components/PlexAuthTask.brs" />
+    <interface>
+        <!-- "requestPin" | "pollPin" | "listServers" -->
+        <field id="mode" type="string" />
+        <!-- Persistent UUID for this app install. -->
+        <field id="clientId" type="string" />
+        <!-- Required for pollPin. -->
+        <field id="pinId" type="string" />
+        <field id="pinCode" type="string" />
+        <!-- Required for listServers (the user's plex.tv auth token). -->
+        <field id="plexToken" type="string" />
+        <!-- Per-mode result payload. Always set, even on failure, so the
+             observer always fires. -->
+        <field id="result" type="assocarray" alwaysNotify="true" />
+    </interface>
+</component>

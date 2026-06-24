@@ -8,13 +8,27 @@ sub fetchSession()
         isPlaying: false,
         title: "",
         showName: "",
+        year: "",
+        contentRating: "",
         posterUri: "",
         backgroundUri: "",
+        artUri: "",
         episodePosterUri: "",
         mediaType: "",
         duration: 0,
         viewOffset: 0,
-        state: ""
+        state: "",
+        ' Extended metadata for the Left-button metadata overlay
+        tagline: "",
+        summary: "",
+        studio: "",
+        releaseDate: "",
+        directors: "",
+        writers: "",
+        cast: "",
+        genres: "",
+        audienceRating: "",
+        imdbId: ""
     }
 
     server = m.top.plexServer
@@ -57,9 +71,20 @@ sub fetchSession()
 
     title = stringOrEmpty(attrs["title"])
     showName = stringOrEmpty(attrs["grandparentTitle"])
+    year = stringOrEmpty(attrs["year"])
+    if year = "" then year = stringOrEmpty(attrs["grandparentYear"])
+    contentRating = stringOrEmpty(attrs["contentRating"])
+    ' TV episodes often carry the rating on the show, not the episode itself.
+    if contentRating = "" then contentRating = stringOrEmpty(attrs["grandparentContentRating"])
+    if contentRating = "" then contentRating = stringOrEmpty(attrs["parentContentRating"])
     thumb = stringOrEmpty(attrs["thumb"])
     seriesThumb = stringOrEmpty(attrs["grandparentThumb"])
     if thumb = "" then thumb = stringOrEmpty(attrs["art"])
+    ' Landscape background art — used as the modal backdrop. TV episodes carry
+    ' it on the show element (grandparentArt) rather than the episode itself.
+    artPath = stringOrEmpty(attrs["art"])
+    if artPath = "" then artPath = stringOrEmpty(attrs["grandparentArt"])
+    if artPath = "" then artPath = stringOrEmpty(attrs["parentArt"])
     mediaType = stringOrEmpty(attrs["type"])
     duration = intOrZero(attrs["duration"])
     viewOffset = intOrZero(attrs["viewOffset"])
@@ -71,12 +96,25 @@ sub fetchSession()
         state = stringOrEmpty(playerAttrs["state"])
     end if
 
+    ' Extended metadata fields
+    tagline = stringOrEmpty(attrs["tagline"])
+    summary = stringOrEmpty(attrs["summary"])
+    studio = stringOrEmpty(attrs["studio"])
+    releaseDate = stringOrEmpty(attrs["originallyAvailableAt"])
+    directors = collectTagAttribute(media, "Director")
+    writers = collectTagAttribute(media, "Writer")
+    cast = collectTagAttributeLimited(media, "Role", 5)
+    genres = collectTagAttribute(media, "Genre")
+    audienceRating = stringOrEmpty(attrs["audienceRating"])
+    imdbId = extractImdbId(media)
+
     ' Prefer the series poster (portrait) for shows; fall back to thumb for movies
     mainThumb = seriesThumb
     if mainThumb = "" then mainThumb = thumb
 
     posterUri = buildPlexUri(server, mainThumb, token, transfer)
     backgroundUri = buildBlurredPlexUri(server, mainThumb, token, transfer)
+    artUri = buildPlexUri(server, artPath, token, transfer)
     episodePosterUri = ""
     ' Only expose a separate episode poster when this is a TV episode (show name present)
     ' AND it's a distinct image from the main poster
@@ -88,16 +126,99 @@ sub fetchSession()
     result.isPlaying = true
     result.title = title
     result.showName = showName
+    result.year = year
+    result.contentRating = contentRating
     result.posterUri = posterUri
     result.backgroundUri = backgroundUri
+    result.artUri = artUri
     result.episodePosterUri = episodePosterUri
     result.mediaType = mediaType
     result.duration = duration
     result.viewOffset = viewOffset
     result.state = state
+    result.tagline = tagline
+    result.summary = summary
+    result.studio = studio
+    result.releaseDate = releaseDate
+    result.directors = directors
+    result.writers = writers
+    result.cast = cast
+    result.genres = genres
+    result.audienceRating = audienceRating
+    result.imdbId = imdbId
+    print "[plex.session] " + title + " — imdbId='" + imdbId + "'"
 
     m.top.result = result
 end sub
+
+' Pull out the IMDB id (with tt prefix) from whichever Plex agent format the
+' server is using. New movie/TV scanners surface it via nested <Guid id="imdb://tt...">;
+' the legacy IMDB agent puts it on the Video's own guid attribute as
+' "com.plexapp.agents.imdb://tt0073195?lang=en".
+function extractImdbId(media as Object) as String
+    ' Newer multi-source format
+    guids = media.GetNamedElements("Guid")
+    if guids <> invalid and guids.Count() > 0 then
+        for each g in guids
+            a = g.GetAttributes()
+            if a <> invalid then
+                id = stringOrEmpty(a["id"])
+                if Instr(1, id, "imdb://") = 1 then return id.Mid(7)
+            end if
+        end for
+    end if
+
+    ' Legacy agent format on Video's own guid attribute
+    attrs = media.GetAttributes()
+    if attrs <> invalid then
+        guidAttr = stringOrEmpty(attrs["guid"])
+        if guidAttr <> "" then
+            idx = Instr(1, guidAttr, "imdb://")
+            if idx > 0 then
+                after = guidAttr.Mid(idx + 6)
+                qIdx = Instr(1, after, "?")
+                if qIdx > 0 then after = after.Mid(0, qIdx - 1)
+                if Instr(1, after, "tt") = 1 then return after
+            end if
+        end if
+    end if
+
+    return ""
+end function
+
+' Plex returns tags like <Director tag="Steven Spielberg"/> nested inside the
+' media element. Collect each child of the given tag name and concatenate the
+' `tag` attributes with " · " as a separator.
+function collectTagAttribute(media as Object, tagName as String) as String
+    return collectTagAttributeLimited(media, tagName, 0)
+end function
+
+' Same as collectTagAttribute, but caps the output to the first N matches.
+' Pass limit=0 for no cap (use everything). Useful for cast lists where Plex
+' returns the full cast and we only want the top few.
+function collectTagAttributeLimited(media as Object, tagName as String, limit as Integer) as String
+    elements = media.GetNamedElements(tagName)
+    if elements = invalid or elements.Count() = 0 then return ""
+    parts = []
+    count = 0
+    for each el in elements
+        if limit > 0 and count >= limit then exit for
+        a = el.GetAttributes()
+        if a <> invalid then
+            t = stringOrEmpty(a["tag"])
+            if t <> "" then
+                parts.push(t)
+                count = count + 1
+            end if
+        end if
+    end for
+    if parts.Count() = 0 then return ""
+    out = parts[0]
+    for i = 1 to parts.Count() - 1
+        out = out + " · " + parts[i]
+    end for
+    return out
+end function
 
 function intOrZero(value as Dynamic) as Integer
     if value = invalid then return 0

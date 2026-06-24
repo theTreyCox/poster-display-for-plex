@@ -11,25 +11,97 @@ sub init()
     m.overlay = m.top.findNode("overlay")
     m.messageLabel = m.top.findNode("messageLabel")
     m.nowPlayingPrefix = m.top.findNode("nowPlayingPrefix")
+    m.ratingIcon = m.top.findNode("ratingIcon")
     m.nowPlayingTitle = m.top.findNode("nowPlayingTitle")
+    m.nowPlayingYear = m.top.findNode("nowPlayingYear")
     m.settingsButton = m.top.findNode("settingsButton")
     m.progressGroup = m.top.findNode("progressGroup")
     m.currentTimeLabel = m.top.findNode("currentTimeLabel")
     m.totalTimeLabel = m.top.findNode("totalTimeLabel")
     m.progressBarFill = m.top.findNode("progressBarFill")
+    m.clockLabel = m.top.findNode("clockLabel")
 
     ' Portrait chrome
     m.portraitChrome = m.top.findNode("portraitChrome")
     m.portraitMessageLabel = m.top.findNode("portraitMessageLabel")
     m.portraitNowPlayingPrefix = m.top.findNode("portraitNowPlayingPrefix")
+    m.portraitRatingIcon = m.top.findNode("portraitRatingIcon")
     m.portraitNowPlayingTitle = m.top.findNode("portraitNowPlayingTitle")
+    m.portraitNowPlayingYear = m.top.findNode("portraitNowPlayingYear")
     m.portraitSettingsButton = m.top.findNode("portraitSettingsButton")
+    m.portraitSettingsButtonBg = m.top.findNode("portraitSettingsButtonBg")
     m.portraitProgressGroup = m.top.findNode("portraitProgressGroup")
     m.portraitCurrentTimeLabel = m.top.findNode("portraitCurrentTimeLabel")
     m.portraitTotalTimeLabel = m.top.findNode("portraitTotalTimeLabel")
     m.portraitProgressBarFill = m.top.findNode("portraitProgressBarFill")
+    m.portraitClockLabel = m.top.findNode("portraitClockLabel")
+    m.controlsGuide = m.top.findNode("controlsGuide")
+    m.controlsGuidePanel = m.top.findNode("controlsGuidePanel")
+    m.expandedDescription = m.top.findNode("expandedDescription")
+    m.expandedTitle = m.top.findNode("expandedTitle")
+    m.expandedTagline = m.top.findNode("expandedTagline")
+    m.expandedStatsGroup = m.top.findNode("expandedStatsGroup")
+    m.expandedStatsDots = []
+    m.expandedCreditDots = []
+    m.expandedDirectorLabel = m.top.findNode("expandedDirectorLabel")
+    m.expandedDirectorValue = m.top.findNode("expandedDirectorValue")
+    m.expandedWriterLabel = m.top.findNode("expandedWriterLabel")
+    m.expandedWriterValue = m.top.findNode("expandedWriterValue")
+    m.expandedCastLabel = m.top.findNode("expandedCastLabel")
+    m.expandedCastValue = m.top.findNode("expandedCastValue")
+    m.expandedStudioLabel = m.top.findNode("expandedStudioLabel")
+    m.expandedStudioValue = m.top.findNode("expandedStudioValue")
+    m.expandedReleasedLabel = m.top.findNode("expandedReleasedLabel")
+    m.expandedReleasedValue = m.top.findNode("expandedReleasedValue")
+    m.expandedSummary = m.top.findNode("expandedSummary")
+    m.expandedBackdrop = m.top.findNode("expandedBackdrop")
+    m.ratingPlexValue = m.top.findNode("ratingPlexValue")
+    m.ratingImdbValue = m.top.findNode("ratingImdbValue")
+    m.ratingRtValue = m.top.findNode("ratingRtValue")
+    m.ratingMetaValue = m.top.findNode("ratingMetaValue")
+    m.ratingPlexUnderline = m.top.findNode("ratingPlexUnderline")
+    m.ratingImdbUnderline = m.top.findNode("ratingImdbUnderline")
+    m.ratingRtUnderline = m.top.findNode("ratingRtUnderline")
+    m.ratingMetaUnderline = m.top.findNode("ratingMetaUnderline")
 
-    ' Episode poster overlay
+    ' Portrait modal — mirror of the landscape modal, rotated 90° CW. Same
+    ' field IDs but with a "portrait" prefix; openExpandedDescription picks
+    ' the right ref set based on viewMode.
+    m.portraitExpandedDescription = m.top.findNode("portraitExpandedDescription")
+    m.portraitExpandedTitle = m.top.findNode("portraitExpandedTitle")
+    m.portraitExpandedTagline = m.top.findNode("portraitExpandedTagline")
+    m.portraitExpandedStatsGroup = m.top.findNode("portraitExpandedStatsGroup")
+    m.portraitExpandedDirectorLabel = m.top.findNode("portraitExpandedDirectorLabel")
+    m.portraitExpandedDirectorValue = m.top.findNode("portraitExpandedDirectorValue")
+    m.portraitExpandedWriterLabel = m.top.findNode("portraitExpandedWriterLabel")
+    m.portraitExpandedWriterValue = m.top.findNode("portraitExpandedWriterValue")
+    m.portraitExpandedCastLabel = m.top.findNode("portraitExpandedCastLabel")
+    m.portraitExpandedCastValue = m.top.findNode("portraitExpandedCastValue")
+    m.portraitExpandedStudioLabel = m.top.findNode("portraitExpandedStudioLabel")
+    m.portraitExpandedStudioValue = m.top.findNode("portraitExpandedStudioValue")
+    m.portraitExpandedReleasedLabel = m.top.findNode("portraitExpandedReleasedLabel")
+    m.portraitExpandedReleasedValue = m.top.findNode("portraitExpandedReleasedValue")
+    m.portraitExpandedSummary = m.top.findNode("portraitExpandedSummary")
+    m.portraitExpandedBackdrop = m.top.findNode("portraitExpandedBackdrop")
+    m.portraitRatingPlexValue = m.top.findNode("portraitRatingPlexValue")
+    m.portraitRatingImdbValue = m.top.findNode("portraitRatingImdbValue")
+    m.portraitRatingRtValue = m.top.findNode("portraitRatingRtValue")
+    m.portraitRatingMetaValue = m.top.findNode("portraitRatingMetaValue")
+    m.portraitRatingPlexUnderline = m.top.findNode("portraitRatingPlexUnderline")
+    m.portraitRatingImdbUnderline = m.top.findNode("portraitRatingImdbUnderline")
+    m.portraitRatingRtUnderline = m.top.findNode("portraitRatingRtUnderline")
+    m.portraitRatingMetaUnderline = m.top.findNode("portraitRatingMetaUnderline")
+
+    ' OMDB integration. Hardcoded key for now; could move to Settings later.
+    m.omdbApiKey = "89ae9603"
+    m.portraitPosterBorderGroup = m.top.findNode("portraitPosterBorderGroup")
+    m.portraitPosterBorderTop = m.top.findNode("portraitPosterBorderTop")
+    m.portraitPosterBorderBottom = m.top.findNode("portraitPosterBorderBottom")
+    m.portraitPosterBorderLeft = m.top.findNode("portraitPosterBorderLeft")
+    m.portraitPosterBorderRight = m.top.findNode("portraitPosterBorderRight")
+
+    ' App logo + episode poster overlay
+    m.appLogo = m.top.findNode("appLogo")
     m.episodePosterGroup = m.top.findNode("episodePosterGroup")
     m.episodePoster = m.top.findNode("episodePoster")
 
@@ -40,7 +112,25 @@ sub init()
     m.hideIndicatorTimer = m.top.findNode("hideIndicatorTimer")
     m.tickTimer = m.top.findNode("tickTimer")
     m.carouselTimer = m.top.findNode("carouselTimer")
+    m.posterFadeOut = m.top.findNode("posterFadeOut")
+    m.posterFadeIn = m.top.findNode("posterFadeIn")
+    m.posterSlideOut = m.top.findNode("posterSlideOut")
+    m.posterSlideIn = m.top.findNode("posterSlideIn")
+    m.posterSlideOutInterp = m.top.findNode("posterSlideOutInterp")
+    m.posterSlideInInterp = m.top.findNode("posterSlideInInterp")
     m.registry = createObject("roRegistrySection", "PosterDisplayForPlex")
+
+    ' Persistent client identifier for the Plex.tv sign-in flow. Generated once
+    ' per install; without a stable id, Plex.tv treats each request as a new
+    ' device and the PIN flow won't complete.
+    m.plexClientId = m.registry.Read("plexClientId")
+    if m.plexClientId = "" then
+        di = createObject("roDeviceInfo")
+        if di <> invalid then m.plexClientId = di.GetRandomUUID()
+        if m.plexClientId = "" then m.plexClientId = "pdfp-" + createObject("roDateTime").AsSeconds().ToStr()
+        m.registry.Write("plexClientId", m.plexClientId)
+        m.registry.Flush()
+    end if
 
     ' roAppManager cannot be created on the render thread, so the screensaver-suppression
     ' lives in KeepAliveTask which runs on its own thread.
@@ -50,12 +140,74 @@ sub init()
     m.settings = {
         plexServer: m.registry.Read("plexServer"),
         plexToken: m.registry.Read("plexToken"),
-        excludedLibraries: m.registry.Read("excludedLibraries")
+        blockedRatings: m.registry.Read("blockedRatings")
     }
+
+    ' Node refs for the blocked-ratings overlay
+    m.blockedRatingsOverlay = m.top.findNode("blockedRatingsOverlay")
+    m.plexSignInOverlay = m.top.findNode("plexSignInOverlay")
+    m.plexSignInCodeLabel = m.top.findNode("plexSignInCodeLabel")
+    m.plexSignInStatusLabel = m.top.findNode("plexSignInStatusLabel")
+    m.plexSignInPollTimer = m.top.findNode("plexSignInPollTimer")
+    m.blockedRatingsCheckList = m.top.findNode("blockedRatingsCheckList")
+
+    ' Ratings users can toggle, in order shown in the dialog
+    m.blockedRatingOptions = ["G", "PG", "PG-13", "R", "NC-17", "XXX", "TV-Y", "TV-Y7", "TV-G", "TV-PG", "TV-14", "TV-MA", "Not Rated"]
     m.viewMode = m.registry.Read("viewMode").ToInt()
     m.borderEnabled = (m.registry.Read("borderEnabled") = "1")
     m.infoEnabled = (m.registry.Read("infoEnabled") <> "0")
     m.carouselEnabled = (m.registry.Read("carouselEnabled") = "1")
+    m.portraitFlip = (m.registry.Read("portraitFlip") = "1")
+    m.transitionStyle = m.registry.Read("transitionStyle")
+    if m.transitionStyle <> "fade" and m.transitionStyle <> "slide" then m.transitionStyle = "abrupt"
+    m.portraitBorderEnabled = (m.registry.Read("portraitBorderEnabled") = "1")
+
+    ' Accent / theme colors. Applied to the progress bar fill AND the metadata
+    ' panel taglines so the brand identity carries through. Persisted as an
+    ' index so the palette can change without invalidating existing saves.
+    m.accentColors = [
+        { name: "Orange", hex: "0xFFA500FF" },
+        { name: "Red", hex: "0xFF3030FF" },
+        { name: "Amber", hex: "0xFFBF00FF" },
+        { name: "Yellow", hex: "0xFFE600FF" },
+        { name: "Lime", hex: "0xA8FF30FF" },
+        { name: "Green", hex: "0x33CC33FF" },
+        { name: "Teal", hex: "0x009999FF" },
+        { name: "Cyan", hex: "0x00CCFFFF" },
+        { name: "Blue", hex: "0x3060FFFF" },
+        { name: "Indigo", hex: "0x6020A0FF" },
+        { name: "Purple", hex: "0x9933CCFF" },
+        { name: "Pink", hex: "0xFF3399FF" }
+    ]
+    m.accentColorIndex = m.registry.Read("accentColorIndex").ToInt()
+    if m.accentColorIndex < 0 or m.accentColorIndex >= m.accentColors.Count() then m.accentColorIndex = 0
+
+    ' Portrait theater-frame styles. Geometry below is a fallback used until the
+    ' BorderCutoutTask returns a measured cutout for each PNG; once it does, the
+    ' fit/fill values are recomputed from the actual alpha=0 region so the
+    ' poster always lands inside whatever cutout the artwork defines.
+    m.portraitBorderStyles = [
+        { id: "01", name: "Marquee Gold",
+          uri: "pkg:/images/borders/portrait/portrait-border-01.png",
+          fitW: 760, fitH: 1140, fitPivot: [380, 570], fitT: [551, -34],
+          fillW: 1027, fillH: 1540, fillPivot: [513, 770], fillT: [417, -234] },
+        { id: "02", name: "Theater Silver",
+          uri: "pkg:/images/borders/portrait/portrait-border-02.png",
+          fitW: 900, fitH: 1695, fitPivot: [450, 847], fitT: [115, -307],
+          fillW: 1215, fillH: 2288, fillPivot: [608, 1144], fillT: [355, -607] }
+    ]
+    m.portraitBorderStyleIndex = m.registry.Read("portraitBorderStyleIndex").ToInt()
+    if m.portraitBorderStyleIndex < 0 or m.portraitBorderStyleIndex >= m.portraitBorderStyles.Count() then m.portraitBorderStyleIndex = 0
+
+    m.currentSessionMetadata = invalid
+    ' Current item's two source images. Landscape-Fill (viewMode 1, no border)
+    ' shows the wide art; every other mode shows the portrait poster.
+    m.currentPosterUri = ""
+    m.currentArtUri = ""
+    m.transitionInProgress = false
+    m.pendingPosterUri = ""
+    m.pendingBackgroundUri = ""
+    m.savedPosterTranslation = [0, 0]
     m.duration = 0
     m.viewOffset = 0
     m.playerState = ""
@@ -63,16 +215,66 @@ sub init()
     m.isPlaying = false
     m.hasEpisodePoster = false
     m.carouselPosters = []
+    m.carouselPaused = false
 
     m.settingsButton.observeField("buttonSelected", "onSettingsClicked")
     m.portraitSettingsButton.observeField("buttonSelected", "onSettingsClicked")
+
+    ' When the title text re-renders, reposition the year label so it sits right after.
+    m.nowPlayingTitle.observeField("boundingRect", "positionYearLabel")
+    m.portraitNowPlayingTitle.observeField("boundingRect", "positionPortraitYearLabel")
+
+    m.posterFadeOut.observeField("state", "onPosterFadeOutState")
+    m.posterFadeIn.observeField("state", "onPosterFadeInState")
+    m.posterSlideOut.observeField("state", "onPosterSlideOutState")
+    m.posterSlideIn.observeField("state", "onPosterSlideInState")
     m.pollTimer.observeField("fire", "onPollTimerFired")
     m.hideIndicatorTimer.observeField("fire", "hideModeIndicator")
     m.tickTimer.observeField("fire", "onTick")
     m.tickTimer.control = "start"
     m.carouselTimer.observeField("fire", "onCarouselTick")
+    m.plexSignInPollTimer.observeField("fire", "onPlexSignInPollTick")
 
+    ' Bundle each modal's node refs into an AA so openExpandedDescription
+    ' can populate whichever set matches the current orientation via a
+    ' single populateModal() function instead of two near-duplicate paths.
+    m.landscapeModalRefs = {
+        root: m.expandedDescription, backdrop: m.expandedBackdrop,
+        title: m.expandedTitle, tagline: m.expandedTagline,
+        statsGroup: m.expandedStatsGroup, summary: m.expandedSummary,
+        directorLabel: m.expandedDirectorLabel, directorValue: m.expandedDirectorValue,
+        writerLabel: m.expandedWriterLabel, writerValue: m.expandedWriterValue,
+        castLabel: m.expandedCastLabel, castValue: m.expandedCastValue,
+        studioLabel: m.expandedStudioLabel, studioValue: m.expandedStudioValue,
+        releasedLabel: m.expandedReleasedLabel, releasedValue: m.expandedReleasedValue,
+        ratingPlexValue: m.ratingPlexValue, ratingImdbValue: m.ratingImdbValue,
+        ratingRtValue: m.ratingRtValue, ratingMetaValue: m.ratingMetaValue,
+        ratingPlexUnderline: m.ratingPlexUnderline, ratingImdbUnderline: m.ratingImdbUnderline,
+        ratingRtUnderline: m.ratingRtUnderline, ratingMetaUnderline: m.ratingMetaUnderline,
+        ' Max width a credit value LayoutGroup may occupy (value start x → modal
+        ' content edge). Used by buildCreditValue to truncate long cast lists.
+        maxValueWidth: 1620
+    }
+    m.portraitModalRefs = {
+        root: m.portraitExpandedDescription, backdrop: m.portraitExpandedBackdrop,
+        title: m.portraitExpandedTitle, tagline: m.portraitExpandedTagline,
+        statsGroup: m.portraitExpandedStatsGroup, summary: m.portraitExpandedSummary,
+        directorLabel: m.portraitExpandedDirectorLabel, directorValue: m.portraitExpandedDirectorValue,
+        writerLabel: m.portraitExpandedWriterLabel, writerValue: m.portraitExpandedWriterValue,
+        castLabel: m.portraitExpandedCastLabel, castValue: m.portraitExpandedCastValue,
+        studioLabel: m.portraitExpandedStudioLabel, studioValue: m.portraitExpandedStudioValue,
+        releasedLabel: m.portraitExpandedReleasedLabel, releasedValue: m.portraitExpandedReleasedValue,
+        ratingPlexValue: m.portraitRatingPlexValue, ratingImdbValue: m.portraitRatingImdbValue,
+        ratingRtValue: m.portraitRatingRtValue, ratingMetaValue: m.portraitRatingMetaValue,
+        ratingPlexUnderline: m.portraitRatingPlexUnderline, ratingImdbUnderline: m.portraitRatingImdbUnderline,
+        ratingRtUnderline: m.portraitRatingRtUnderline, ratingMetaUnderline: m.portraitRatingMetaUnderline,
+        maxValueWidth: 780
+    }
+    m.activeModalRefs = invalid
+
+    applyAccentColor()
     applyViewMode()
+    startPortraitBorderCutoutDetection()
 
     if m.settings.plexServer <> "" and m.settings.plexToken <> "" then
         if m.carouselEnabled then
@@ -87,12 +289,79 @@ sub init()
         setStatusMessage("Press OK to enter your Plex server and token.")
     end if
 
-    showModeIndicator(viewModeLabel(m.viewMode) + "  —  Play view • Down border • Right info • Left settings • Rwd carousel")
+    showModeIndicator(viewModeLabel(m.viewMode) + "  —  OK details • Up view • Down frame • Right info • Left guide • * settings")
 end sub
 
 function onKeyEvent(key as String, press as Boolean) as Boolean
     if not press then return false
-    if key = "play" or key = "up" or key = "info" then
+
+    ' Blocked-ratings overlay: intercept Back to save the current CheckList state
+    ' and dismiss. (CheckList captures arrow keys internally so the previous
+    ' Save / Cancel buttons were unreachable; saving on Back is the reliable path.)
+    if m.blockedRatingsOverlay.visible then
+        if key = "back" then
+            saveBlockedRatings()
+            return true
+        end if
+        return false
+    end if
+
+    ' Plex sign-in overlay: Back cancels the PIN flow and returns to Settings.
+    if m.plexSignInOverlay.visible then
+        if key = "back" then
+            cancelPlexSignIn("")
+            return true
+        end if
+        return true  ' swallow all other keys while the overlay is up
+    end if
+
+    ' Expanded "Read more" description modal: Back closes; all other keys
+    ' are swallowed so they don't drive the underlying display while reading.
+    if m.expandedDescription.visible or m.portraitExpandedDescription.visible then
+        if key = "back" then
+            closeExpandedDescription()
+            return true
+        end if
+        return true
+    end if
+
+    ' Controls guide overlay: Back or Left closes it; everything else is
+    ' swallowed so the underlying display doesn't react while it's up.
+    if m.controlsGuide.visible then
+        if key = "back" or key = "left" then
+            hideControlsGuide()
+            return true
+        end if
+        return true
+    end if
+
+    ' OK opens the expanded details modal whenever a poster is showing. When
+    ' nothing is playing yet, OK jumps into settings so a fresh install has an
+    ' obvious entry point (matching the "Press OK to enter..." status prompt).
+    if key = "OK" then
+        if m.isPlaying then
+            openExpandedDescription()
+            return true
+        else if m.settings.plexServer = "" or m.settings.plexToken = "" then
+            openSettingsMenu()
+            return true
+        end if
+        return true
+    end if
+
+    ' In carousel mode, Play pauses/resumes auto-advance and Fwd manually advances.
+    ' These take precedence over the global Play=cycle-view-mode binding.
+    if m.carouselEnabled then
+        if key = "play" then
+            toggleCarouselPause()
+            return true
+        else if key = "fwd" or key = "forward" or key = "fastforward" then
+            advanceCarousel()
+            return true
+        end if
+    end if
+
+    if key = "play" or key = "up" then
         cycleViewMode()
         return true
     else if key = "down" then
@@ -102,7 +371,10 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
         toggleInfo()
         return true
     else if key = "left" then
-        promptServer()
+        showControlsGuide()
+        return true
+    else if key = "options" then
+        openSettingsMenu()
         return true
     else if key = "rev" or key = "rewind" then
         toggleCarousel()
@@ -145,21 +417,76 @@ sub cycleViewMode()
 end sub
 
 sub applyViewMode()
+    resetPosterTransitions()
     m.poster.loadDisplayMode = "scaleToFit"
+    applyPortraitFlip()
     if m.borderEnabled then
         applyBorderedViewMode()
     else
         applyPlainViewMode()
     end if
+    applyPortraitPosterBorder()
     updateInfoVisibility()
     isLandscape = (m.viewMode = 0 or m.viewMode = 1)
     ' Blurred ambient backdrop only in landscape modes
     m.backgroundPoster.visible = isLandscape and (m.backgroundPoster.uri <> "")
+    ' Snap the poster to the image the current mode wants (portrait poster vs
+    ' landscape art) without animating — a mode switch is an instant change.
+    desiredUri = activePosterUri()
+    if desiredUri <> "" and m.poster.uri <> desiredUri then m.poster.uri = desiredUri
     if isLandscape then
         m.settingsButton.setFocus(true)
     else
         m.portraitSettingsButton.setFocus(true)
     end if
+end sub
+
+' The image the active view mode should display. Landscape-Fill (viewMode 1)
+' shows the wide landscape art when available; bordered modes and every other
+' view mode show the portrait poster. Falls back to the portrait poster when
+' the item has no landscape art.
+function activePosterUri() as String
+    if m.viewMode = 1 and not m.borderEnabled and m.currentArtUri <> "" then return m.currentArtUri
+    return m.currentPosterUri
+end function
+
+' Position and rotate the portrait chrome strip so it lands at viewer-bottom
+' for the user's TV mount direction. m.portraitFlip = false (default) targets
+' a TV mounted with its original top on the viewer's right (CW). flip = true
+' targets the opposite mount (original top on viewer's left, CCW).
+sub applyPortraitFlip()
+    if m.portraitFlip then
+        m.portraitChrome.rotation = -1.5707963
+        m.portraitChrome.translation = [-425, 425]
+        ' The 1080×1920 portrait modal: same translation works for both
+        ' rotations (the rotated bounding box is symmetric); only the content
+        ' orientation flips so pre-rotation top lands on the viewer's top.
+        m.portraitExpandedDescription.rotation = -1.5707963
+    else
+        m.portraitChrome.rotation = 1.5707963
+        m.portraitChrome.translation = [1265, 425]
+        m.portraitExpandedDescription.rotation = 1.5707963
+    end if
+end sub
+
+function portraitRotation() as Float
+    if m.portraitFlip then return -1.5707963
+    return 1.5707963
+end function
+
+' Place a centered portrait-fit poster at a target viewer-Y center, accounting
+' for the rotation direction (flip mirrors physical-x across screen-center).
+sub setPortraitFitPoster(W as Integer, H as Integer, centerYViewer as Integer)
+    m.poster.width = W
+    m.poster.height = H
+    m.poster.scaleRotateCenter = [W / 2, H / 2]
+    m.poster.rotation = portraitRotation()
+    if m.portraitFlip then
+        physX = 1920 - centerYViewer
+    else
+        physX = centerYViewer
+    end if
+    m.poster.translation = [physX - W / 2, 540 - H / 2]
 end sub
 
 sub applyPlainViewMode()
@@ -168,40 +495,72 @@ sub applyPlainViewMode()
     if m.viewMode = 0 then
         m.poster.width = 720
         m.poster.height = 1080
-        m.poster.translation = [600, 0]
+        ' Info strip pins to x=0..400. Center the poster in whatever's free to
+        ' the right of it.
+        leftEdge = 0
+        rightEdge = 1920
+        if m.infoEnabled then leftEdge = 400
+        m.poster.translation = [(leftEdge + rightEdge - 720) / 2, 0]
         m.poster.scaleRotateCenter = [360, 540]
         m.poster.rotation = 0
     else if m.viewMode = 1 then
+        ' Landscape - Art: fill the screen with the wide landscape art. The image
+        ' is the landscape art (activePosterUri) when the item has it; an art-less
+        ' item shows the centre band of the portrait poster (the "fill" tradeoff).
+        ' The poster keeps a constant 1920×1080 size (zoomToFill keeps aspect and
+        ' crops). When the info strip (left 400px) is on, the art is shifted right
+        ' so its centre lines up with the area to the strip's right (x=400..1920,
+        ' centre 1160 → offset 200). The strip + screen edge crop the overflow.
+        ' Only the offset changes — never the size — so the image never squeezes.
         m.poster.width = 1920
-        m.poster.height = 2880
-        m.poster.translation = [0, -900]
-        m.poster.scaleRotateCenter = [960, 1440]
+        m.poster.height = 1080
+        m.poster.scaleRotateCenter = [960, 540]
         m.poster.rotation = 0
-    else if m.viewMode = 2 then
-        ' Portrait Fit — info on shifts poster up to leave room for chrome below
-        m.poster.width = 1080
-        m.poster.height = 1620
-        m.poster.scaleRotateCenter = [540, 810]
-        m.poster.rotation = 1.5707963
+        m.poster.loadDisplayMode = "zoomToFill"
         if m.infoEnabled then
-            m.poster.translation = [320, -270]
+            m.poster.translation = [200, 0]
         else
-            m.poster.translation = [420, -270]
+            m.poster.translation = [0, 0]
+        end if
+    else if m.viewMode = 2 then
+        ' Portrait Fit. The poster fits above the info strip (bottom 230px in
+        ' viewer space) when info is on, else uses the full height.
+        if m.infoEnabled then
+            setPortraitFitPoster(1080, 1620, 830)
+        else
+            setPortraitFitPoster(1080, 1620, 960)
         end if
     else if m.viewMode = 3 then
-        ' Portrait Fill — info on shrinks fill area to above chrome
-        m.poster.rotation = 1.5707963
+        ' Portrait Fill. The bbox is sized at the poster's content aspect (2:3)
+        ' and centered on the available viewer area. Whichever axis is smaller
+        ' than the content needs bleeds past the visible area (under panels or
+        ' off-screen). Because the bbox aspect matches the content, the poster
+        ' never stretches — it fits perfectly inside the bbox.
+        m.poster.rotation = portraitRotation()
+        contentAspect = 2.0 / 3.0  ' W:H for Plex movie posters
+        viewerW = 1080
         if m.infoEnabled then
-            m.poster.width = 1147
-            m.poster.height = 1720
-            m.poster.translation = [287, -320]
-            m.poster.scaleRotateCenter = [574, 860]
+            availTop = 0
+            availBottom = 1690
         else
-            m.poster.width = 1280
-            m.poster.height = 1920
-            m.poster.translation = [320, -420]
-            m.poster.scaleRotateCenter = [640, 960]
+            availTop = 0
+            availBottom = 1920
         end if
+        availHeight = availBottom - availTop
+        centerY = (availTop + availBottom) / 2
+
+        ' Pick the smaller bbox that fully covers viewerW × availHeight while
+        ' keeping the content's 2:3 aspect. Either height-limited (wide bleed)
+        ' or width-limited (vertical bleed).
+        needHeightForWidth = viewerW / contentAspect
+        if availHeight > needHeightForWidth then
+            boxH = availHeight
+            boxW = Int(availHeight * contentAspect)
+        else
+            boxH = Int(needHeightForWidth)
+            boxW = viewerW
+        end if
+        setPortraitFitPoster(boxW, boxH, centerY)
     end if
 end sub
 
@@ -221,24 +580,27 @@ sub applyBorderedViewMode()
         m.poster.translation = [626, 4]
         m.poster.scaleRotateCenter = [335, 502]
         m.poster.rotation = 0
-    else if m.viewMode = 2 then
-        m.poster.width = 760
-        m.poster.height = 1140
-        m.poster.translation = [551, -34]
-        m.poster.scaleRotateCenter = [380, 570]
-        m.poster.rotation = 1.5707963
-    else if m.viewMode = 3 then
-        m.poster.width = 1027
-        m.poster.height = 1540
-        m.poster.translation = [417, -234]
-        m.poster.scaleRotateCenter = [513, 770]
-        m.poster.rotation = 1.5707963
+    else if m.viewMode = 2 or m.viewMode = 3 then
+        style = m.portraitBorderStyles[m.portraitBorderStyleIndex]
+        m.borderPortrait.uri = style.uri
+        if m.viewMode = 2 then
+            m.poster.width = style.fitW
+            m.poster.height = style.fitH
+            m.poster.scaleRotateCenter = style.fitPivot
+            m.poster.translation = style.fitT
+        else
+            m.poster.width = style.fillW
+            m.poster.height = style.fillH
+            m.poster.scaleRotateCenter = style.fillPivot
+            m.poster.translation = style.fillT
+        end if
+        m.poster.rotation = portraitRotation()
     end if
 end sub
 
 function viewModeLabel(mode as Integer) as String
-    if mode = 0 then return "Landscape - Fit"
-    if mode = 1 then return "Landscape - Fill"
+    if mode = 0 then return "Landscape - Poster"
+    if mode = 1 then return "Landscape - Art"
     if mode = 2 then return "Portrait - Fit"
     if mode = 3 then return "Portrait - Fill"
     return ""
@@ -255,8 +617,962 @@ sub hideModeIndicator()
 end sub
 
 sub onSettingsClicked()
-    promptServer()
+    openSettingsMenu()
 end sub
+
+sub openSettingsMenu()
+    serverDisplay = m.settings.plexServer
+    if serverDisplay = "" then serverDisplay = "(not set)"
+    tokenDisplay = "(set)"
+    if m.settings.plexToken = "" then tokenDisplay = "(not set)"
+
+    dialog = createObject("roSGNode", "StandardMessageDialog")
+    dialog.title = "Settings"
+    dialog.message = ["Server: " + serverDisplay, "Token: " + tokenDisplay]
+    dialog.buttons = ["Plex Connection", "Display & Appearance", "Close"]
+    dialog.observeField("buttonSelected", "onSettingsMenuSelected")
+    m.settingsContext = "main"
+    m.top.dialog = dialog
+end sub
+
+sub onSettingsMenuSelected(event as Object)
+    selectedIndex = event.getData()
+    m.top.dialog = invalid
+    if selectedIndex = 0 then
+        openPlexSettings()
+    else if selectedIndex = 1 then
+        openDisplaySettings()
+    else
+        cancelSettings()
+    end if
+end sub
+
+sub openPlexSettings()
+    serverDisplay = m.settings.plexServer
+    if serverDisplay = "" then serverDisplay = "(not set)"
+    tokenDisplay = "(set)"
+    if m.settings.plexToken = "" then tokenDisplay = "(not set)"
+    ratingsDisplay = m.settings.blockedRatings
+    if ratingsDisplay = "" then ratingsDisplay = "(none)"
+
+    dialog = createObject("roSGNode", "StandardMessageDialog")
+    dialog.title = "Plex Connection"
+    dialog.message = ["Server: " + serverDisplay, "Token: " + tokenDisplay, "Carousel blocks ratings: " + ratingsDisplay]
+    dialog.buttons = ["Sign in with Plex", "Change Plex server", "Change Plex token", "Edit carousel rating filter", "Back"]
+    dialog.observeField("buttonSelected", "onPlexMenuSelected")
+    m.settingsContext = "plex"
+    m.top.dialog = dialog
+end sub
+
+sub onPlexMenuSelected(event as Object)
+    selectedIndex = event.getData()
+    m.top.dialog = invalid
+    if selectedIndex = 0 then
+        startPlexSignIn()
+    else if selectedIndex = 1 then
+        promptServer()
+    else if selectedIndex = 2 then
+        promptToken()
+    else if selectedIndex = 3 then
+        showBlockedRatingsOverlay()
+    else
+        openSettingsMenu()
+    end if
+end sub
+
+sub openDisplaySettings()
+    flipDisplay = "Top on right (CW mount)"
+    if m.portraitFlip then flipDisplay = "Top on left (CCW mount)"
+    transitionDisplay = transitionLabel(m.transitionStyle)
+    accentDisplay = m.accentColors[m.accentColorIndex].name
+    matteDisplay = "Off"
+    if m.portraitBorderEnabled then matteDisplay = "On"
+    frameStyleDisplay = m.portraitBorderStyles[m.portraitBorderStyleIndex].name
+
+    dialog = createObject("roSGNode", "StandardMessageDialog")
+    dialog.title = "Display & Appearance"
+    dialog.message = ["Portrait orientation: " + flipDisplay, "Poster transition: " + transitionDisplay, "Accent color: " + accentDisplay, "Portrait poster matte: " + matteDisplay, "Portrait frame style: " + frameStyleDisplay]
+    dialog.buttons = ["Cycle poster transition", "Change accent color", "Flip portrait orientation", "Toggle portrait poster matte", "Change portrait frame style", "Back"]
+    dialog.observeField("buttonSelected", "onDisplayMenuSelected")
+    m.settingsContext = "display"
+    m.top.dialog = dialog
+end sub
+
+sub onDisplayMenuSelected(event as Object)
+    selectedIndex = event.getData()
+    m.top.dialog = invalid
+    if selectedIndex = 0 then
+        cycleTransitionStyle()
+        openDisplaySettings()
+    else if selectedIndex = 1 then
+        showAccentColorMenu()
+    else if selectedIndex = 2 then
+        togglePortraitFlip()
+        openDisplaySettings()
+    else if selectedIndex = 3 then
+        togglePortraitPosterBorder()
+        openDisplaySettings()
+    else if selectedIndex = 4 then
+        showPortraitFrameStyleMenu()
+    else
+        openSettingsMenu()
+    end if
+end sub
+
+' After a sub-dialog (prompt or picker) closes, return to the menu that opened it.
+sub returnToSettingsContext()
+    if m.settingsContext = "plex" then
+        openPlexSettings()
+    else if m.settingsContext = "display" then
+        openDisplaySettings()
+    else
+        openSettingsMenu()
+    end if
+end sub
+
+function transitionLabel(style as String) as String
+    if style = "fade" then return "Fade"
+    if style = "slide" then return "Slide"
+    return "Abrupt"
+end function
+
+sub togglePortraitFlip()
+    m.portraitFlip = not m.portraitFlip
+    state = "0"
+    if m.portraitFlip then state = "1"
+    m.registry.Write("portraitFlip", state)
+    m.registry.Flush()
+    applyViewMode()
+end sub
+
+sub cycleTransitionStyle()
+    if m.transitionStyle = "abrupt" then
+        m.transitionStyle = "fade"
+    else if m.transitionStyle = "fade" then
+        m.transitionStyle = "slide"
+    else
+        m.transitionStyle = "abrupt"
+    end if
+    m.registry.Write("transitionStyle", m.transitionStyle)
+    m.registry.Flush()
+end sub
+
+' Apply the chosen accent (theme) color to every UI element that uses it:
+' progress bar fills, the modal tagline, and the modal's credit labels
+' (Director:, Writer:, etc) plus rating values/underlines.
+sub applyAccentColor()
+    color = m.accentColors[m.accentColorIndex].hex
+    m.progressBarFill.color = color
+    m.portraitProgressBarFill.color = color
+    m.expandedTagline.color = color
+    m.expandedDirectorLabel.color = color
+    m.expandedWriterLabel.color = color
+    m.expandedCastLabel.color = color
+    m.expandedStudioLabel.color = color
+    m.expandedReleasedLabel.color = color
+    m.ratingPlexValue.color = color
+    m.ratingImdbValue.color = color
+    m.ratingRtValue.color = color
+    m.ratingMetaValue.color = color
+    m.ratingPlexUnderline.color = color
+    m.ratingImdbUnderline.color = color
+    m.ratingRtUnderline.color = color
+    m.ratingMetaUnderline.color = color
+    ' Portrait modal mirror
+    m.portraitExpandedTagline.color = color
+    m.portraitExpandedDirectorLabel.color = color
+    m.portraitExpandedWriterLabel.color = color
+    m.portraitExpandedCastLabel.color = color
+    m.portraitExpandedStudioLabel.color = color
+    m.portraitExpandedReleasedLabel.color = color
+    m.portraitRatingPlexValue.color = color
+    m.portraitRatingImdbValue.color = color
+    m.portraitRatingRtValue.color = color
+    m.portraitRatingMetaValue.color = color
+    m.portraitRatingPlexUnderline.color = color
+    m.portraitRatingImdbUnderline.color = color
+    m.portraitRatingRtUnderline.color = color
+    m.portraitRatingMetaUnderline.color = color
+    if m.expandedStatsDots <> invalid then
+        for each dot in m.expandedStatsDots
+            dot.color = color
+        end for
+    end if
+    if m.expandedCreditDots <> invalid then
+        for each dot in m.expandedCreditDots
+            dot.color = color
+        end for
+    end if
+end sub
+
+' Spin up the BorderCutoutTask once at startup to measure each portrait
+' border's alpha=0 region. Results come back asynchronously and we recompute
+' the poster fit/fill geometry from the measured cutouts.
+sub startPortraitBorderCutoutDetection()
+    uris = []
+    for each style in m.portraitBorderStyles
+        uris.push(style.uri)
+    end for
+    m.borderCutoutTask = createObject("roSGNode", "BorderCutoutTask")
+    if m.borderCutoutTask = invalid then return
+    m.borderCutoutTask.observeField("result", "onBorderCutoutsDetected")
+    m.borderCutoutTask.uris = uris
+    m.borderCutoutTask.control = "RUN"
+end sub
+
+sub onBorderCutoutsDetected(event as Object)
+    cutouts = event.getData()
+    if cutouts = invalid then return
+    for each c in cutouts
+        if c.w > 0 and c.h > 0 then
+            for each style in m.portraitBorderStyles
+                if style.uri = c.uri then
+                    applyCutoutToStyle(style, c)
+                    exit for
+                end if
+            end for
+        end if
+    end for
+    ' Refresh the screen so the active border picks up the new geometry.
+    applyViewMode()
+end sub
+
+' Given a measured cutout, derive fit/fill poster geometry. The poster is
+' rotated ±π/2 around its center, so pre-rotation (width × height) maps to
+' post-rotation (height × width) on screen. Pre-rotation width = cutout
+' height; pre-rotation height = cutout width. Fill mode is 1.35× fit so the
+' poster bleeds past the cutout edges (the frame covers the overflow).
+sub applyCutoutToStyle(style as Object, cutout as Object)
+    cw = cutout.w
+    ch = cutout.h
+    centerX = cutout.x + cw / 2
+    centerY = cutout.y + ch / 2
+
+    style.fitW = ch
+    style.fitH = cw
+    style.fitPivot = [ch / 2, cw / 2]
+    style.fitT = [centerX - ch / 2, centerY - cw / 2]
+
+    fillFactor = 1.35
+    fillW = Int(ch * fillFactor)
+    fillH = Int(cw * fillFactor)
+    style.fillW = fillW
+    style.fillH = fillH
+    style.fillPivot = [fillW / 2, fillH / 2]
+    style.fillT = [centerX - fillW / 2, centerY - fillH / 2]
+end sub
+
+sub showAccentColorMenu()
+    dialog = createObject("roSGNode", "StandardMessageDialog")
+    dialog.title = "Accent Color"
+    dialog.message = ["Current: " + m.accentColors[m.accentColorIndex].name]
+    buttons = []
+    for each c in m.accentColors
+        buttons.push(c.name)
+    end for
+    buttons.push("Cancel")
+    dialog.buttons = buttons
+    dialog.observeField("buttonSelected", "onAccentColorSelected")
+    m.top.dialog = dialog
+end sub
+
+sub onAccentColorSelected(event as Object)
+    selectedIndex = event.getData()
+    m.top.dialog = invalid
+    if selectedIndex >= 0 and selectedIndex < m.accentColors.Count() then
+        m.accentColorIndex = selectedIndex
+        m.registry.Write("accentColorIndex", m.accentColorIndex.ToStr())
+        m.registry.Flush()
+        applyAccentColor()
+    end if
+    returnToSettingsContext()
+end sub
+
+sub showPortraitFrameStyleMenu()
+    dialog = createObject("roSGNode", "StandardMessageDialog")
+    dialog.title = "Portrait Frame Style"
+    dialog.message = ["Current: " + m.portraitBorderStyles[m.portraitBorderStyleIndex].name]
+    buttons = []
+    for each s in m.portraitBorderStyles
+        buttons.push(s.name)
+    end for
+    buttons.push("Cancel")
+    dialog.buttons = buttons
+    dialog.observeField("buttonSelected", "onPortraitFrameStyleSelected")
+    m.top.dialog = dialog
+end sub
+
+sub onPortraitFrameStyleSelected(event as Object)
+    selectedIndex = event.getData()
+    m.top.dialog = invalid
+    if selectedIndex >= 0 and selectedIndex < m.portraitBorderStyles.Count() then
+        m.portraitBorderStyleIndex = selectedIndex
+        m.registry.Write("portraitBorderStyleIndex", m.portraitBorderStyleIndex.ToStr())
+        m.registry.Flush()
+        applyViewMode()
+    end if
+    returnToSettingsContext()
+end sub
+
+sub togglePortraitPosterBorder()
+    m.portraitBorderEnabled = not m.portraitBorderEnabled
+    state = "0"
+    if m.portraitBorderEnabled then state = "1"
+    m.registry.Write("portraitBorderEnabled", state)
+    m.registry.Flush()
+    applyViewMode()
+end sub
+
+' Left-button controls guide. A static button reference overlay. The inner
+' panel rotates ±90° in portrait so it reads upright for the TV mount.
+sub showControlsGuide()
+    isLandscape = (m.viewMode = 0 or m.viewMode = 1)
+    if isLandscape then
+        m.controlsGuidePanel.rotation = 0
+    else
+        m.controlsGuidePanel.rotation = portraitRotation()
+    end if
+    m.controlsGuide.visible = true
+end sub
+
+sub hideControlsGuide()
+    m.controlsGuide.visible = false
+end sub
+
+' Open the full-screen "Read more" modal with the current session's full
+' description + a recap of the chrome (title, tagline, stats). Picks the
+' landscape or portrait modal based on viewMode and populates it via the
+' refs map. Pauses the carousel timer so it doesn't advance behind the modal.
+sub openExpandedDescription()
+    if m.currentSessionMetadata = invalid then return
+
+    isLandscape = (m.viewMode = 0 or m.viewMode = 1)
+    if isLandscape then
+        refs = m.landscapeModalRefs
+        title = m.nowPlayingTitle.text
+    else
+        refs = m.portraitModalRefs
+        title = m.portraitNowPlayingTitle.text
+    end if
+    m.activeModalRefs = refs
+
+    meta = m.currentSessionMetadata
+
+    refs.title.text = UCase(title)
+    refs.tagline.text = UCase(meta.tagline)
+
+    ' Stat Box: UPPERCASE, includes content rating between year and runtime.
+    modalParts = []
+    if meta.year <> "" then modalParts.push(meta.year)
+    if meta.contentRating <> "" then modalParts.push(meta.contentRating)
+    if meta.duration > 0 then modalParts.push(formatRuntime(meta.duration))
+    if meta.genres <> "" then modalParts.push(meta.genres)
+    print "[scene.modal] stat box year='" + meta.year + "' contentRating='" + meta.contentRating + "' duration=" + meta.duration.ToStr() + " genres='" + meta.genres + "'"
+    buildExpandedStats(refs.statsGroup, modalParts)
+
+    ' Fresh credit-dot tracking for the just-opened modal — every credit row
+    ' rebuilds its child labels below.
+    m.expandedCreditDots = []
+    setCreditPair(refs.directorLabel, refs.directorValue, meta.directors, refs.maxValueWidth)
+    setCreditPair(refs.writerLabel, refs.writerValue, meta.writers, refs.maxValueWidth)
+    setCreditPair(refs.castLabel, refs.castValue, meta.cast, refs.maxValueWidth)
+    setCreditPair(refs.studioLabel, refs.studioValue, meta.studio, refs.maxValueWidth)
+    setCreditPair(refs.releasedLabel, refs.releasedValue, formatReleaseDate(meta.releaseDate), refs.maxValueWidth)
+
+    refs.summary.text = meta.summary
+
+    ' Modal backdrop. The landscape modal prefers Plex's landscape art
+    ' (16:9-ish, so zoomToFill crops minimally), falling back to the portrait
+    ' poster letterboxed via scaleToFit. The portrait modal uses the portrait
+    ' poster itself (~2:3, close to the 9:16 backdrop) so zoomToFill crops only
+    ' slightly — the landscape art would stretch here.
+    if isLandscape then
+        if meta.artUri <> "" then
+            refs.backdrop.loadDisplayMode = "zoomToFill"
+            refs.backdrop.uri = meta.artUri
+        else
+            refs.backdrop.loadDisplayMode = "scaleToFit"
+            refs.backdrop.uri = m.poster.uri
+        end if
+    else
+        refs.backdrop.loadDisplayMode = "zoomToFill"
+        refs.backdrop.uri = m.poster.uri
+    end if
+
+    ' Ratings: Plex from session metadata; IMDb/RT/Metacritic via OMDB async.
+    if meta.audienceRating <> "" then
+        refs.ratingPlexValue.text = meta.audienceRating + "/10"
+    else
+        refs.ratingPlexValue.text = "N/A"
+    end if
+    refs.ratingImdbValue.text = "N/A"
+    refs.ratingRtValue.text = "N/A"
+    refs.ratingMetaValue.text = "N/A"
+
+    ' For TV episodes, use the show name (not "Show — Episode") for OMDB title search.
+    omdbTitle = meta.title
+    if meta.showName <> "" then omdbTitle = meta.showName
+    fetchOmdbRatings(meta.imdbId, omdbTitle, meta.year)
+
+    if m.carouselEnabled then m.carouselTimer.control = "stop"
+    refs.root.visible = true
+end sub
+
+' Spin up OMDBTask. Prefers the imdbId; falls back to title + year search so
+' the modal still gets ratings for items whose Plex agent didn't surface the
+' imdb:// Guid.
+sub fetchOmdbRatings(imdbId as String, title as String, year as String)
+    if imdbId = "" and title = "" then
+        print "[scene] no imdbId and no title for current item; skipping OMDB lookup"
+        return
+    end if
+    task = createObject("roSGNode", "OMDBTask")
+    if task = invalid then
+        print "[scene] OMDBTask create failed"
+        return
+    end if
+    task.observeField("result", "onOmdbResult")
+    task.apiKey = m.omdbApiKey
+    task.imdbId = imdbId
+    task.title = title
+    task.year = year
+    task.control = "RUN"
+    if imdbId <> "" then
+        print "[scene] OMDBTask started for imdb=" + imdbId
+    else
+        print "[scene] OMDBTask started for title=" + title + " year=" + year
+    end if
+end sub
+
+sub onOmdbResult(event as Object)
+    result = event.getData()
+    if result = invalid then
+        print "[scene] OMDB result was invalid"
+        return
+    end if
+    if not result.ok then
+        print "[scene] OMDB error: " + result.error
+        return
+    end if
+    refs = m.activeModalRefs
+    if refs = invalid then return
+    if not refs.root.visible then return  ' user closed before we returned
+
+    if result.imdbRating <> "" then refs.ratingImdbValue.text = result.imdbRating + "/10"
+    if result.rottenTomatoes <> "" then refs.ratingRtValue.text = result.rottenTomatoes
+    if result.metacritic <> "" then refs.ratingMetaValue.text = result.metacritic
+end sub
+
+' Build the Stat Box row inside the given Group (a plain Group anchored at
+' the Stat Box center in its respective modal). Each child Label is
+' auto-sized (no explicit width) so text never truncates regardless of
+' estimate error. Cursor advance uses a per-character weighted estimator so
+' the visual gap between segments stays roughly even — digits are slightly
+' wider than caps in Oswald-Medium, and spaces/punctuation are narrower.
+sub buildExpandedStats(group as Object, parts as Object)
+    while group.getChildCount() > 0
+        group.removeChildIndex(0)
+    end while
+    m.expandedStatsDots = []
+    accent = m.accentColors[m.accentColorIndex].hex
+
+    ' Oswald-Bold 36pt "·" glyph rendered width, hand-tuned to match.
+    dotW = 14
+    spacing = 14
+
+    items = []
+    for i = 0 to parts.Count() - 1
+        if i > 0 then
+            items.push({ kind: "dot", text: "·", w: dotW })
+        end if
+        text = UCase(parts[i])
+        items.push({ kind: "seg", text: text, w: estimateStatTextWidth(text) })
+    end for
+
+    total = 0
+    for each it in items
+        total = total + it.w
+    end for
+    if items.Count() > 1 then total = total + spacing * (items.Count() - 1)
+
+    cursor = -total / 2
+    for each it in items
+        node = createObject("roSGNode", "Label")
+        node.text = it.text
+        node.vertAlign = "center"
+        ' width omitted -> Roku auto-sizes the Label to its text. Prevents
+        ' the truncation we'd otherwise hit when an estimate is too small.
+        node.height = 80
+        node.translation = [cursor, -40]
+        nFont = createObject("roSGNode", "Font")
+        if it.kind = "dot" then
+            node.color = accent
+            nFont.uri = "pkg:/fonts/Oswald-Bold.ttf"
+            nFont.size = 36
+            node.font = nFont
+            m.expandedStatsDots.push(node)
+        else
+            node.color = "0xFFFFFFFF"
+            nFont.uri = "pkg:/fonts/Oswald-Medium.ttf"
+            nFont.size = 28
+            node.font = nFont
+        end if
+        group.appendChild(node)
+        cursor = cursor + it.w + spacing
+    end for
+end sub
+
+' Estimate the rendered width of an UPPERCASE Oswald-Medium 28pt string.
+' Walks bytes (UTF-8) and weights digits, caps, spaces, punctuation, and
+' multi-byte glyphs separately. Used to choose the cursor advance between
+' auto-sized Labels in the Stat Box — accurate enough that gaps stay
+' visually consistent across short numeric strings and long uppercase phrases.
+function estimateStatTextWidth(text as String) as Integer
+    if text = invalid or text = "" then return 0
+    w = 0
+    n = Len(text)
+    i = 1
+    while i <= n
+        b = Asc(Mid(text, i, 1))
+        if b >= 192 then
+            ' Multi-byte UTF-8 lead — count as one narrow glyph and skip
+            ' the continuation bytes (0x80-0xBF).
+            w = w + 8
+            if b >= 240 then
+                i = i + 3
+            else if b >= 224 then
+                i = i + 2
+            else
+                i = i + 1
+            end if
+        else if b = 32 then
+            w = w + 7   ' space
+        else if b = 44 or b = 46 then
+            w = w + 5   ' , .
+        else if b = 45 or b = 47 then
+            w = w + 8   ' - /
+        else if b >= 48 and b <= 57 then
+            w = w + 15  ' digits — Oswald-Medium digits a touch wider than caps
+        else
+            w = w + 13  ' caps and everything else
+        end if
+        i = i + 1
+    end while
+    return w
+end function
+
+' Build a credit value LayoutGroup: SmallestSystemFont white name segments
+' separated by accent-color "·" dot labels. Plex returns the value already
+' joined with " · " — split on that delimiter so each dot can be colored
+' independently of the names (single-color Labels can't mix). Drops parts
+' from the tail and appends an ellipsis when the row would exceed maxWidth
+' (so a long cast list doesn't run past the 60px outer gutter in portrait).
+sub buildCreditValue(group as Object, value as String, maxWidth as Integer)
+    while group.getChildCount() > 0
+        group.removeChildIndex(0)
+    end while
+    if value = "" then return
+    parts = splitDotSeparator(value)
+    accent = m.accentColors[m.accentColorIndex].hex
+
+    ' Width estimates for SmallestSystemFont names and Oswald-Bold 36 "·" dots.
+    ' Conservative (slightly oversized) so we truncate before overflowing
+    ' rather than after.
+    dotW = 18
+    spacing = 12
+    ellipsisW = 22
+    runningW = 0
+    truncated = false
+
+    for i = 0 to parts.Count() - 1
+        nameW = estimateCreditNameWidth(parts[i])
+        if i > 0 then
+            addW = spacing + dotW + spacing + nameW
+        else
+            addW = nameW
+        end if
+        ' Reserve ellipsis space when this isn't the last part we'd render.
+        reserve = 0
+        if i < parts.Count() - 1 then reserve = spacing + ellipsisW
+        if maxWidth > 0 and runningW + addW + reserve > maxWidth then
+            truncated = true
+            exit for
+        end if
+
+        if i > 0 then
+            dot = createObject("roSGNode", "Label")
+            dot.color = accent
+            dot.text = "·"
+            dot.vertAlign = "center"
+            ' Match the Stat Box dot weight/size so the bullet motif reads as
+            ' a single design element across the modal.
+            dotFont = createObject("roSGNode", "Font")
+            dotFont.uri = "pkg:/fonts/Oswald-Bold.ttf"
+            dotFont.size = 36
+            dot.font = dotFont
+            group.appendChild(dot)
+            m.expandedCreditDots.push(dot)
+        end if
+        seg = createObject("roSGNode", "Label")
+        seg.color = "0xE5E5E5FF"
+        seg.text = parts[i]
+        seg.vertAlign = "center"
+        seg.font = "font:SmallestSystemFont"
+        group.appendChild(seg)
+        runningW = runningW + addW
+    end for
+
+    if truncated then
+        ell = createObject("roSGNode", "Label")
+        ell.color = "0xE5E5E5FF"
+        ell.text = "…"
+        ell.vertAlign = "center"
+        ell.font = "font:SmallestSystemFont"
+        group.appendChild(ell)
+    end if
+end sub
+
+' Rough width estimator for a SmallestSystemFont credit name. Walks bytes
+' (UTF-8) and weights uppercase/lowercase/digits/spaces/punctuation. Used
+' only for truncation decisions, so a slight over-estimate is the safe bias.
+function estimateCreditNameWidth(text as String) as Integer
+    if text = invalid or text = "" then return 0
+    w = 0
+    n = Len(text)
+    i = 1
+    while i <= n
+        b = Asc(Mid(text, i, 1))
+        if b >= 192 then
+            w = w + 8
+            if b >= 240 then
+                i = i + 3
+            else if b >= 224 then
+                i = i + 2
+            else
+                i = i + 1
+            end if
+        else if b = 32 then
+            w = w + 5
+        else if b = 44 or b = 46 then
+            w = w + 4
+        else if b = 45 or b = 47 or b = 39 then
+            w = w + 5
+        else if b >= 48 and b <= 57 then
+            w = w + 10
+        else if b >= 65 and b <= 90 then
+            w = w + 11
+        else
+            w = w + 9
+        end if
+        i = i + 1
+    end while
+    return w
+end function
+
+' Split a Plex-joined string ("a · b · c") into its parts. Tokenize() can't
+' be used because the middle-dot is multi-byte UTF-8; do an Instr-based scan
+' on the literal " · " delimiter instead.
+function splitDotSeparator(s as String) as Object
+    out = []
+    if s = "" then return out
+    sep = " · "
+    sepLen = Len(sep)
+    rest = s
+    p = Instr(1, rest, sep)
+    while p > 0
+        out.push(Left(rest, p - 1))
+        rest = Mid(rest, p + sepLen)
+        p = Instr(1, rest, sep)
+    end while
+    out.push(rest)
+    return out
+end function
+
+' Set a credit pair: build its value LayoutGroup and show/hide both label
+' and value together based on whether the value is non-empty. maxWidth caps
+' the rendered value width so long lists truncate with an ellipsis instead
+' of running off the modal's 60px outer gutter.
+sub setCreditPair(labelNode as Object, valueNode as Object, value as String, maxWidth as Integer)
+    buildCreditValue(valueNode, value, maxWidth)
+    show = (value <> "")
+    labelNode.visible = show
+    valueNode.visible = show
+end sub
+
+' Convert Plex's ISO-style "YYYY-MM-DD" date into "Month DD, YYYY".
+function formatReleaseDate(d as String) as String
+    if d = "" then return ""
+    if Len(d) < 10 then return d
+    yearStr = d.Mid(0, 4)
+    monthStr = d.Mid(5, 2)
+    dayStr = d.Mid(8, 2)
+    months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    monthIdx = monthStr.ToInt() - 1
+    if monthIdx < 0 or monthIdx >= 12 then return d
+    return months[monthIdx] + " " + dayStr.ToInt().ToStr() + ", " + yearStr
+end function
+
+sub closeExpandedDescription()
+    m.expandedDescription.visible = false
+    m.portraitExpandedDescription.visible = false
+    m.activeModalRefs = invalid
+    if m.carouselEnabled and not m.carouselPaused then
+        m.carouselTimer.control = "start"
+    end if
+end sub
+
+' Snapshot the current session's metadata so the expanded details modal can
+' show it on demand — even between Plex poll refreshes.
+sub setMetadataFromSession(sessionInfo as Object)
+    m.currentSessionMetadata = {
+        title: stringOrEmptyAny(sessionInfo.title),
+        showName: stringOrEmptyAny(sessionInfo.showName),
+        tagline: sessionInfo.tagline,
+        summary: sessionInfo.summary,
+        studio: sessionInfo.studio,
+        releaseDate: sessionInfo.releaseDate,
+        directors: sessionInfo.directors,
+        writers: sessionInfo.writers,
+        cast: sessionInfo.cast,
+        genres: sessionInfo.genres,
+        year: sessionInfo.year,
+        duration: sessionInfo.duration,
+        contentRating: sessionInfo.contentRating,
+        audienceRating: sessionInfo.audienceRating,
+        imdbId: stringOrEmptyAny(sessionInfo.imdbId),
+        artUri: stringOrEmptyAny(sessionInfo.artUri)
+    }
+end sub
+
+' Format a duration in ms as "Xh Ym" or "Ym" if under an hour.
+function formatRuntime(ms as Integer) as String
+    totalMins = Int(ms / 60000)
+    if totalMins < 60 then return totalMins.ToStr() + "m"
+    h = Int(totalMins / 60)
+    m_ = totalMins mod 60
+    if m_ = 0 then return h.ToStr() + "h"
+    return h.ToStr() + "h " + m_.ToStr() + "m"
+end function
+
+' Render a thick black matte around the portrait poster when enabled. The matte
+' is four separate strips (top/bottom/left/right) inside a Group that shares
+' the poster's rotation + center; the inner region is sized to the Plex poster
+' content aspect (2:3) so the matte appears visually uniform on all sides
+' instead of getting padded by scaleToFit on the top/bottom. When info is on
+' the viewer-bottom strip hides because the chrome strip already provides a
+' black band there. Hidden in landscape modes and whenever the theater border
+' is on (that PNG provides its own frame).
+sub applyPortraitPosterBorder()
+    isPortrait = (m.viewMode = 2 or m.viewMode = 3)
+    showBorder = m.portraitBorderEnabled and isPortrait and not m.borderEnabled
+    m.portraitPosterBorderGroup.visible = showBorder
+    if not showBorder then return
+
+    thickness = 60
+    contentAspect = 2.0 / 3.0
+
+    posterT = m.poster.translation
+    outerW = m.poster.width
+    outerH = m.poster.height
+    posterCenter = [posterT[0] + outerW / 2, posterT[1] + outerH / 2]
+
+    ' Largest 2:3 (W:H) box that fits inside outer minus `thickness` on each side.
+    maxInnerW = outerW - thickness * 2
+    maxInnerH = outerH - thickness * 2
+    innerW = maxInnerW
+    innerH = innerW / contentAspect
+    if innerH > maxInnerH then
+        innerH = maxInnerH
+        innerW = innerH * contentAspect
+    end if
+
+    matteW = innerW + thickness * 2
+    matteH = innerH + thickness * 2
+
+    m.portraitPosterBorderGroup.scaleRotateCenter = [matteW / 2, matteH / 2]
+    m.portraitPosterBorderGroup.translation = [posterCenter[0] - matteW / 2, posterCenter[1] - matteH / 2]
+    m.portraitPosterBorderGroup.rotation = m.poster.rotation
+
+    m.portraitPosterBorderTop.translation = [0, 0]
+    m.portraitPosterBorderTop.width = matteW
+    m.portraitPosterBorderTop.height = thickness
+
+    m.portraitPosterBorderBottom.translation = [0, matteH - thickness]
+    m.portraitPosterBorderBottom.width = matteW
+    m.portraitPosterBorderBottom.height = thickness
+
+    m.portraitPosterBorderLeft.translation = [0, 0]
+    m.portraitPosterBorderLeft.width = thickness
+    m.portraitPosterBorderLeft.height = matteH
+
+    m.portraitPosterBorderRight.translation = [matteW - thickness, 0]
+    m.portraitPosterBorderRight.width = thickness
+    m.portraitPosterBorderRight.height = matteH
+
+    ' For both flip orientations, the pre-rotation TOP edge (local y=0) ends up
+    ' at the viewer's bottom — that's the side that overlaps the chrome strip
+    ' when info is on, so hide it then.
+    m.portraitPosterBorderTop.visible = not m.infoEnabled
+
+    m.poster.width = innerW
+    m.poster.height = innerH
+    m.poster.scaleRotateCenter = [innerW / 2, innerH / 2]
+    m.poster.translation = [posterCenter[0] - innerW / 2, posterCenter[1] - innerH / 2]
+    ' Fill the matte's inner box even for off-aspect posters (square album art,
+    ' 4:3 covers, etc.) so the matte stays a clean uniform frame. Without this
+    ' override, scaleToFit would letterbox the content inside the 2:3 inner box.
+    ' (Note: zoomToFill preserves aspect and crops; scaleToFill stretches.)
+    m.poster.loadDisplayMode = "zoomToFill"
+end sub
+
+' Swap the main poster (and ambient backdrop) to new images, optionally animated.
+' Carousel ticks and Plex playback updates funnel through here so the
+' transition style picked in Settings is honored everywhere.
+sub transitionPoster(newUri as String, newBackgroundUri as String)
+    if newUri = "" then return
+    if m.poster.uri = newUri then return
+    if m.transitionInProgress then
+        ' A transition is already running — let it finish but update the
+        ' pending target so the very next frame snaps in the latest poster.
+        m.pendingPosterUri = newUri
+        m.pendingBackgroundUri = newBackgroundUri
+        return
+    end if
+
+    if m.transitionStyle = "abrupt" then
+        m.poster.uri = newUri
+        m.backgroundPoster.uri = newBackgroundUri
+        return
+    end if
+
+    m.pendingPosterUri = newUri
+    m.pendingBackgroundUri = newBackgroundUri
+    m.transitionInProgress = true
+
+    if m.transitionStyle = "fade" then
+        m.posterFadeOut.control = "start"
+    else if m.transitionStyle = "slide" then
+        m.savedPosterTranslation = m.poster.translation
+        offX = m.savedPosterTranslation[0]
+        offY = m.savedPosterTranslation[1]
+        delta = slideOutDelta()
+        m.posterSlideOutInterp.keyValue = [[offX, offY], [offX + delta[0], offY + delta[1]]]
+        m.posterSlideOut.control = "start"
+    end if
+end sub
+
+' Compute the slide-out translation delta in physical coordinates so the poster
+' always exits toward viewer-LEFT (regardless of the rotation applied for
+' portrait modes). For landscape the poster isn't rotated, so a screen-x shift
+' looks horizontal directly. For portrait non-flip (rotation +π/2 CCW), viewer-x
+' maps to (1080 - physical-y), so sliding viewer-left = increasing physical-y.
+' For portrait flip (rotation -π/2 CW), viewer-x = physical-y, so viewer-left =
+' decreasing physical-y.
+function slideOutDelta() as Object
+    isLandscape = (m.viewMode = 0 or m.viewMode = 1)
+    if isLandscape then return [-2000, 0]
+    if m.portraitFlip then return [0, -2000]
+    return [0, 2000]
+end function
+
+sub onPosterFadeOutState(event as Object)
+    if event.getData() <> "stopped" then return
+    if not m.transitionInProgress then return
+    m.poster.uri = m.pendingPosterUri
+    m.backgroundPoster.uri = m.pendingBackgroundUri
+    m.posterFadeIn.control = "start"
+end sub
+
+sub onPosterFadeInState(event as Object)
+    if event.getData() <> "stopped" then return
+    m.transitionInProgress = false
+end sub
+
+sub onPosterSlideOutState(event as Object)
+    if event.getData() <> "stopped" then return
+    if not m.transitionInProgress then return
+    m.poster.uri = m.pendingPosterUri
+    m.backgroundPoster.uri = m.pendingBackgroundUri
+    offX = m.savedPosterTranslation[0]
+    offY = m.savedPosterTranslation[1]
+    delta = slideOutDelta()
+    ' Slide-in enters from the OPPOSITE side, so its starting offset is -delta.
+    startX = offX - delta[0]
+    startY = offY - delta[1]
+    m.poster.translation = [startX, startY]
+    m.posterSlideInInterp.keyValue = [[startX, startY], [offX, offY]]
+    m.posterSlideIn.control = "start"
+end sub
+
+sub onPosterSlideInState(event as Object)
+    if event.getData() <> "stopped" then return
+    m.transitionInProgress = false
+end sub
+
+' Cancel any running poster transition. Called from applyViewMode before we
+' reposition / resize the poster so the animation can't fight the new layout.
+sub resetPosterTransitions()
+    m.transitionInProgress = false
+    m.posterFadeOut.control = "stop"
+    m.posterFadeIn.control = "stop"
+    m.posterSlideOut.control = "stop"
+    m.posterSlideIn.control = "stop"
+    m.poster.opacity = 1.0
+    m.backgroundPoster.opacity = 0.18
+end sub
+
+sub showBlockedRatingsOverlay()
+    blocked = parseBlockedRatingsLocal(m.settings.blockedRatings)
+
+    content = createObject("roSGNode", "ContentNode")
+    checkedState = []
+    for each rating in m.blockedRatingOptions
+        item = content.createChild("ContentNode")
+        item.title = rating
+        checkedState.push(blocked[LCase(rating)] = true)
+    end for
+
+    m.blockedRatingsCheckList.content = content
+    m.blockedRatingsCheckList.checkedState = checkedState
+    m.blockedRatingsOverlay.visible = true
+    m.blockedRatingsCheckList.setFocus(true)
+end sub
+
+sub saveBlockedRatings()
+    if m.blockedRatingsCheckList = invalid then return
+    state = m.blockedRatingsCheckList.checkedState
+    parts = []
+    for i = 0 to m.blockedRatingOptions.Count() - 1
+        if state[i] = true then parts.push(m.blockedRatingOptions[i])
+    end for
+    joined = ""
+    for i = 0 to parts.Count() - 1
+        if i > 0 then joined = joined + ", "
+        joined = joined + parts[i]
+    end for
+    m.settings.blockedRatings = joined
+    m.registry.Write("blockedRatings", joined)
+    m.registry.Flush()
+    m.carouselPosters = []
+    closeBlockedRatingsOverlay()
+end sub
+
+sub closeBlockedRatingsOverlay()
+    m.blockedRatingsOverlay.visible = false
+    refocusSettings()
+    returnToSettingsContext()
+end sub
+
+function parseBlockedRatingsLocal(s as String) as Object
+    result = {}
+    if s = "" then return result
+    parts = s.Split(",")
+    for each part in parts
+        normalized = LCase(part.Trim())
+        if normalized <> "" then result[normalized] = true
+    end for
+    return result
+end function
 
 sub onPollTimerFired()
     if m.carouselEnabled then return
@@ -271,8 +1587,9 @@ sub toggleCarousel()
     m.registry.Flush()
 
     if m.carouselEnabled then
+        m.carouselPaused = false
         m.pollTimer.control = "stop"
-        showModeIndicator("Carousel: On")
+        showModeIndicator("Carousel: On  —  Play pauses, Fwd advances")
         startCarousel()
     else
         m.carouselTimer.control = "stop"
@@ -282,6 +1599,27 @@ sub toggleCarousel()
             setStatusMessage("Loading current Plex poster...")
             refreshPoster()
         end if
+    end if
+end sub
+
+sub toggleCarouselPause()
+    m.carouselPaused = not m.carouselPaused
+    if m.carouselPaused then
+        m.carouselTimer.control = "stop"
+        showModeIndicator("Carousel paused")
+    else
+        m.carouselTimer.control = "start"
+        showModeIndicator("Carousel playing")
+    end if
+end sub
+
+sub advanceCarousel()
+    showNextCarouselPoster()
+    ' Reset the timer so the new poster gets a full interval — unless paused,
+    ' in which case the user is browsing manually and we leave the timer stopped.
+    if not m.carouselPaused then
+        m.carouselTimer.control = "stop"
+        m.carouselTimer.control = "start"
     end if
 end sub
 
@@ -298,7 +1636,7 @@ sub startCarousel()
     end if
     m.libraryTask.plexServer = m.settings.plexServer
     m.libraryTask.plexToken = m.settings.plexToken
-    m.libraryTask.excludedLibraries = m.settings.excludedLibraries
+    m.libraryTask.blockedRatings = m.settings.blockedRatings
     m.libraryTask.control = "RUN"
 end sub
 
@@ -322,25 +1660,309 @@ sub showNextCarouselPoster()
     idx = rnd(m.carouselPosters.Count()) - 1
     item = m.carouselPosters[idx]
     if item = invalid then return
-    m.poster.uri = item.posterUri
-    m.backgroundPoster.uri = item.backgroundUri
+    m.currentPosterUri = item.posterUri
+    m.currentArtUri = stringOrEmptyAny(item.artUri)
+    transitionPoster(activePosterUri(), item.backgroundUri)
     isLandscape = (m.viewMode = 0 or m.viewMode = 1)
     m.backgroundPoster.visible = isLandscape and (item.backgroundUri <> "")
-    setNowPlayingTitle(item.title, "")
-    m.titleMarqueeLabel.text = item.title
+    itemYear = ""
+    if item.year <> invalid then itemYear = item.year
+    itemRating = ""
+    if item.contentRating <> invalid then itemRating = item.contentRating
+    setNowPlayingTitle(item.title, "", itemYear, itemRating)
+    m.titleMarqueeLabel.text = UCase(item.title)
     m.isPlaying = true
     m.duration = 0
     m.hasEpisodePoster = false
+    ' Library items carry the same metadata fields as session items (extracted
+    ' by PlexLibraryTask), so we can reuse the same overlay setter.
+    setMetadataFromSession(carouselItemAsMetadata(item))
     updateInfoVisibility()
 end sub
 
+' Normalize a carousel item into the shape setMetadataFromSession expects.
+' PlexLibraryTask doesn't expose `state` and never has a duration > 0 right
+' now (we don't track playback progress on library items), so we fill those
+' with safe defaults.
+function carouselItemAsMetadata(item as Object) as Object
+    return {
+        title: stringOrEmptyAny(item.title),
+        showName: "",
+        tagline: stringOrEmptyAny(item.tagline),
+        summary: stringOrEmptyAny(item.summary),
+        studio: stringOrEmptyAny(item.studio),
+        releaseDate: stringOrEmptyAny(item.releaseDate),
+        directors: stringOrEmptyAny(item.directors),
+        writers: stringOrEmptyAny(item.writers),
+        cast: stringOrEmptyAny(item.cast),
+        genres: stringOrEmptyAny(item.genres),
+        year: stringOrEmptyAny(item.year),
+        duration: intOrZeroAny(item.duration),
+        contentRating: stringOrEmptyAny(item.contentRating),
+        audienceRating: stringOrEmptyAny(item.audienceRating),
+        imdbId: stringOrEmptyAny(item.imdbId),
+        artUri: stringOrEmptyAny(item.artUri)
+    }
+end function
+
+function stringOrEmptyAny(v as Dynamic) as String
+    if v = invalid then return ""
+    return v
+end function
+
+function intOrZeroAny(v as Dynamic) as Integer
+    if v = invalid then return 0
+    return v
+end function
+
+' Entry point for the Settings flow. Tries Plex GDM discovery first so the user
+' can pick a server from a list rather than typing an IP. Falls back to manual
+' URL entry if nothing's found or the user opts out.
+' ----- Plex.tv sign-in (PIN flow) -----
+' Replaces the manual token entry for users who'd rather log into Plex on
+' their phone/computer. Flow: request a 4-char PIN, display it with the
+' plex.tv/link URL, poll Plex.tv every few seconds for the user to enter the
+' code, then list the user's Plex servers and let them pick one.
+
+sub startPlexSignIn()
+    m.plexPinId = ""
+    m.plexPinCode = ""
+    m.plexAuthToken = ""
+    m.plexSignInCodeLabel.text = "----"
+    m.plexSignInStatusLabel.text = "Requesting code..."
+    m.plexSignInOverlay.visible = true
+    print "[plex.signin] starting; clientId=" + m.plexClientId
+
+    task = createObject("roSGNode", "PlexAuthTask")
+    if task = invalid then
+        cancelPlexSignIn("Plex sign-in unavailable on this device.")
+        return
+    end if
+    task.observeField("result", "onPlexPinRequested")
+    task.mode = "requestPin"
+    task.clientId = m.plexClientId
+    task.control = "RUN"
+end sub
+
+sub onPlexPinRequested(event as Object)
+    result = event.getData()
+    if result = invalid then
+        print "[plex.signin] pin request returned invalid result"
+        cancelPlexSignIn("Couldn't reach Plex.tv. Try again later.")
+        return
+    end if
+    if not result.ok then
+        print "[plex.signin] pin request failed: " + result.error
+        cancelPlexSignIn("Couldn't reach Plex.tv. Try again later.")
+        return
+    end if
+    m.plexPinId = result.pinId
+    m.plexPinCode = result.pinCode
+    m.plexSignInCodeLabel.text = UCase(result.pinCode)
+    m.plexSignInStatusLabel.text = "Waiting for authorization..."
+    m.plexSignInPollTimer.control = "start"
+    print "[plex.signin] PIN ready: id=" + result.pinId + " code=" + result.pinCode
+end sub
+
+sub onPlexSignInPollTick()
+    if not m.plexSignInOverlay.visible then
+        m.plexSignInPollTimer.control = "stop"
+        return
+    end if
+    if m.plexPinId = "" then return
+
+    task = createObject("roSGNode", "PlexAuthTask")
+    if task = invalid then return
+    task.observeField("result", "onPlexPinPolled")
+    task.mode = "pollPin"
+    task.clientId = m.plexClientId
+    task.pinId = m.plexPinId
+    task.pinCode = m.plexPinCode
+    task.control = "RUN"
+end sub
+
+sub onPlexPinPolled(event as Object)
+    result = event.getData()
+    if result = invalid then return
+    if result.expired then
+        print "[plex.signin] PIN expired"
+        cancelPlexSignIn("Code expired. Please try again.")
+        return
+    end if
+    if not result.ok then return  ' transient — keep polling
+    if result.authToken = "" then return  ' user hasn't entered the code yet
+
+    ' Got a token! Fetch the user's server list.
+    m.plexSignInPollTimer.control = "stop"
+    m.plexAuthToken = result.authToken
+    m.plexSignInStatusLabel.text = "Signed in. Loading servers..."
+    print "[plex.signin] got authToken (len=" + Len(result.authToken).ToStr() + "); requesting server list"
+
+    task = createObject("roSGNode", "PlexAuthTask")
+    if task = invalid then
+        cancelPlexSignIn("Couldn't load servers.")
+        return
+    end if
+    task.observeField("result", "onPlexServersListed")
+    task.mode = "listServers"
+    task.clientId = m.plexClientId
+    task.plexToken = m.plexAuthToken
+    task.control = "RUN"
+end sub
+
+sub onPlexServersListed(event as Object)
+    result = event.getData()
+    if result = invalid then
+        print "[plex.signin] server list result was invalid"
+        cancelPlexSignIn("Couldn't load your Plex servers.")
+        return
+    end if
+    if not result.ok then
+        print "[plex.signin] server list failed: " + result.error
+        cancelPlexSignIn("Couldn't load your Plex servers.")
+        return
+    end if
+    if result.servers.Count() = 0 then
+        print "[plex.signin] server list returned zero servers"
+        cancelPlexSignIn("No Plex servers found on your account.")
+        return
+    end if
+    print "[plex.signin] got " + result.servers.Count().ToStr() + " server(s) — showing picker"
+
+    m.plexServerChoices = result.servers
+    m.plexSignInOverlay.visible = false
+
+    dialog = createObject("roSGNode", "StandardMessageDialog")
+    dialog.title = "Choose a Plex Server"
+    dialog.message = ["Pick the server this display should use."]
+    buttons = []
+    for each s in result.servers
+        label = s.name
+        if not s.owned then label = label + " (shared)"
+        buttons.push(label)
+    end for
+    buttons.push("Cancel")
+    dialog.buttons = buttons
+    dialog.observeField("buttonSelected", "onPlexServerChosen")
+    m.top.dialog = dialog
+end sub
+
+sub onPlexServerChosen(event as Object)
+    idx = event.getData()
+    m.top.dialog = invalid
+    if idx < 0 or idx >= m.plexServerChoices.Count() then
+        print "[plex.signin] server picker cancelled"
+        returnToSettingsContext()
+        return
+    end if
+    server = m.plexServerChoices[idx]
+    print "[plex.signin] selected server: name=" + server.name + " url=" + server.url + " tokenLen=" + Len(server.accessToken).ToStr()
+    m.settings.plexServer = server.url
+    m.settings.plexToken = server.accessToken
+    m.registry.Write("plexServer", server.url)
+    m.registry.Write("plexToken", server.accessToken)
+    m.registry.Flush()
+    m.carouselPosters = []
+    ' Exit settings directly so cancelSettings can kick off the carousel /
+    ' session refresh. If we returned to the Plex Connection sub-menu the user
+    ' would still see "Press OK to enter your Plex server and token..." until
+    ' they manually closed every menu level.
+    cancelSettings()
+end sub
+
+sub cancelPlexSignIn(msg as String)
+    m.plexSignInPollTimer.control = "stop"
+    m.plexSignInOverlay.visible = false
+    m.plexPinId = ""
+    m.plexPinCode = ""
+    if msg <> "" then setStatusMessage(msg)
+    returnToSettingsContext()
+end sub
+
 sub promptServer()
+    setStatusMessage("Searching for Plex servers...")
+    if m.discoveryTask = invalid then
+        m.discoveryTask = createObject("roSGNode", "PlexDiscoveryTask")
+        m.discoveryTask.observeField("servers", "onServersDiscovered")
+    end if
+    m.discoveryTask.control = "RUN"
+end sub
+
+sub onServersDiscovered(event as Object)
+    servers = event.getData()
+    m.discoveredServers = servers
+    if servers = invalid or servers.Count() = 0 then
+        promptServerManual()
+        return
+    end if
+    showServerSelectionDialog()
+end sub
+
+sub showServerSelectionDialog()
+    dialog = createObject("roSGNode", "StandardMessageDialog")
+    dialog.title = "Choose a Plex Server"
+    dialog.message = ["These servers responded on your network. Pick one or enter a URL manually."]
+
+    buttons = []
+    for each server in m.discoveredServers
+        label = server.name
+        if label = "" then label = server.url
+        buttons.push(label)
+    end for
+    buttons.push("Enter manually")
+    buttons.push("Cancel")
+    dialog.buttons = buttons
+    dialog.observeField("buttonSelected", "onServerSelected")
+    m.top.dialog = dialog
+end sub
+
+sub onServerSelected(event as Object)
+    dialog = event.getRoSGNode()
+    if dialog = invalid then return
+
+    selectedIndex = event.getData()
+    m.top.dialog = invalid
+
+    numServers = m.discoveredServers.Count()
+
+    if selectedIndex < numServers then
+        server = m.discoveredServers[selectedIndex]
+        m.settings.plexServer = server.url
+        m.registry.Write("plexServer", server.url)
+        m.registry.Flush()
+        m.carouselPosters = []
+        returnToSettingsContext()
+    else if selectedIndex = numServers then
+        promptServerManual()
+    else
+        returnToSettingsContext()
+    end if
+end sub
+
+sub promptServerManual()
     dialog = createObject("roSGNode", "StandardKeyboardDialog")
     dialog.title = "Plex Server URL"
     dialog.text = m.settings.plexServer
     dialog.buttons = ["OK", "Cancel"]
     dialog.observeField("buttonSelected", "onServerEntered")
     m.top.dialog = dialog
+end sub
+
+sub cancelSettings()
+    refocusSettings()
+    if m.settings.plexServer = "" or m.settings.plexToken = "" then
+        setStatusMessage("Press OK to enter your Plex server and token.")
+        return
+    end if
+    if m.carouselEnabled then
+        m.carouselTimer.control = "stop"
+        setStatusMessage("Loading library posters...")
+        startCarousel()
+    else
+        setStatusMessage("Loading current Plex poster...")
+        m.pollTimer.control = "start"
+        refreshPoster()
+    end if
 end sub
 
 sub onServerEntered(event as Object)
@@ -351,25 +1973,25 @@ sub onServerEntered(event as Object)
     enteredText = dialog.text
     if enteredText = invalid then enteredText = ""
 
+    m.top.dialog = invalid
+
     if selectedIndex <> 0 then
-        m.top.dialog = invalid
-        refocusSettings()
+        returnToSettingsContext()
         return
     end if
 
     normalized = normalizeServer(enteredText)
     if normalized = "" then
-        m.top.dialog = invalid
         setStatusMessage("Invalid Plex server URL. Try again.")
-        refocusSettings()
+        returnToSettingsContext()
         return
     end if
 
-    m.pendingServer = normalized
     m.settings.plexServer = normalized
     m.registry.Write("plexServer", normalized)
     m.registry.Flush()
-    promptToken()
+    m.carouselPosters = []
+    returnToSettingsContext()
 end sub
 
 sub promptToken()
@@ -399,45 +2021,8 @@ sub onTokenEntered(event as Object)
     m.settings.plexToken = enteredText
     m.registry.Write("plexToken", m.settings.plexToken)
     m.registry.Flush()
-
-    promptExcludedLibraries()
-end sub
-
-sub promptExcludedLibraries()
-    dialog = createObject("roSGNode", "StandardKeyboardDialog")
-    dialog.title = "Carousel: exclude libraries (comma-separated)"
-    dialog.text = m.settings.excludedLibraries
-    dialog.buttons = ["OK", "Skip"]
-    dialog.observeField("buttonSelected", "onExcludedLibrariesEntered")
-    m.top.dialog = dialog
-end sub
-
-sub onExcludedLibrariesEntered(event as Object)
-    dialog = event.getRoSGNode()
-    if dialog = invalid then return
-
-    selectedIndex = event.getData()
-    enteredText = dialog.text
-    if enteredText = invalid then enteredText = ""
-
-    m.top.dialog = invalid
-    refocusSettings()
-
-    if selectedIndex = 0 then
-        m.settings.excludedLibraries = enteredText
-        m.registry.Write("excludedLibraries", enteredText)
-        m.registry.Flush()
-        m.carouselPosters = []
-    end if
-
-    setStatusMessage("Saved settings. Loading current poster...")
-    if m.carouselEnabled then
-        m.carouselTimer.control = "stop"
-        startCarousel()
-    else
-        m.pollTimer.control = "start"
-        refreshPoster()
-    end if
+    m.carouselPosters = []
+    returnToSettingsContext()
 end sub
 
 sub refocusSettings()
@@ -503,16 +2088,17 @@ sub onSessionResult(event as Object)
         return
     end if
 
-    m.poster.uri = sessionInfo.posterUri
-    m.backgroundPoster.uri = sessionInfo.backgroundUri
+    m.currentPosterUri = sessionInfo.posterUri
+    m.currentArtUri = stringOrEmptyAny(sessionInfo.artUri)
+    transitionPoster(activePosterUri(), sessionInfo.backgroundUri)
     isLandscape = (m.viewMode = 0 or m.viewMode = 1)
     m.backgroundPoster.visible = isLandscape and (sessionInfo.backgroundUri <> "")
-    setNowPlayingTitle(sessionInfo.title, sessionInfo.showName)
+    setNowPlayingTitle(sessionInfo.title, sessionInfo.showName, sessionInfo.year, sessionInfo.contentRating)
 
     ' Marquee shows show name for TV (fits better than full "Show — Episode"), title for movies
     marqueeText = sessionInfo.title
     if sessionInfo.showName <> "" then marqueeText = sessionInfo.showName
-    m.titleMarqueeLabel.text = marqueeText
+    m.titleMarqueeLabel.text = UCase(marqueeText)
 
     ' Episode thumbnail (TV only; movies have no episodePosterUri)
     m.episodePoster.uri = sessionInfo.episodePosterUri
@@ -523,6 +2109,7 @@ sub onSessionResult(event as Object)
     m.playerState = sessionInfo.state
     m.lastUpdate = createObject("roDateTime").AsSeconds()
     m.isPlaying = true
+    setMetadataFromSession(sessionInfo)
     updateInfoVisibility()
     if m.duration > 0 then renderProgress(m.viewOffset)
 end sub
@@ -534,19 +2121,111 @@ sub setStatusMessage(text as String)
     updateInfoVisibility()
 end sub
 
-sub setNowPlayingTitle(title as String, showName as String)
+sub setNowPlayingTitle(title as String, showName as String, year as String, contentRating as String)
     fullTitle = title
     if showName <> "" and title <> "" then
         fullTitle = showName + " — " + title
     else if showName <> "" then
         fullTitle = showName
     end if
-    m.nowPlayingTitle.text = fullTitle
-    m.portraitNowPlayingTitle.text = fullTitle
+
+    upperTitle = UCase(fullTitle)
+    yearText = ""
+    if year <> "" and year <> "0" then yearText = year
+
+    ' Rating: prefer a PNG icon, fall back to bracketed text if none exists for
+    ' this rating (TV-Y / TV-Y7 currently have no icon, for example).
+    iconInfo = getRatingIcon(contentRating)
+    if iconInfo <> invalid then
+        m.ratingIcon.uri = iconInfo.uri
+        m.ratingIcon.width = Int(56 * iconInfo.aspect)
+        m.ratingIcon.height = 56
+        m.portraitRatingIcon.uri = iconInfo.uri
+        m.portraitRatingIcon.width = Int(48 * iconInfo.aspect)
+        m.portraitRatingIcon.height = 48
+        m.nowPlayingPrefix.text = ""
+        m.portraitNowPlayingPrefix.text = ""
+    else
+        m.ratingIcon.uri = ""
+        m.portraitRatingIcon.uri = ""
+        prefixText = ""
+        if contentRating <> "" then prefixText = "[" + UCase(contentRating) + "]"
+        m.nowPlayingPrefix.text = prefixText
+        m.portraitNowPlayingPrefix.text = prefixText
+    end if
+
+    m.nowPlayingTitle.text = upperTitle
+    m.portraitNowPlayingTitle.text = upperTitle
+    m.nowPlayingYear.text = yearText
+    m.portraitNowPlayingYear.text = yearText
 end sub
+
+' Year-label positioning helpers. boundingRect on Roku Labels isn't always
+' fresh when read synchronously (or even observable on some firmwares), so we
+' use the rendered-text width when it's valid and otherwise fall back to a
+' text-length × average-char-width estimate based on Oswald Bold metrics.
+' That keeps the year glued right after the title even before the first paint
+' completes for a new title.
+sub positionYearLabel()
+    ' Landscape chrome is now a vertical left strip — the year sits at a fixed
+    ' position below the wrapped title, not horizontally next to it. No-op here.
+end sub
+
+sub positionPortraitYearLabel()
+    yearY = m.portraitNowPlayingYear.translation[1]
+    titleX = m.portraitNowPlayingTitle.translation[0]
+    width = measuredOrEstimatedTextWidth(m.portraitNowPlayingTitle, 20)
+    m.portraitNowPlayingYear.translation = [titleX + width + 20, yearY]
+end sub
+
+' On-device Roku returns boundingRect as an AA with x/y/width/height fields.
+' The BrightScript Simulator exposes it as a callable method instead, so we
+' handle either shape. If neither yields a positive width we fall back to a
+' text-length * average-char-width estimate.
+function measuredOrEstimatedTextWidth(label as Object, avgCharWidth as Integer) as Integer
+    rect = label.boundingRect
+    if type(rect) = "Function" or type(rect) = "roFunction" then rect = rect()
+    if type(rect) = "roAssociativeArray" and rect.width <> invalid and rect.width > 0 then
+        return rect.width
+    end if
+    return estimatedTextWidth(label.text, avgCharWidth)
+end function
+
+' Rough text-width estimator for Oswald Bold uppercase. The avg-char-width
+' value should be a tiny bit larger than the real average so the year never
+' visually crowds the title.
+function estimatedTextWidth(text as String, avgCharWidth as Integer) as Integer
+    if text = invalid or text = "" then return 0
+    return text.Len() * avgCharWidth
+end function
+
+' Map a Plex contentRating string to the bundled rating PNG. Returns invalid
+' when no icon exists for that rating (caller falls back to a text badge).
+function getRatingIcon(rating as String) as Object
+    nrIcon = { uri: "pkg:/images/ratings/rating_nr.png", aspect: 1.0 }
+    if rating = invalid then return nrIcon
+    r = LCase(rating).Trim()
+    slash = Instr(1, r, "/")
+    if slash > 0 then r = r.Mid(slash + 1).Trim()
+    if r = "" or r = "unrated" or r = "not rated" or r = "nr" then return nrIcon
+    if r = "g" then return { uri: "pkg:/images/ratings/rating_g.png", aspect: 1.0 }
+    if r = "pg" then return { uri: "pkg:/images/ratings/rating_pg.png", aspect: 1.0 }
+    if r = "pg-13" then return { uri: "pkg:/images/ratings/rating_pg13.png", aspect: 1.5 }
+    if r = "r" then return { uri: "pkg:/images/ratings/rating_r.png", aspect: 1.0 }
+    if r = "nc-17" then return { uri: "pkg:/images/ratings/rating_nc17.png", aspect: 1.5 }
+    if r = "xxx" then return { uri: "pkg:/images/ratings/rating_xxx.png", aspect: 1.5 }
+    if r = "tv-y" then return { uri: "pkg:/images/ratings/rating_tvy.png", aspect: 1.0 }
+    if r = "tv-y7" then return { uri: "pkg:/images/ratings/rating_tvy7.png", aspect: 1.0 }
+    if r = "tv-g" then return { uri: "pkg:/images/ratings/rating_tvg.png", aspect: 1.0 }
+    if r = "tv-pg" then return { uri: "pkg:/images/ratings/rating_tvpg.png", aspect: 1.0 }
+    if r = "tv-14" then return { uri: "pkg:/images/ratings/rating_tv14.png", aspect: 1.5 }
+    if r = "tv-ma" then return { uri: "pkg:/images/ratings/rating_tvma.png", aspect: 1.0 }
+    return invalid
+end function
 
 sub onTick()
     if not m.infoEnabled then return
+    updateClock()
     if m.duration <= 0 then return
 
     current = m.viewOffset
@@ -559,20 +2238,43 @@ sub onTick()
     renderProgress(current)
 end sub
 
+sub updateClock()
+    timeText = formatLocalTime12()
+    m.clockLabel.text = timeText
+    m.portraitClockLabel.text = timeText
+end sub
+
+function formatLocalTime12() as String
+    now = createObject("roDateTime")
+    now.ToLocalTime()
+    h = now.GetHours()
+    mins = now.GetMinutes()
+    ampm = "AM"
+    if h >= 12 then ampm = "PM"
+    if h = 0 then
+        h = 12
+    else if h > 12 then
+        h = h - 12
+    end if
+    return Stri(h) + ":" + padTwo(mins) + ampm
+end function
+
 sub renderProgress(positionMs as Integer)
     currentText = formatTime(positionMs)
     totalText = formatTime(m.duration)
+
     m.currentTimeLabel.text = currentText
     m.totalTimeLabel.text = totalText
     m.portraitCurrentTimeLabel.text = currentText
     m.portraitTotalTimeLabel.text = totalText
+
     if m.duration > 0 then
         ratio = positionMs / m.duration
         if ratio < 0 then ratio = 0
         if ratio > 1 then ratio = 1
-        landscapeW = Int(ratio * 1660)
+        landscapeW = Int(ratio * 360)
         if landscapeW < 1 then landscapeW = 1
-        portraitW = Int(ratio * 780)
+        portraitW = Int(ratio * 690)
         if portraitW < 1 then portraitW = 1
         m.progressBarFill.width = landscapeW
         m.portraitProgressBarFill.width = portraitW
@@ -594,34 +2296,77 @@ sub updateInfoVisibility()
     m.settingsButton.visible = needsSetup
     m.portraitSettingsButton.visible = needsSetup
 
-    ' Landscape: swap status mode (message vs now-playing) and hide status when marquee shows
-    showLandscapeStatus = m.landscapeChrome.visible and not marqueeVisible
+    ' Landscape: the vertical left strip hides when the theater marquee is on
+    ' (the marquee handles title + brand by itself). Otherwise it's always
+    ' visible when chrome is — backgrounds are now solid black.
+    m.landscapeChrome.visible = m.landscapeChrome.visible and not marqueeVisible
+    showLandscapeStatus = m.landscapeChrome.visible
     m.overlay.visible = showLandscapeStatus
     m.messageLabel.visible = showLandscapeStatus and not m.isPlaying
-    m.nowPlayingPrefix.visible = showLandscapeStatus and m.isPlaying and not m.carouselEnabled
+    landscapeRatingShown = showLandscapeStatus and m.isPlaying
+    m.ratingIcon.visible = landscapeRatingShown and (m.ratingIcon.uri <> "")
+    m.nowPlayingPrefix.visible = landscapeRatingShown and (m.ratingIcon.uri = "") and (m.nowPlayingPrefix.text <> "")
     m.nowPlayingTitle.visible = showLandscapeStatus and m.isPlaying
+    ' Year lives in the metadata panel now — keep it out of the info chrome.
+    m.nowPlayingYear.visible = false
+    m.clockLabel.visible = showLandscapeStatus
 
-    ' Portrait: similar status swap (no marquee in portrait)
+    ' Portrait: same identical layout in both modes.
+    portraitRatingShown = m.portraitChrome.visible and m.isPlaying
     m.portraitMessageLabel.visible = m.portraitChrome.visible and not m.isPlaying
-    m.portraitNowPlayingPrefix.visible = m.portraitChrome.visible and m.isPlaying and not m.carouselEnabled
+    m.portraitRatingIcon.visible = portraitRatingShown and (m.portraitRatingIcon.uri <> "")
+    m.portraitNowPlayingPrefix.visible = portraitRatingShown and (m.portraitRatingIcon.uri = "") and (m.portraitNowPlayingPrefix.text <> "")
     m.portraitNowPlayingTitle.visible = m.portraitChrome.visible and m.isPlaying
+    ' Year lives in the metadata panel now — keep it out of the info chrome.
+    m.portraitNowPlayingYear.visible = false
 
-    ' In carousel mode, expand the title to span full width and center it (no prefix)
-    if m.carouselEnabled then
-        m.nowPlayingTitle.translation = [130, 952]
-        m.nowPlayingTitle.width = 1660
-        m.nowPlayingTitle.horizAlign = "center"
-        m.portraitNowPlayingTitle.translation = [20, 80]
-        m.portraitNowPlayingTitle.width = 1040
-        m.portraitNowPlayingTitle.horizAlign = "center"
-    else
-        m.nowPlayingTitle.translation = [420, 952]
-        m.nowPlayingTitle.width = 1370
-        m.nowPlayingTitle.horizAlign = "left"
-        m.portraitNowPlayingTitle.translation = [270, 80]
-        m.portraitNowPlayingTitle.width = 720
-        m.portraitNowPlayingTitle.horizAlign = "left"
-    end if
+    ' Width of whatever fills the rating slot — the PNG icon if we have one
+    ' (variable, depends on aspect), otherwise the fixed-width text badge.
+    landscapeRatingWidth = 160
+    if m.ratingIcon.uri <> "" then landscapeRatingWidth = m.ratingIcon.width
+    portraitRatingWidth = 120
+    if m.portraitRatingIcon.uri <> "" then portraitRatingWidth = m.portraitRatingIcon.width
+
+    ' Landscape: vertical left strip. Rating icon centered above the title;
+    ' title wraps centered in the strip; year sits at fixed Y below title.
+    ' (Sizing for the icon comes from getRatingIcon — variable width because
+    ' some ratings use 3:2 wide PNGs and others are square.)
+    iconY = 50
+    landscapeRatingX = (400 - landscapeRatingWidth) / 2
+    m.ratingIcon.translation = [landscapeRatingX, iconY]
+    m.nowPlayingPrefix.translation = [20, iconY]  ' text prefix uses full strip width
+    m.nowPlayingTitle.translation = [20, 140]
+    m.nowPlayingTitle.width = 360
+    m.nowPlayingTitle.horizAlign = "center"
+
+    ' Vertical layout inside the 230-tall strip:
+    '   With progress: 50 top + 32 progress + 50 gap + 48 row + 50 bottom (progress y=50, row y=132)
+    '   Without progress (live stream, no duration yet): row alone centered at y=91
+    hasPortraitProgress = (m.infoEnabled and not isLandscape and m.duration > 0)
+    portraitRowY = 132
+    if not hasPortraitProgress then portraitRowY = 91
+
+    m.portraitRatingIcon.translation = [90, portraitRowY]
+    m.portraitNowPlayingPrefix.translation = [90, portraitRowY]
+    portraitTitleX = 90 + portraitRatingWidth + 20
+    m.portraitNowPlayingTitle.translation = [portraitTitleX, portraitRowY]
+    m.portraitNowPlayingTitle.width = 780 - portraitTitleX
+    m.portraitNowPlayingTitle.horizAlign = "left"
+    yearX = m.portraitNowPlayingYear.translation[0]
+    m.portraitNowPlayingYear.translation = [yearX, portraitRowY]
+    clockX = m.portraitClockLabel.translation[0]
+    m.portraitClockLabel.translation = [clockX, portraitRowY]
+    ' Clock only renders alongside the now-playing row, so when nothing is
+    ' playing the message label can sit cleanly centered without a stray clock
+    ' on the right pulling the eye off-center.
+    m.portraitClockLabel.visible = m.portraitChrome.visible and m.isPlaying
+
+    ' Settings button (60 tall) sits centered on the row (48 tall): rowY + (48-60)/2 = rowY - 6
+    settingsY = portraitRowY - 6
+    m.portraitSettingsButton.translation = [m.portraitSettingsButton.translation[0], settingsY]
+    m.portraitSettingsButtonBg.translation = [m.portraitSettingsButtonBg.translation[0], settingsY]
+
+    if chromeVisible then updateClock()
 
     ' Marquee + progress
     m.titleMarquee.visible = marqueeVisible
@@ -630,6 +2375,16 @@ sub updateInfoVisibility()
 
     ' Episode thumbnail (TV episodes in landscape mode when info is on)
     m.episodePosterGroup.visible = m.infoEnabled and isLandscape and m.hasEpisodePoster
+
+    ' App logo — only when info is showing in landscape, hidden when border or Settings would overlap
+    m.appLogo.visible = chromeVisible and isLandscape and not m.borderEnabled and not needsSetup
+
+    ' Re-pin the year label to the title's right edge any time chrome layout
+    ' changes. The boundingRect observer also fires when the title text
+    ' actually changes, so this is the belt-and-suspenders path that catches
+    ' translation/width changes that don't trigger a re-render of the text.
+    positionYearLabel()
+    positionPortraitYearLabel()
 end sub
 
 function formatTime(ms as Integer) as String
@@ -637,11 +2392,11 @@ function formatTime(ms as Integer) as String
     h = Int(totalSec / 3600)
     mins = Int((totalSec mod 3600) / 60)
     secs = totalSec mod 60
-    if h > 0 then return Stri(h) + ":" + padTwo(mins) + ":" + padTwo(secs)
-    return Stri(mins) + ":" + padTwo(secs)
+    return padTwo(h) + ":" + padTwo(mins) + ":" + padTwo(secs)
 end function
 
 function padTwo(n as Integer) as String
-    if n < 10 then return "0" + Stri(n)
-    return Stri(n)
+    s = n.ToStr()
+    if n < 10 then return "0" + s
+    return s
 end function

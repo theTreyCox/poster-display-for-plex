@@ -17,6 +17,17 @@
             opacity="0.18"
             visible="false" />
 
+        <!-- Optional black matte rendered behind the portrait poster (no-theater-frame
+             modes only). Four rects so each side can be individually hidden — when info
+             is on, the viewer-bottom side hides because the chrome strip already provides
+             that black band. Geometry set in BRS to follow the poster's rotation + center. -->
+        <Group id="portraitPosterBorderGroup" visible="false">
+            <Rectangle id="portraitPosterBorderTop" color="0x000000FF" />
+            <Rectangle id="portraitPosterBorderBottom" color="0x000000FF" />
+            <Rectangle id="portraitPosterBorderLeft" color="0x000000FF" />
+            <Rectangle id="portraitPosterBorderRight" color="0x000000FF" />
+        </Group>
+
         <Poster
             id="poster"
             width="1920"
@@ -42,77 +53,122 @@
             visible="false"
             loadDisplayMode="scaleToFill" />
 
-        <!-- =============== LANDSCAPE CHROME =============== -->
+        <!-- =============== LANDSCAPE INFO STRIP (left side, vertical) ===============
+             400px-wide solid-black strip pinned to the left of the screen. Mirrors
+             the metadata strip on the right. Stacks (top to bottom): rating icon,
+             title, year, then later in the strip: clock, time row, progress bar. -->
         <Group id="landscapeChrome">
-            <!-- Progress bar (above status) -->
-            <Group id="progressGroup" visible="false" translation="[110, 850]">
-                <Rectangle width="1700" height="80" color="0x000000DD" />
-                <Label
-                    id="currentTimeLabel"
-                    translation="[20, 16]"
-                    width="200"
-                    height="32"
-                    text="0:00"
-                    color="0xFFFFFFFF"
-                    horizAlign="left"
-                    vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="28" />
-                </Label>
-                <Label
-                    id="totalTimeLabel"
-                    translation="[1480, 16]"
-                    width="200"
-                    height="32"
-                    text="0:00"
-                    color="0xFFFFFFFF"
-                    horizAlign="right"
-                    vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="28" />
-                </Label>
-                <Rectangle translation="[20, 60]" width="1660" height="10" color="0x666666FF" />
-                <Rectangle id="progressBarFill" translation="[20, 60]" width="1" height="10" color="0xFFA500FF" />
-            </Group>
+            <Rectangle id="overlay" width="400" height="1080" color="0x000000FF" />
 
-            <!-- Status strip (NOW PLAYING + title OR single message) -->
-            <Rectangle id="overlay" width="1700" height="80" translation="[110, 940]" color="0x000000DD" />
-            <Label
-                id="messageLabel"
-                translation="[130, 952]"
-                width="1660"
-                height="56"
-                text="Waiting for Plex"
-                color="0xFFFFFFFF"
-                horizAlign="left"
-                vertAlign="center">
-                <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="32" />
-            </Label>
+            <!-- Rating icon (top, centered horizontally) -->
+            <Poster
+                id="ratingIcon"
+                visible="false"
+                translation="[170, 50]"
+                width="60"
+                height="60"
+                opacity="0.9"
+                loadDisplayMode="scaleToFit" />
+            <!-- Text rating prefix (used only when no PNG icon is available) -->
             <Label
                 id="nowPlayingPrefix"
                 visible="false"
-                translation="[130, 952]"
-                width="280"
-                height="56"
-                text="NOW PLAYING:"
-                color="0xE0A030FF"
-                horizAlign="left"
-                vertAlign="center">
-                <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="32" />
-            </Label>
+                translation="[20, 50]"
+                width="360"
+                height="60"
+                text=""
+                color="0xFFFFFFCC"
+                horizAlign="center"
+                vertAlign="center"
+                font="font:LargeBoldSystemFont" />
+
+            <!-- Title (wraps; centered in strip) -->
             <Label
                 id="nowPlayingTitle"
                 visible="false"
-                translation="[420, 952]"
-                width="1370"
-                height="56"
+                translation="[20, 140]"
+                width="360"
+                height="180"
                 text=""
                 color="0xFFFFFFFF"
-                horizAlign="left"
-                vertAlign="center"
-                wrap="false">
-                <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="32" />
+                horizAlign="center"
+                vertAlign="top"
+                wrap="true">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="36" />
             </Label>
 
-            <!-- Settings icon (top-right) -->
+            <!-- Year (below title) -->
+            <Label
+                id="nowPlayingYear"
+                visible="false"
+                translation="[20, 340]"
+                width="360"
+                height="44"
+                text=""
+                color="0xFFFFFFCC"
+                horizAlign="center"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="36" />
+            </Label>
+
+            <!-- "Waiting for Plex" / setup prompt (replaces title row when not playing) -->
+            <Label
+                id="messageLabel"
+                translation="[20, 460]"
+                width="360"
+                height="160"
+                text="Waiting for Plex"
+                color="0xFFFFFFFF"
+                horizAlign="center"
+                vertAlign="center"
+                wrap="true">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="32" />
+            </Label>
+
+            <!-- Clock (large, centered, lower portion of strip) -->
+            <Label
+                id="clockLabel"
+                translation="[20, 700]"
+                width="360"
+                height="80"
+                text=""
+                color="0xFFFFFFFF"
+                horizAlign="center"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="72" />
+            </Label>
+
+            <!-- Progress: current time on left, total on right, bar below -->
+            <Group id="progressGroup" visible="false" translation="[20, 820]">
+                <Label
+                    id="currentTimeLabel"
+                    translation="[0, 0]"
+                    width="170"
+                    height="40"
+                    text="0:00:00"
+                    color="0xFFFFFFFF"
+                    horizAlign="left"
+                    vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="30" />
+                </Label>
+                <Label
+                    id="totalTimeLabel"
+                    translation="[190, 0]"
+                    width="170"
+                    height="40"
+                    text="0:00:00"
+                    color="0xFFFFFFFF"
+                    horizAlign="right"
+                    vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="30" />
+                </Label>
+                <Rectangle translation="[0, 50]" width="360" height="8" color="0x666666FF" />
+                <Rectangle id="progressBarFill" translation="[0, 50]" width="1" height="8" color="0xFFA500FF" />
+            </Group>
+
+            <!-- Settings icon (still pinned to the screen's top-right corner) -->
             <Rectangle width="60" height="60" translation="[1840, 20]" color="0x000000FF" />
             <Button
                 id="settingsButton"
@@ -123,96 +179,253 @@
                 textColor="0xFFD700FF"
                 focusedTextColor="0xFFEE00FF"
                 showFocusFootprint="false">
-                <Font role="textFont" uri="pkg:/fonts/Roboto-Bold.ttf" size="36" />
+                <Font role="textFont" uri="pkg:/fonts/Oswald-Bold.ttf" size="36" />
             </Button>
         </Group>
 
         <!-- =============== PORTRAIT CHROME (rotated) =============== -->
-        <Group id="portraitChrome" visible="false" translation="[1280, 440]"
-               rotation="1.5707963" scaleRotateCenter="[540, 100]">
-            <!-- 1080x200 pre-rotation; becomes 200x1080 buffer-left strip; viewer sees as bottom 200 of vertical screen -->
-            <Rectangle width="1080" height="200" color="0x000000DD" />
+        <Group id="portraitChrome" visible="false" translation="[1265, 425]"
+               rotation="1.5707963" scaleRotateCenter="[540, 115]">
+            <!-- 1080x230 pre-rotation; becomes 230x1080 buffer-edge strip; viewer sees as bottom 230 of vertical screen -->
+            <Rectangle width="1080" height="230" color="0x000000FF" />
 
-            <!-- Progress bar (top of strip in viewer) -->
-            <Group id="portraitProgressGroup" visible="false" translation="[0, 10]">
+            <!-- Progress bar (top of strip in viewer). Layout:
+                 [current] [ bar ] [total]   plus a sibling clock label below. -->
+            <Group id="portraitProgressGroup" visible="false" translation="[0, 50]">
                 <Label
                     id="portraitCurrentTimeLabel"
-                    translation="[20, 0]"
-                    width="120"
+                    translation="[90, 0]"
+                    width="90"
                     height="32"
                     text="0:00"
                     color="0xFFFFFFFF"
                     horizAlign="left"
                     vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="24" />
+                    <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="28" />
                 </Label>
+                <Rectangle translation="[200, 12]" width="690" height="8" color="0x666666FF" />
+                <Rectangle id="portraitProgressBarFill" translation="[200, 12]" width="1" height="8" color="0xFFA500FF" />
                 <Label
                     id="portraitTotalTimeLabel"
-                    translation="[940, 0]"
-                    width="120"
+                    translation="[900, 0]"
+                    width="90"
                     height="32"
                     text="0:00"
                     color="0xFFFFFFFF"
                     horizAlign="right"
                     vertAlign="center">
-                    <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="24" />
+                    <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="28" />
                 </Label>
-                <Rectangle translation="[150, 12]" width="780" height="8" color="0x666666FF" />
-                <Rectangle id="portraitProgressBarFill" translation="[150, 12]" width="1" height="8" color="0xFFA500FF" />
             </Group>
 
-            <!-- Status (bottom of strip in viewer) -->
+            <!-- Status (centered in strip when shown alone). When playing+info, the
+                 now-playing row + clock sit at y=132 (vertically centered as a group
+                 with the progress bar above); the message label hides. -->
             <Label
                 id="portraitMessageLabel"
-                translation="[20, 80]"
+                translation="[20, 91]"
                 width="1040"
                 height="48"
                 text="Waiting for Plex"
                 color="0xFFFFFFFF"
-                horizAlign="left"
+                horizAlign="center"
                 vertAlign="center">
-                <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="26" />
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="32" />
             </Label>
             <Label
                 id="portraitNowPlayingPrefix"
                 visible="false"
-                translation="[20, 80]"
-                width="240"
+                translation="[20, 132]"
+                width="120"
                 height="48"
-                text="NOW PLAYING:"
-                color="0xE0A030FF"
+                text=""
+                color="0xFFFFFFCC"
                 horizAlign="left"
                 vertAlign="center">
-                <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="26" />
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="32" />
             </Label>
+            <Poster
+                id="portraitRatingIcon"
+                visible="false"
+                translation="[20, 132]"
+                width="72"
+                height="48"
+                opacity="0.85"
+                loadDisplayMode="scaleToFit" />
             <Label
                 id="portraitNowPlayingTitle"
                 visible="false"
-                translation="[270, 80]"
-                width="720"
+                translation="[150, 132]"
+                width="640"
                 height="48"
                 text=""
                 color="0xFFFFFFFF"
                 horizAlign="left"
                 vertAlign="center"
                 wrap="false">
-                <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="26" />
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="32" />
+            </Label>
+            <Label
+                id="portraitNowPlayingYear"
+                visible="false"
+                translation="[150, 132]"
+                width="160"
+                height="48"
+                text=""
+                color="0xFFFFFFCC"
+                horizAlign="left"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="28" />
+            </Label>
+            <Label
+                id="portraitClockLabel"
+                translation="[790, 132]"
+                width="200"
+                height="48"
+                text=""
+                color="0xFFFFFFFF"
+                horizAlign="right"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="32" />
             </Label>
 
             <!-- Settings icon (right side of strip in viewer) -->
-            <Rectangle width="60" height="60" translation="[1010, 75]" color="0x000000FF" />
+            <Rectangle id="portraitSettingsButtonBg" width="60" height="60" translation="[1010, 126]" color="0x000000FF" />
             <Button
                 id="portraitSettingsButton"
-                translation="[1010, 75]"
+                translation="[1010, 126]"
                 minWidth="60"
                 height="60"
                 text="≡"
                 textColor="0xFFD700FF"
                 focusedTextColor="0xFFEE00FF"
                 showFocusFootprint="false">
-                <Font role="textFont" uri="pkg:/fonts/Roboto-Bold.ttf" size="36" />
+                <Font role="textFont" uri="pkg:/fonts/Oswald-Bold.ttf" size="36" />
             </Button>
         </Group>
+
+        <!-- =============== CONTROLS GUIDE (Left button) ===============
+             A button reference overlay. The dim background is full-screen and
+             never rotates (the buffer is always 1920×1080). The inner panel is
+             centered on the screen and rotates ±90° in portrait modes so it
+             reads upright regardless of TV mount. Sized to fit inside both
+             orientations when rotated about the screen center. -->
+        <Group id="controlsGuide" visible="false">
+            <Rectangle width="1920" height="1080" color="0x000000F2" />
+            <Group id="controlsGuidePanel" scaleRotateCenter="[960, 540]">
+                <Rectangle translation="[460, 120]" width="1000" height="840" color="0x1A1A1AFF" />
+                <Label
+                    id="controlsGuideTitle"
+                    translation="[460, 150]" width="1000" height="60"
+                    text="CONTROLS" color="0xE0A030FF"
+                    horizAlign="center" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="48" />
+                </Label>
+
+                <!-- Rows: button (left col, amber, right-aligned) | action (right col, white) -->
+                <Label translation="[510, 270]" width="390" height="40" text="OK"
+                       color="0xE0A030FF" horizAlign="right" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="32" />
+                </Label>
+                <Label translation="[940, 270]" width="470" height="40" text="View full details"
+                       color="0xFFFFFFFF" horizAlign="left" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="30" />
+                </Label>
+
+                <Label translation="[510, 330]" width="390" height="40" text="UP / PLAY"
+                       color="0xE0A030FF" horizAlign="right" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="32" />
+                </Label>
+                <Label translation="[940, 330]" width="470" height="40" text="Cycle view mode"
+                       color="0xFFFFFFFF" horizAlign="left" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="30" />
+                </Label>
+
+                <Label translation="[510, 390]" width="390" height="40" text="DOWN"
+                       color="0xE0A030FF" horizAlign="right" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="32" />
+                </Label>
+                <Label translation="[940, 390]" width="470" height="40" text="Toggle Now Playing frame"
+                       color="0xFFFFFFFF" horizAlign="left" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="30" />
+                </Label>
+
+                <Label translation="[510, 450]" width="390" height="40" text="RIGHT"
+                       color="0xE0A030FF" horizAlign="right" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="32" />
+                </Label>
+                <Label translation="[940, 450]" width="470" height="40" text="Toggle info bar"
+                       color="0xFFFFFFFF" horizAlign="left" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="30" />
+                </Label>
+
+                <Label translation="[510, 510]" width="390" height="40" text="LEFT"
+                       color="0xE0A030FF" horizAlign="right" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="32" />
+                </Label>
+                <Label translation="[940, 510]" width="470" height="40" text="Show this guide"
+                       color="0xFFFFFFFF" horizAlign="left" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="30" />
+                </Label>
+
+                <Label translation="[510, 570]" width="390" height="40" text="OPTIONS ( * )"
+                       color="0xE0A030FF" horizAlign="right" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="32" />
+                </Label>
+                <Label translation="[940, 570]" width="470" height="40" text="Open settings"
+                       color="0xFFFFFFFF" horizAlign="left" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="30" />
+                </Label>
+
+                <Label translation="[510, 630]" width="390" height="40" text="REWIND"
+                       color="0xE0A030FF" horizAlign="right" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="32" />
+                </Label>
+                <Label translation="[940, 630]" width="470" height="40" text="Toggle carousel mode"
+                       color="0xFFFFFFFF" horizAlign="left" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="30" />
+                </Label>
+
+                <Label translation="[510, 690]" width="390" height="40" text="PLAY"
+                       color="0xE0A030FF" horizAlign="right" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="32" />
+                </Label>
+                <Label translation="[940, 690]" width="470" height="40" text="Pause carousel *"
+                       color="0xFFFFFFFF" horizAlign="left" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="30" />
+                </Label>
+
+                <Label translation="[510, 750]" width="390" height="40" text="FORWARD"
+                       color="0xE0A030FF" horizAlign="right" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="32" />
+                </Label>
+                <Label translation="[940, 750]" width="470" height="40" text="Next poster *"
+                       color="0xFFFFFFFF" horizAlign="left" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="30" />
+                </Label>
+
+                <Label translation="[460, 820]" width="1000" height="36" text="* in carousel mode"
+                       color="0x9A9A9AFF" horizAlign="center" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="24" />
+                </Label>
+                <Label translation="[460, 890]" width="1000" height="40" text="Press BACK or LEFT to close"
+                       color="0x5A5A5AFF" horizAlign="center" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="22" />
+                </Label>
+            </Group>
+        </Group>
+
+        <!-- App logo (landscape only, shown alongside info overlay) -->
+        <Poster
+            id="appLogo"
+            uri="pkg:/images/logo-square.png"
+            width="80"
+            height="80"
+            translation="[1820, 20]"
+            loadDisplayMode="scaleToFit"
+            visible="false" />
 
         <!-- Episode thumbnail overlay (TV episodes only, landscape modes) -->
         <Group id="episodePosterGroup" visible="false" translation="[40, 40]">
@@ -242,6 +455,505 @@
             </Label>
         </Group>
 
+        <!-- Blocked-ratings overlay (custom, full-screen, dimmed background) -->
+        <Group id="blockedRatingsOverlay" visible="false">
+            <Rectangle width="1920" height="1080" color="0x000000EE" />
+            <Rectangle width="900" height="850" translation="[510, 115]" color="0x1A1A1AFF" />
+            <Label
+                translation="[540, 140]"
+                width="840"
+                height="50"
+                text="CAROUSEL: BLOCKED RATINGS"
+                color="0xE0A030FF"
+                horizAlign="left"
+                vertAlign="center">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="34" />
+            </Label>
+            <Label
+                translation="[540, 200]"
+                width="840"
+                height="80"
+                text="Press OK to toggle each rating. Items with these ratings will be skipped in the random carousel. Press BACK to save and close."
+                color="0xCCCCCCFF"
+                horizAlign="left"
+                vertAlign="top"
+                wrap="true">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="22" />
+            </Label>
+            <CheckList
+                id="blockedRatingsCheckList"
+                translation="[540, 320]"
+                itemSize="[840, 50]"
+                numRows="10" />
+        </Group>
+
+        <!-- Plex sign-in overlay (plex.tv/link PIN flow). Shown after the user
+             picks "Sign in with Plex" until they enter the code on plex.tv/link
+             or press Back to cancel. -->
+        <Group id="plexSignInOverlay" visible="false">
+            <Rectangle width="1920" height="1080" color="0x000000F2" />
+            <Rectangle width="1100" height="780" translation="[410, 150]" color="0x1A1A1AFF" />
+            <Label
+                translation="[440, 200]"
+                width="1040"
+                height="56"
+                text="SIGN IN WITH PLEX"
+                color="0xE0A030FF"
+                horizAlign="center"
+                vertAlign="center">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="42" />
+            </Label>
+            <Label
+                translation="[440, 280]"
+                width="1040"
+                height="44"
+                text="On a phone or computer, go to:"
+                color="0xCCCCCCFF"
+                horizAlign="center"
+                vertAlign="center">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="28" />
+            </Label>
+            <Label
+                translation="[440, 330]"
+                width="1040"
+                height="60"
+                text="plex.tv/link"
+                color="0xFFFFFFFF"
+                horizAlign="center"
+                vertAlign="center">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="50" />
+            </Label>
+            <Label
+                translation="[440, 420]"
+                width="1040"
+                height="44"
+                text="and enter this code:"
+                color="0xCCCCCCFF"
+                horizAlign="center"
+                vertAlign="center">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="28" />
+            </Label>
+            <Label
+                id="plexSignInCodeLabel"
+                translation="[440, 480]"
+                width="1040"
+                height="160"
+                text=""
+                color="0xFFD700FF"
+                horizAlign="center"
+                vertAlign="center">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="140" />
+            </Label>
+            <Label
+                id="plexSignInStatusLabel"
+                translation="[440, 680]"
+                width="1040"
+                height="44"
+                text="Waiting for authorization..."
+                color="0x9A9A9AFF"
+                horizAlign="center"
+                vertAlign="center">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="24" />
+            </Label>
+            <Label
+                translation="[440, 850]"
+                width="1040"
+                height="44"
+                text="Press BACK to cancel"
+                color="0x5A5A5AFF"
+                horizAlign="center"
+                vertAlign="center">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="20" />
+            </Label>
+        </Group>
+
+        <!-- Expanded description ("Read more"). Full-screen modal opened with OK
+             while the metadata overlay is visible. Pauses the carousel while open;
+             Back closes it. -->
+        <Group id="expandedDescription" visible="false">
+            <Rectangle width="1920" height="1080" color="0x000000FF" />
+            <!-- Subtle blurred-poster backdrop — URI is set to the current
+                 backgroundPoster URI when the modal opens. Low opacity layers
+                 the artwork over the black for a soft, themed feel. -->
+            <Poster
+                id="expandedBackdrop"
+                width="1920"
+                height="1080"
+                translation="[0, 0]"
+                opacity="0.035"
+                loadDisplayMode="scaleToFit" />
+            <Label
+                id="expandedTitle"
+                translation="[60, 50]"
+                width="1800"
+                height="100"
+                text=""
+                color="0xFFFFFFFF"
+                horizAlign="center"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="76" />
+            </Label>
+            <!-- Tagline / slogan — BebasNeue, accent color, wraps if long -->
+            <Label
+                id="expandedTagline"
+                translation="[60, 175]"
+                width="1800"
+                height="80"
+                text=""
+                color="0xFFA500FF"
+                horizAlign="center"
+                vertAlign="top"
+                wrap="true">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="38" />
+            </Label>
+
+            <!-- Stat Box: white-outlined rectangle holding year/rating/runtime/
+                 genres. Children built + positioned in BRS using estimated text
+                 widths for reliable centering. Group's translation is the box's
+                 center; children placed relative to that origin. -->
+            <Rectangle translation="[60, 255]" width="1800" height="2" color="0xFFFFFFFF" />
+            <Rectangle translation="[60, 333]" width="1800" height="2" color="0xFFFFFFFF" />
+            <Rectangle translation="[60, 255]" width="2" height="80" color="0xFFFFFFFF" />
+            <Rectangle translation="[1858, 255]" width="2" height="80" color="0xFFFFFFFF" />
+            <Group
+                id="expandedStatsGroup"
+                translation="[960, 295]" />
+
+            <!-- Credit lines: BebasNeue accent label (right-aligned in a narrow
+                 cell so the value sits close) + LayoutGroup of white name
+                 segments separated by accent-color "·" dots (built in BRS so the
+                 dots can be colored independently). Row delta 46px. Value Y is
+                 offset +5px from the label Y because BebasNeue caps visually
+                 center higher in their cell than SmallestSystemFont x-height. -->
+            <Label id="expandedDirectorLabel"
+                   translation="[60, 388]" width="160" height="32" text="DIRECTOR"
+                   color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
+            </Label>
+            <LayoutGroup id="expandedDirectorValue"
+                         translation="[240, 403]" layoutDirection="horiz"
+                         horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
+            <Label id="expandedWriterLabel"
+                   translation="[60, 434]" width="160" height="32" text="WRITER"
+                   color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
+            </Label>
+            <LayoutGroup id="expandedWriterValue"
+                         translation="[240, 449]" layoutDirection="horiz"
+                         horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
+            <Label id="expandedCastLabel"
+                   translation="[60, 480]" width="160" height="32" text="STARRING"
+                   color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
+            </Label>
+            <LayoutGroup id="expandedCastValue"
+                         translation="[240, 495]" layoutDirection="horiz"
+                         horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
+            <Label id="expandedStudioLabel"
+                   translation="[60, 526]" width="160" height="32" text="STUDIO"
+                   color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
+            </Label>
+            <LayoutGroup id="expandedStudioValue"
+                         translation="[240, 541]" layoutDirection="horiz"
+                         horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
+            <Label id="expandedReleasedLabel"
+                   translation="[60, 572]" width="160" height="32" text="RELEASED"
+                   color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
+            </Label>
+            <LayoutGroup id="expandedReleasedValue"
+                         translation="[240, 587]" layoutDirection="horiz"
+                         horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
+
+            <!-- Horizontal separator between credits and description -->
+            <Rectangle translation="[60, 640]" width="1800" height="2" color="0x80808066" />
+
+            <!-- Summary / description (smaller body font). Equal breathing room
+                 above (credits→divider ≈ 36px) and below (divider→summary ≈ 38px). -->
+            <Label
+                id="expandedSummary"
+                translation="[60, 680]"
+                width="1800"
+                height="120"
+                text=""
+                color="0xE5E5E5FF"
+                horizAlign="left"
+                vertAlign="top"
+                lineSpacing="8"
+                font="font:SmallestSystemFont"
+                wrap="true" />
+
+            <!-- ===== Ratings: 4 bordered boxes spanning the row from 60px outer
+                 padding to 60px outer padding. Each box w=435 h=180 with ~40px
+                 top + bottom internal padding around the title/value content. ===== -->
+            <!-- PLEX -->
+            <Group translation="[60, 815]">
+                <Rectangle translation="[0, 0]" width="435" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 178]" width="435" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Rectangle translation="[433, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Label translation="[0, 40]" width="435" height="30" text="PLEX"
+                       color="0xFFFFFFFF" horizAlign="center" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="28" />
+                </Label>
+                <Rectangle id="ratingPlexUnderline" translation="[197, 78]" width="40" height="3" color="0xFFA500FF" />
+                <Label id="ratingPlexValue" translation="[0, 85]" width="435" height="58" text="N/A"
+                       color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="43" />
+                </Label>
+            </Group>
+            <!-- IMDB -->
+            <Group translation="[515, 815]">
+                <Rectangle translation="[0, 0]" width="435" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 178]" width="435" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Rectangle translation="[433, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Label translation="[0, 40]" width="435" height="30" text="IMDB"
+                       color="0xFFFFFFFF" horizAlign="center" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="28" />
+                </Label>
+                <Rectangle id="ratingImdbUnderline" translation="[197, 78]" width="40" height="3" color="0xFFA500FF" />
+                <Label id="ratingImdbValue" translation="[0, 85]" width="435" height="58" text="N/A"
+                       color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="43" />
+                </Label>
+            </Group>
+            <!-- ROTTEN TOMATOES -->
+            <Group translation="[970, 815]">
+                <Rectangle translation="[0, 0]" width="435" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 178]" width="435" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Rectangle translation="[433, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Label translation="[0, 40]" width="435" height="30" text="ROTTEN TOMATOES"
+                       color="0xFFFFFFFF" horizAlign="center" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="28" />
+                </Label>
+                <Rectangle id="ratingRtUnderline" translation="[197, 78]" width="40" height="3" color="0xFFA500FF" />
+                <Label id="ratingRtValue" translation="[0, 85]" width="435" height="58" text="N/A"
+                       color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="43" />
+                </Label>
+            </Group>
+            <!-- METACRITIC -->
+            <Group translation="[1425, 815]">
+                <Rectangle translation="[0, 0]" width="435" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 178]" width="435" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Rectangle translation="[433, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Label translation="[0, 40]" width="435" height="30" text="METACRITIC"
+                       color="0xFFFFFFFF" horizAlign="center" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="28" />
+                </Label>
+                <Rectangle id="ratingMetaUnderline" translation="[197, 78]" width="40" height="3" color="0xFFA500FF" />
+                <Label id="ratingMetaValue" translation="[0, 85]" width="435" height="58" text="N/A"
+                       color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="43" />
+                </Label>
+            </Group>
+
+            <!-- Footer -->
+            <Label
+                translation="[60, 1020]"
+                width="1800"
+                height="40"
+                text="PRESS BACK TO CLOSE"
+                color="0x808080FF"
+                horizAlign="center"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="18" />
+            </Label>
+        </Group>
+
+        <!-- =============== PORTRAIT EXPANDED DESCRIPTION MODAL ===============
+             Mirror of the landscape modal but laid out in 1080-wide × 1920-tall
+             pre-rotation coords, then rotated 90° CW so it fills the buffer
+             with the correct orientation when the TV is mounted portrait.
+             Ratings reflow to a 2x2 grid since the narrower content area can't
+             fit 4 boxes in a single row. 60px gutter matches landscape. -->
+        <Group id="portraitExpandedDescription" visible="false"
+               translation="[420, -420]"
+               rotation="1.5707963"
+               scaleRotateCenter="[540, 960]">
+            <Rectangle width="1080" height="1920" color="0x000000FF" />
+            <Poster
+                id="portraitExpandedBackdrop"
+                width="1080"
+                height="1920"
+                translation="[0, 0]"
+                opacity="0.035"
+                loadDisplayMode="zoomToFill" />
+            <Label
+                id="portraitExpandedTitle"
+                translation="[60, 80]"
+                width="960"
+                height="120"
+                text=""
+                color="0xFFFFFFFF"
+                horizAlign="center"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="64" />
+            </Label>
+            <Label
+                id="portraitExpandedTagline"
+                translation="[60, 220]"
+                width="960"
+                height="80"
+                text=""
+                color="0xFFA500FF"
+                horizAlign="center"
+                vertAlign="top"
+                wrap="true">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="36" />
+            </Label>
+
+            <!-- Stat Box -->
+            <Rectangle translation="[60, 320]" width="960" height="2" color="0xFFFFFFFF" />
+            <Rectangle translation="[60, 398]" width="960" height="2" color="0xFFFFFFFF" />
+            <Rectangle translation="[60, 320]" width="2" height="80" color="0xFFFFFFFF" />
+            <Rectangle translation="[1018, 320]" width="2" height="80" color="0xFFFFFFFF" />
+            <Group
+                id="portraitExpandedStatsGroup"
+                translation="[540, 360]" />
+
+            <!-- Credits: 5 rows, delta 46. Value Y offset +15 to align with
+                 BebasNeue cap-center (matches landscape modal). -->
+            <Label id="portraitExpandedDirectorLabel"
+                   translation="[60, 460]" width="160" height="32" text="DIRECTOR"
+                   color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
+            </Label>
+            <LayoutGroup id="portraitExpandedDirectorValue"
+                         translation="[240, 475]" layoutDirection="horiz"
+                         horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
+            <Label id="portraitExpandedWriterLabel"
+                   translation="[60, 506]" width="160" height="32" text="WRITER"
+                   color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
+            </Label>
+            <LayoutGroup id="portraitExpandedWriterValue"
+                         translation="[240, 521]" layoutDirection="horiz"
+                         horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
+            <Label id="portraitExpandedCastLabel"
+                   translation="[60, 552]" width="160" height="32" text="STARRING"
+                   color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
+            </Label>
+            <LayoutGroup id="portraitExpandedCastValue"
+                         translation="[240, 567]" layoutDirection="horiz"
+                         horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
+            <Label id="portraitExpandedStudioLabel"
+                   translation="[60, 598]" width="160" height="32" text="STUDIO"
+                   color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
+            </Label>
+            <LayoutGroup id="portraitExpandedStudioValue"
+                         translation="[240, 613]" layoutDirection="horiz"
+                         horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
+            <Label id="portraitExpandedReleasedLabel"
+                   translation="[60, 644]" width="160" height="32" text="RELEASED"
+                   color="0xFFA500FF" horizAlign="right" vertAlign="center" wrap="false">
+                <Font role="font" uri="pkg:/fonts/BebasNeue-Regular.ttf" size="26" />
+            </Label>
+            <LayoutGroup id="portraitExpandedReleasedValue"
+                         translation="[240, 659]" layoutDirection="horiz"
+                         horizAlignment="left" vertAlignment="center" itemSpacings="[12]" />
+
+            <Rectangle translation="[60, 730]" width="960" height="2" color="0x80808066" />
+
+            <Label
+                id="portraitExpandedSummary"
+                translation="[60, 770]"
+                width="960"
+                height="380"
+                text=""
+                color="0xE5E5E5FF"
+                horizAlign="left"
+                vertAlign="top"
+                lineSpacing="8"
+                font="font:SmallestSystemFont"
+                wrap="true" />
+
+            <!-- Ratings: 2×2 grid. Box w=470 h=180, gap=20, outer=60. -->
+            <!-- Row 1: PLEX | IMDB -->
+            <Group translation="[60, 1200]">
+                <Rectangle translation="[0, 0]" width="470" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 178]" width="470" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Rectangle translation="[468, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Label translation="[0, 40]" width="470" height="30" text="PLEX"
+                       color="0xFFFFFFFF" horizAlign="center" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="28" />
+                </Label>
+                <Rectangle id="portraitRatingPlexUnderline" translation="[215, 78]" width="40" height="3" color="0xFFA500FF" />
+                <Label id="portraitRatingPlexValue" translation="[0, 85]" width="470" height="58" text="N/A"
+                       color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="43" />
+                </Label>
+            </Group>
+            <Group translation="[550, 1200]">
+                <Rectangle translation="[0, 0]" width="470" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 178]" width="470" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Rectangle translation="[468, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Label translation="[0, 40]" width="470" height="30" text="IMDB"
+                       color="0xFFFFFFFF" horizAlign="center" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="28" />
+                </Label>
+                <Rectangle id="portraitRatingImdbUnderline" translation="[215, 78]" width="40" height="3" color="0xFFA500FF" />
+                <Label id="portraitRatingImdbValue" translation="[0, 85]" width="470" height="58" text="N/A"
+                       color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="43" />
+                </Label>
+            </Group>
+            <!-- Row 2: ROTTEN TOMATOES | METACRITIC -->
+            <Group translation="[60, 1400]">
+                <Rectangle translation="[0, 0]" width="470" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 178]" width="470" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Rectangle translation="[468, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Label translation="[0, 40]" width="470" height="30" text="ROTTEN TOMATOES"
+                       color="0xFFFFFFFF" horizAlign="center" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="28" />
+                </Label>
+                <Rectangle id="portraitRatingRtUnderline" translation="[215, 78]" width="40" height="3" color="0xFFA500FF" />
+                <Label id="portraitRatingRtValue" translation="[0, 85]" width="470" height="58" text="N/A"
+                       color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="43" />
+                </Label>
+            </Group>
+            <Group translation="[550, 1400]">
+                <Rectangle translation="[0, 0]" width="470" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 178]" width="470" height="2" color="0xFFFFFFFF" />
+                <Rectangle translation="[0, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Rectangle translation="[468, 0]" width="2" height="180" color="0xFFFFFFFF" />
+                <Label translation="[0, 40]" width="470" height="30" text="METACRITIC"
+                       color="0xFFFFFFFF" horizAlign="center" vertAlign="center">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Medium.ttf" size="28" />
+                </Label>
+                <Rectangle id="portraitRatingMetaUnderline" translation="[215, 78]" width="40" height="3" color="0xFFA500FF" />
+                <Label id="portraitRatingMetaValue" translation="[0, 85]" width="470" height="58" text="N/A"
+                       color="0xFFA500FF" horizAlign="center" vertAlign="center" wrap="false">
+                    <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="43" />
+                </Label>
+            </Group>
+
+            <Label
+                translation="[60, 1850]"
+                width="960"
+                height="40"
+                text="PRESS BACK TO CLOSE"
+                color="0x808080FF"
+                horizAlign="center"
+                vertAlign="center"
+                wrap="false">
+                <Font role="font" uri="pkg:/fonts/Oswald-Bold.ttf" size="18" />
+            </Label>
+        </Group>
+
         <Group id="modeIndicator" visible="false" translation="[60,60]">
             <Rectangle width="800" height="80" color="0x000000DD" />
             <Label
@@ -258,7 +970,46 @@
 
         <Timer id="pollTimer" duration="15" repeat="true" />
         <Timer id="hideIndicatorTimer" duration="3" repeat="false" />
+        <Timer id="plexSignInPollTimer" duration="3" repeat="true" />
         <Timer id="tickTimer" duration="1" repeat="true" />
         <Timer id="carouselTimer" duration="30" repeat="true" />
+
+        <!-- Poster transition animations. The main poster's opacity (fade) and
+             translation (slide) are animated; URI swap happens in the BRS
+             handler between the "out" and "in" animations. -->
+        <Animation id="posterFadeOut" duration="0.3" easeFunction="linear">
+            <FloatFieldInterpolator
+                fieldToInterp="poster.opacity"
+                key="[0.0, 1.0]"
+                keyValue="[1.0, 0.0]" />
+            <FloatFieldInterpolator
+                fieldToInterp="backgroundPoster.opacity"
+                key="[0.0, 1.0]"
+                keyValue="[0.18, 0.0]" />
+        </Animation>
+        <Animation id="posterFadeIn" duration="0.3" easeFunction="linear">
+            <FloatFieldInterpolator
+                fieldToInterp="poster.opacity"
+                key="[0.0, 1.0]"
+                keyValue="[0.0, 1.0]" />
+            <FloatFieldInterpolator
+                fieldToInterp="backgroundPoster.opacity"
+                key="[0.0, 1.0]"
+                keyValue="[0.0, 0.18]" />
+        </Animation>
+        <Animation id="posterSlideOut" duration="0.4" easeFunction="inQuad">
+            <Vector2DFieldInterpolator
+                id="posterSlideOutInterp"
+                fieldToInterp="poster.translation"
+                key="[0.0, 1.0]"
+                keyValue="[[0,0], [-2000,0]]" />
+        </Animation>
+        <Animation id="posterSlideIn" duration="0.4" easeFunction="outQuad">
+            <Vector2DFieldInterpolator
+                id="posterSlideInInterp"
+                fieldToInterp="poster.translation"
+                key="[0.0, 1.0]"
+                keyValue="[[2000,0], [0,0]]" />
+        </Animation>
     </children>
 </component>

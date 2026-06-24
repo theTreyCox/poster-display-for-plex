@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="PlexDiscoveryTask" extends="Task">
+    <script type="text/brightscript" uri="pkg:/components/PlexDiscoveryTask.brs" />
+    <interface>
+        <field id="servers" type="array" alwaysNotify="true" />
+    </interface>
+</component>

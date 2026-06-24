@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="BorderCutoutTask" extends="Task">
+    <script type="text/brightscript" uri="pkg:/components/BorderCutoutTask.brs" />
+    <interface>
+        <!-- Array of pkg:/ URIs to inspect. -->
+        <field id="uris" type="array" />
+        <!-- Array of associative arrays { uri, x, y, w, h } per input, in order.
+             w/h = -1 if detection failed (no transparent pixels or load error). -->
+        <field id="result" type="array" alwaysNotify="true" />
+    </interface>
+</component>

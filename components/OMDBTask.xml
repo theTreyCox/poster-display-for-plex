@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="OMDBTask" extends="Task">
+    <script type="text/brightscript" uri="pkg:/components/OMDBTask.brs" />
+    <interface>
+        <field id="apiKey" type="string" />
+        <!-- Preferred lookup key when available -->
+        <field id="imdbId" type="string" />
+        <!-- Title + year fallback when imdbId is empty (Plex library responses
+             often omit the imdb:// Guid elements) -->
+        <field id="title" type="string" />
+        <field id="year" type="string" />
+        <!-- { ok, imdbRating, rottenTomatoes, metacritic, awards, error }
+             Always set so the observer always fires. -->
+        <field id="result" type="assocarray" alwaysNotify="true" />
+    </interface>
+</component>
